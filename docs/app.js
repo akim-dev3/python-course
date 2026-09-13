@@ -5,6 +5,7 @@ import { Runtime } from "./runtime.js";
 import { store } from "./storage.js";
 import { createEditor } from "./editor.js";
 import { buildFile, downloadText, basename } from "./download.js";
+import { makeZip, downloadBlob } from "./zip.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s).replace(/[&<>"']/g,
@@ -139,9 +140,22 @@ function viewMap() {
   const totalDone = CONTENT.lessons.reduce((s, l) => s + lessonProgress(l).done, 0);
   const totalAll = CONTENT.lessons.reduce((s, l) => s + lessonProgress(l).total, 0);
 
+  const unsaved = CONTENT.lessons
+    .flatMap((l) => l.tasks)
+    .filter((t) => store.isUnsaved(t.id)).length;
+
   render(`<h1>Курс Python</h1>
     <p class="muted">Решено ${totalDone} из ${totalAll} задач. Код исполняется прямо в браузере.</p>
-    <div class="modules" style="margin-top:20px">${modules}</div>`);
+    ${unsaved ? `<div class="banner banner--warn" style="margin-top:14px">
+      Решено в браузере, но ещё не выгружено в файлы курса: <b>${unsaved}</b>.
+      Прогресс живёт в localStorage — чистка браузера его сотрёт.</div>` : ""}
+    <div class="modules" style="margin-top:20px">${modules}</div>
+    <div class="task-nav">
+      <span></span>
+      <button class="btn" id="dl-all">Скачать все файлы курса (.zip)</button>
+    </div>`);
+
+  $("#dl-all").onclick = downloadAll;
 }
 
 function viewLesson(lesson) {
@@ -389,6 +403,25 @@ function downloadLesson(lesson) {
   store.markDownloaded(ids);
   toast(`Скачан ${basename(lesson.source_file)} — положите его в python_course/${
     lesson.source_file.includes("/") ? lesson.source_file.split("/").slice(0, -1).join("/") + "/" : ""}`);
+}
+
+/** Весь курс одним архивом — пути сохранены, распаковывается поверх python_course/. */
+function downloadAll() {
+  const files = [];
+  const ids = [];
+  for (const lesson of CONTENT.lessons) {
+    const codeMap = {};
+    for (const t of lesson.tasks) {
+      if (store.hasCode(t.id)) {
+        codeMap[t.id] = store.getCode(t.id);
+        ids.push(t.id);
+      }
+    }
+    files.push({ name: lesson.source_file, text: buildFile(lesson, codeMap) });
+  }
+  downloadBlob("python_course-solutions.zip", makeZip(files));
+  store.markDownloaded(ids);
+  toast(`Архив собран: ${files.length} файлов. Распакуйте поверх папки python_course/.`);
 }
 
 let toastTimer = null;
