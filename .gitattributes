@@ -1,0 +1,7 @@
+# Все файлы курса на диске в LF. Без этого Git на Windows подставит CRLF
+# при checkout, и файл, скачанный с сайта (всегда LF), покажет diff в каждой строке.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.webp binary
