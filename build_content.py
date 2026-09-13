@@ -285,7 +285,10 @@ class _Refs(ast.NodeVisitor):
 
 def parse_check_file(path, lesson):
     """Один drill-файл в check-формате → (lesson_dict, список задач)."""
-    src = path.read_text(encoding="utf-8")      # явный utf-8: иначе Windows возьмёт cp1251
+    # encoding явный — иначе Windows возьмёт cp1251 и упадёт на кириллице.
+    # newline="" отключает трансляцию \r\n → \n: src должен содержать РОВНО то,
+    # что лежит в файле, иначе «побайтовая» реконструкция врёт на CRLF-файлах.
+    src = path.read_text(encoding="utf-8", newline="")
     lines = src.splitlines(keepends=True)
     tree = ast.parse(src, filename=str(path))
 
@@ -481,7 +484,9 @@ def main():
 
     DOCS.mkdir(exist_ok=True)
     out = DOCS / "content.json"
-    out.write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
+    # newline="" — иначе Windows подставит CRLF и файл будет расходиться с репо
+    out.write_text(json.dumps(payload, ensure_ascii=False, indent=1),
+                   encoding="utf-8", newline="")
     print(f"\nЗаписано: {out.relative_to(ROOT)} "
           f"({out.stat().st_size // 1024} КБ, {total} задач)")
     return 0
