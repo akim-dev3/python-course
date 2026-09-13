@@ -1,0 +1,1228 @@
+{
+ "schema": 1,
+ "generated_at": "2026-09-13T19:27:06+00:00",
+ "runtime": {
+  "pyodide_version": "314.0.6",
+  "index_url": "https://cdn.jsdelivr.net/pyodide/v314.0.6/full/",
+  "prefetch": [
+   {
+    "file": "pyodide.asm.wasm",
+    "bytes": 3438246
+   },
+   {
+    "file": "python_stdlib.zip",
+    "bytes": 2505338
+   }
+  ],
+  "timeout_ms": 5000,
+  "stdout_limit": 200000
+ },
+ "modules": [
+  {
+   "id": "diag",
+   "title": "Диагностика",
+   "subtitle": "Что осталось после паузы — Модули 1-4",
+   "lessons": [
+    "diag"
+   ],
+   "theory": []
+  },
+  {
+   "id": "m05",
+   "title": "Модуль 5 — Two Pointers и Sliding Window",
+   "subtitle": "Два указателя и скользящее окно",
+   "lessons": [
+    "m05-p2",
+    "m05-p3"
+   ],
+   "theory": []
+  },
+  {
+   "id": "m06",
+   "title": "Модуль 6 — Структуры данных",
+   "subtitle": "Stack, Queue, Linked List, Hashing",
+   "lessons": [
+    "m06-p1",
+    "m06-p2",
+    "m06-p3",
+    "m06-p4"
+   ],
+   "theory": []
+  }
+ ],
+ "theory": [],
+ "lessons": [
+  {
+   "id": "diag",
+   "module": "diag",
+   "title": "Диагностика после паузы",
+   "source_file": "diagnostic_check.py",
+   "intro_html": "<p>ДИАГНОСТИКА — что осталось после паузы (Модули 1-4)\nБез новой теории, без докстрок — тот же формат, что и в\nобычных drills. Решения не даны, пишешь сам.\nПравило перед каждой задачей:\n  # Вход: ... Выход: ... Паттерн: ...\nЕсли где-то ступор дольше 5-10 минут — не гугли, просто отметь\nи присылай как есть. Разберём по твоей реальной ошибке\n(диагностика → объяснение → код), не заранее.\nМодуль 5 (two pointers / sliding window) тут не дублируется —\nдля него drills/05_patterns/p2_sliding_window.py и\np3_mastery_check.py, они и так не были дорешаны.\ncheck(actual, expected) печатает OK/FAIL и НЕ останавливает\nфайл на первой ошибке — так видно все 8 результатов разом.</p>",
+   "prelude": "",
+   "segments": [
+    {
+     "t": "raw",
+     "text": "# ============================================================\n# ДИАГНОСТИКА — что осталось после паузы (Модули 1-4)\n#\n# Без новой теории, без докстрок — тот же формат, что и в\n# обычных drills. Решения не даны, пишешь сам.\n# Правило перед каждой задачей:\n#   # Вход: ... Выход: ... Паттерн: ...\n#\n# Если где-то ступор дольше 5-10 минут — не гугли, просто отметь\n# и присылай как есть. Разберём по твоей реальной ошибке\n# (диагностика → объяснение → код), не заранее.\n#\n# Модуль 5 (two pointers / sliding window) тут не дублируется —\n# для него drills/05_patterns/p2_sliding_window.py и\n# p3_mastery_check.py, они и так не были дорешаны.\n#\n# check(actual, expected) печатает OK/FAIL и НЕ останавливает\n# файл на первой ошибке — так видно все 8 результатов разом.\n# ============================================================\n\n\ndef check(actual, expected, label=\"\"):\n    status = \"OK  \" if actual == expected else \"FAIL\"\n    print(f\"{status} {label}: {actual!r} (ожидалось {expected!r})\")\n\n\n# ============================================================\n# МОДУЛЬ 1 — база (переменные, циклы, строки, функции)\n# ============================================================\n\n# ------------------------------------------------------------\n# 1. count_vowels(s) → int\n#\n# Сколько гласных букв (a, e, i, o, u) в строке. Регистр не важен.\n# count_vowels(\"Hello World\") → 3\n# count_vowels(\"sky\") → 0\n#\n# Паттерн: цикл for по строке + счётчик\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "diag/count_vowels",
+     "text": "def count_vowels(s):\n    counter = 0\n    vowels = 'aeiou'\n    for i in s:\n        if i.lower() in vowels:\n            counter += 1\n    return counter\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(count_vowels(\"Hello World\"), 3, \"count_vowels\")\ncheck(count_vowels(\"sky\"), 0, \"count_vowels\")\n\n\n# ------------------------------------------------------------\n# 2. is_palindrome(s) → bool\n#\n# Читается ли строка одинаково в обе стороны. Регистр не важен.\n# is_palindrome(\"Level\") → True\n# is_palindrome(\"hello\") → False\n#\n# Паттерн: сравни строку с её разворотом (s[::-1])\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "diag/is_palindrome",
+     "text": "def is_palindrome(s):\n    lower_s = s.lower()\n    return lower_s == lower_s[::-1]\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(is_palindrome(\"Level\"), True, \"is_palindrome\")\ncheck(is_palindrome(\"hello\"), False, \"is_palindrome\")\n\n\n# ============================================================\n# МОДУЛЬ 2 — коллекции (list, set)\n# ============================================================\n\n# ------------------------------------------------------------\n# 3. dedupe_preserve_order(lst) → list\n#\n# Убрать повторы, оставив только первое появление каждого\n# элемента. Порядок остальных элементов не менять.\n# dedupe_preserve_order([1, 2, 2, 3, 1, 4]) → [1, 2, 3, 4]\n# dedupe_preserve_order([\"a\", \"b\", \"a\"]) → [\"a\", \"b\"]\n#\n# Паттерн: seen: set — добавляй элемент в результат, только если\n# его ещё не было в seen (как first_duplicate из Модуля 4)\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "diag/dedupe_preserve_order",
+     "text": "def dedupe_preserve_order(lst):\n    seen = set()\n    result = []\n    for i in lst:\n        if i not in seen:\n            seen.add(i)\n            result.append(i)\n    return result\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(dedupe_preserve_order([1, 2, 2, 3, 1, 4]), [1, 2, 3, 4], \"dedupe_preserve_order\")\ncheck(dedupe_preserve_order([\"a\", \"b\", \"a\"]), [\"a\", \"b\"], \"dedupe_preserve_order\")\n\n\n# ------------------------------------------------------------\n# 4. flatten_once(nested) → list\n#\n# Развернуть список списков в один плоский список (на один\n# уровень вложенности).\n# flatten_once([[1, 2], [3], [4, 5, 6]]) → [1, 2, 3, 4, 5, 6]\n# flatten_once([[], [1], []]) → [1]\n#\n# Паттерн: цикл по внешнему списку, внутри — цикл по вложенному\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "diag/flatten_once",
+     "text": "def flatten_once(nested):\n    general_lst = []\n    for lst in nested:\n        for i in lst:\n            general_lst.append(i)\n    return general_lst\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(flatten_once([[1, 2], [3], [4, 5, 6]]), [1, 2, 3, 4, 5, 6], \"flatten_once\")\ncheck(flatten_once([[], [1], []]), [1], \"flatten_once\")\n\n\n# ============================================================\n# МОДУЛЬ 3 — dict (COUNT / GROUP BY)\n# ============================================================\n\n# ------------------------------------------------------------\n# 5. most_common_word(text) → str\n#\n# Самое частое слово в строке (слова разделены пробелами).\n# При равенстве — подойдёт любое из самых частых.\n# most_common_word(\"the cat sat on the mat the cat ran\") → \"the\"\n#\n# Паттерн: text.split() → COUNT через dict\n# (counts[word] = counts.get(word, 0) + 1) → max(dict, key=dict.get)\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "diag/most_common_word",
+     "text": "def most_common_word(text):\n    words = text.split()\n    counts = {}\n    for word in words:\n        counts[word] = counts.get(word, 0) + 1\n    return max(counts, key=counts.get)\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(most_common_word(\"the cat sat on the mat the cat ran\"), \"the\", \"most_common_word\")\n\n\n# ------------------------------------------------------------\n# 6. group_by_length(words) → dict\n#\n# Сгруппировать слова по длине: ключ — длина, значение — список\n# слов этой длины.\n# group_by_length([\"a\", \"bb\", \"cc\", \"ddd\", \"e\"])\n# → {1: [\"a\", \"e\"], 2: [\"bb\", \"cc\"], 3: [\"ddd\"]}\n#\n# Паттерн: GROUP BY — d.setdefault(key, []).append(word)\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "diag/group_by_length",
+     "text": "def group_by_length(words):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(\n    group_by_length([\"a\", \"bb\", \"cc\", \"ddd\", \"e\"]),\n    {1: [\"a\", \"e\"], 2: [\"bb\", \"cc\"], 3: [\"ddd\"]},\n    \"group_by_length\",\n)\n\n\n# ============================================================\n# МОДУЛЬ 4 — алгоритмическое мышление (рекурсия, бинарный поиск)\n# ============================================================\n\n# ------------------------------------------------------------\n# 7. factorial_recursive(n) → int\n#\n# Факториал ЧЕРЕЗ РЕКУРСИЮ (функция вызывает сама себя, не цикл).\n# factorial_recursive(5) → 120   (5*4*3*2*1)\n# factorial_recursive(0) → 1\n#\n# Паттерн: база рекурсии (n == 0 → return 1) + шаг\n# (return n * factorial_recursive(n - 1))\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "diag/factorial_recursive",
+     "text": "def factorial_recursive(n):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(factorial_recursive(5), 120, \"factorial_recursive\")\ncheck(factorial_recursive(0), 1, \"factorial_recursive\")\n\n\n# ------------------------------------------------------------\n# 8. binary_search(sorted_lst, target) → int\n#\n# Индекс target в ОТСОРТИРОВАННОМ списке, или -1 если элемента\n# нет. Обязательно бинарный поиск (O(log n)) — в этом весь смысл\n# задачи, обычный перебор не считается.\n# binary_search([1, 3, 5, 7, 9, 11], 7) → 3\n# binary_search([1, 3, 5, 7, 9, 11], 4) → -1\n#\n# Паттерн: left=0, right=len(lst)-1, пока left<=right — считай\n# mid, сравнивай sorted_lst[mid] с target, сужай границы\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "diag/binary_search",
+     "text": "def binary_search(sorted_lst, target):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(binary_search([1, 3, 5, 7, 9, 11], 7), 3, \"binary_search\")\ncheck(binary_search([1, 3, 5, 7, 9, 11], 4), -1, \"binary_search\")\n"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "diag/count_vowels",
+     "ordinal": 1,
+     "name": "count_vowels",
+     "kind": "function",
+     "title": "count_vowels(s) → int",
+     "description_html": "<p>Сколько гласных букв (a, e, i, o, u) в строке. Регистр не важен.</p>\n<pre class=\"example\">count_vowels(&quot;Hello World&quot;) → 3\ncount_vowels(&quot;sky&quot;) → 0</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> цикл for по строке + счётчик</div>",
+     "starter_code": "def count_vowels(s):\n    pass\n",
+     "reference_solution": "def count_vowels(s):\n    counter = 0\n    vowels = 'aeiou'\n    for i in s:\n        if i.lower() in vowels:\n            counter += 1\n    return counter\n",
+     "solved_in_repo": true,
+     "test_source": "check(count_vowels(\"Hello World\"), 3, \"count_vowels\")\ncheck(count_vowels(\"sky\"), 0, \"count_vowels\")",
+     "has_own_tests": true,
+     "expected_checks": 2,
+     "needs": [
+      "count_vowels"
+     ],
+     "slot_index": 1
+    },
+    {
+     "id": "diag/is_palindrome",
+     "ordinal": 2,
+     "name": "is_palindrome",
+     "kind": "function",
+     "title": "is_palindrome(s) → bool",
+     "description_html": "<p>Читается ли строка одинаково в обе стороны. Регистр не важен.</p>\n<pre class=\"example\">is_palindrome(&quot;Level&quot;) → True\nis_palindrome(&quot;hello&quot;) → False</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> сравни строку с её разворотом (s[::-1])</div>",
+     "starter_code": "def is_palindrome(s):\n    pass\n",
+     "reference_solution": "def is_palindrome(s):\n    lower_s = s.lower()\n    return lower_s == lower_s[::-1]\n",
+     "solved_in_repo": true,
+     "test_source": "check(is_palindrome(\"Level\"), True, \"is_palindrome\")\ncheck(is_palindrome(\"hello\"), False, \"is_palindrome\")",
+     "has_own_tests": true,
+     "expected_checks": 2,
+     "needs": [
+      "is_palindrome"
+     ],
+     "slot_index": 3
+    },
+    {
+     "id": "diag/dedupe_preserve_order",
+     "ordinal": 3,
+     "name": "dedupe_preserve_order",
+     "kind": "function",
+     "title": "dedupe_preserve_order(lst) → list",
+     "description_html": "<p>Убрать повторы, оставив только первое появление каждого элемента. Порядок остальных элементов не менять.</p>\n<pre class=\"example\">dedupe_preserve_order([1, 2, 2, 3, 1, 4]) → [1, 2, 3, 4]\ndedupe_preserve_order([&quot;a&quot;, &quot;b&quot;, &quot;a&quot;]) → [&quot;a&quot;, &quot;b&quot;]</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> seen: set — добавляй элемент в результат, только если его ещё не было в seen (как first_duplicate из Модуля 4)</div>",
+     "starter_code": "def dedupe_preserve_order(lst):\n    pass\n",
+     "reference_solution": "def dedupe_preserve_order(lst):\n    seen = set()\n    result = []\n    for i in lst:\n        if i not in seen:\n            seen.add(i)\n            result.append(i)\n    return result\n",
+     "solved_in_repo": true,
+     "test_source": "check(dedupe_preserve_order([1, 2, 2, 3, 1, 4]), [1, 2, 3, 4], \"dedupe_preserve_order\")\ncheck(dedupe_preserve_order([\"a\", \"b\", \"a\"]), [\"a\", \"b\"], \"dedupe_preserve_order\")",
+     "has_own_tests": true,
+     "expected_checks": 2,
+     "needs": [
+      "dedupe_preserve_order"
+     ],
+     "slot_index": 5
+    },
+    {
+     "id": "diag/flatten_once",
+     "ordinal": 4,
+     "name": "flatten_once",
+     "kind": "function",
+     "title": "flatten_once(nested) → list",
+     "description_html": "<p>Развернуть список списков в один плоский список (на один уровень вложенности).</p>\n<pre class=\"example\">flatten_once([[1, 2], [3], [4, 5, 6]]) → [1, 2, 3, 4, 5, 6]\nflatten_once([[], [1], []]) → [1]</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> цикл по внешнему списку, внутри — цикл по вложенному</div>",
+     "starter_code": "def flatten_once(nested):\n    pass\n",
+     "reference_solution": "def flatten_once(nested):\n    general_lst = []\n    for lst in nested:\n        for i in lst:\n            general_lst.append(i)\n    return general_lst\n",
+     "solved_in_repo": true,
+     "test_source": "check(flatten_once([[1, 2], [3], [4, 5, 6]]), [1, 2, 3, 4, 5, 6], \"flatten_once\")\ncheck(flatten_once([[], [1], []]), [1], \"flatten_once\")",
+     "has_own_tests": true,
+     "expected_checks": 2,
+     "needs": [
+      "flatten_once"
+     ],
+     "slot_index": 7
+    },
+    {
+     "id": "diag/most_common_word",
+     "ordinal": 5,
+     "name": "most_common_word",
+     "kind": "function",
+     "title": "most_common_word(text) → str",
+     "description_html": "<p>Самое частое слово в строке (слова разделены пробелами). При равенстве — подойдёт любое из самых частых.</p>\n<pre class=\"example\">most_common_word(&quot;the cat sat on the mat the cat ran&quot;) → &quot;the&quot;</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> text.split() → COUNT через dict (counts[word] = counts.get(word, 0) + 1) → max(dict, key=dict.get)</div>",
+     "starter_code": "def most_common_word(text):\n    pass\n",
+     "reference_solution": "def most_common_word(text):\n    words = text.split()\n    counts = {}\n    for word in words:\n        counts[word] = counts.get(word, 0) + 1\n    return max(counts, key=counts.get)\n",
+     "solved_in_repo": true,
+     "test_source": "check(most_common_word(\"the cat sat on the mat the cat ran\"), \"the\", \"most_common_word\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "most_common_word"
+     ],
+     "slot_index": 9
+    },
+    {
+     "id": "diag/group_by_length",
+     "ordinal": 6,
+     "name": "group_by_length",
+     "kind": "function",
+     "title": "group_by_length(words) → dict",
+     "description_html": "<p>Сгруппировать слова по длине: ключ — длина, значение — список слов этой длины. group_by_length([&quot;a&quot;, &quot;bb&quot;, &quot;cc&quot;, &quot;ddd&quot;, &quot;e&quot;]) → {1: [&quot;a&quot;, &quot;e&quot;], 2: [&quot;bb&quot;, &quot;cc&quot;], 3: [&quot;ddd&quot;]}</p>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> GROUP BY — d.setdefault(key, []).append(word)</div>",
+     "starter_code": "def group_by_length(words):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(\n    group_by_length([\"a\", \"bb\", \"cc\", \"ddd\", \"e\"]),\n    {1: [\"a\", \"e\"], 2: [\"bb\", \"cc\"], 3: [\"ddd\"]},\n    \"group_by_length\",\n)",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "group_by_length"
+     ],
+     "slot_index": 11
+    },
+    {
+     "id": "diag/factorial_recursive",
+     "ordinal": 7,
+     "name": "factorial_recursive",
+     "kind": "function",
+     "title": "factorial_recursive(n) → int",
+     "description_html": "<p>Факториал ЧЕРЕЗ РЕКУРСИЮ (функция вызывает сама себя, не цикл).</p>\n<pre class=\"example\">factorial_recursive(5) → 120   (5*4*3*2*1)\nfactorial_recursive(0) → 1</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> база рекурсии (n == 0 → return 1) + шаг (return n * factorial_recursive(n - 1))</div>",
+     "starter_code": "def factorial_recursive(n):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(factorial_recursive(5), 120, \"factorial_recursive\")\ncheck(factorial_recursive(0), 1, \"factorial_recursive\")",
+     "has_own_tests": true,
+     "expected_checks": 2,
+     "needs": [
+      "factorial_recursive"
+     ],
+     "slot_index": 13
+    },
+    {
+     "id": "diag/binary_search",
+     "ordinal": 8,
+     "name": "binary_search",
+     "kind": "function",
+     "title": "binary_search(sorted_lst, target) → int",
+     "description_html": "<p>Индекс target в ОТСОРТИРОВАННОМ списке, или -1 если элемента нет. Обязательно бинарный поиск (O(log n)) — в этом весь смысл задачи, обычный перебор не считается.</p>\n<pre class=\"example\">binary_search([1, 3, 5, 7, 9, 11], 7) → 3\nbinary_search([1, 3, 5, 7, 9, 11], 4) → -1</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> left=0, right=len(lst)-1, пока left&lt;=right — считай mid, сравнивай sorted_lst[mid] с target, сужай границы</div>",
+     "starter_code": "def binary_search(sorted_lst, target):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(binary_search([1, 3, 5, 7, 9, 11], 7), 3, \"binary_search\")\ncheck(binary_search([1, 3, 5, 7, 9, 11], 4), -1, \"binary_search\")",
+     "has_own_tests": true,
+     "expected_checks": 2,
+     "needs": [
+      "binary_search"
+     ],
+     "slot_index": 15
+    }
+   ]
+  },
+  {
+   "id": "m05-p2",
+   "module": "m05",
+   "title": "P2: Sliding Window (скользящее окно)",
+   "source_file": "drills/05_patterns/p2_sliding_window.py",
+   "intro_html": "<p>МОДУЛЬ 5 — P2: SLIDING WINDOW (скользящее окно)\nТЕОРИЯ (прочитай перед задачами):\n  &quot;Окно&quot; — это непрерывный кусок списка/строки между двумя\n  указателями left и right. Вместо пересчёта суммы/условия\n  заново для каждого окна (O(n·k) или O(n²)) — двигаем окно\n  на один шаг и обновляем результат за O(1). Итого O(n).\n  ШАБЛОН — окно ФИКСИРОВАННОГО размера k:\n  window_sum = sum(lst[:k])\n  best = window_sum\n  for right in range(k, len(lst)):\n      window_sum += lst[right] - lst[right - k]   # +новый -старый\n      best = max(best, window_sum)\n  ШАБЛОН — окно ПЕРЕМЕННОГО размера (растёт/сжимается):\n  left = 0\n  window_state = ...   # сумма, set символов, счётчик и т.п.\n  for right in range(len(lst)):\n      # добавить lst[right] в window_state\n      while &lt;окно нарушает условие&gt;:\n          # убрать lst[left] из window_state\n          left += 1\n      # тут окно [left, right] валидно — обнови ответ\nПравило перед задачей:\n  # Вход: ... Выход: ... Окно: фиксированное | переменное ... Сложность: ...\ncheck(actual, expected) печатает OK/FAIL и не роняет файл на\nпервой ошибке — видно все результаты разом.</p>",
+   "prelude": "nums = [2, 1, 5, 1, 3, 2, 7, 4, 1, 8]",
+   "segments": [
+    {
+     "t": "raw",
+     "text": "# ============================================================\n# МОДУЛЬ 5 — P2: SLIDING WINDOW (скользящее окно)\n#\n# ТЕОРИЯ (прочитай перед задачами):\n#   \"Окно\" — это непрерывный кусок списка/строки между двумя\n#   указателями left и right. Вместо пересчёта суммы/условия\n#   заново для каждого окна (O(n·k) или O(n²)) — двигаем окно\n#   на один шаг и обновляем результат за O(1). Итого O(n).\n#\n#   ШАБЛОН — окно ФИКСИРОВАННОГО размера k:\n#   window_sum = sum(lst[:k])\n#   best = window_sum\n#   for right in range(k, len(lst)):\n#       window_sum += lst[right] - lst[right - k]   # +новый -старый\n#       best = max(best, window_sum)\n#\n#   ШАБЛОН — окно ПЕРЕМЕННОГО размера (растёт/сжимается):\n#   left = 0\n#   window_state = ...   # сумма, set символов, счётчик и т.п.\n#   for right in range(len(lst)):\n#       # добавить lst[right] в window_state\n#       while <окно нарушает условие>:\n#           # убрать lst[left] из window_state\n#           left += 1\n#       # тут окно [left, right] валидно — обнови ответ\n#\n# Правило перед задачей:\n#   # Вход: ... Выход: ... Окно: фиксированное | переменное ... Сложность: ...\n#\n# check(actual, expected) печатает OK/FAIL и не роняет файл на\n# первой ошибке — видно все результаты разом.\n# ============================================================\n\n\ndef check(actual, expected, label=\"\"):\n    status = \"OK  \" if actual == expected else \"FAIL\"\n    print(f\"{status} {label}: {actual!r} (ожидалось {expected!r})\")\n\n\nnums = [2, 1, 5, 1, 3, 2, 7, 4, 1, 8]\n\n\n# ------------------------------------------------------------\n# 1. max_sum_subarray(lst, k) → int\n#\n# Максимальная сумма подряд идущих k элементов.\n# max_sum_subarray(nums, 3) → 13   (окно 2+7+4 или 4+1+8, оба дают 13)\n# max_sum_subarray([1, 2, 3], 5) → None   (k больше длины списка)\n#\n# Паттерн: окно фиксированного размера k — используй шаблон\n# \"+новый -старый\" из шапки файла, не пересчитывай сумму заново\n# на каждом шаге.\n# Сложность: O(n), не O(n·k)\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m05-p2/max_sum_subarray",
+     "text": "def max_sum_subarray(lst, k):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(max_sum_subarray(nums, 3), 13, \"max_sum_subarray\")\ncheck(max_sum_subarray([1, 2, 3], 5), None, \"max_sum_subarray\")\n\n\n# ------------------------------------------------------------\n# 2. average_of_windows(lst, k) → list[float]\n#\n# Список средних значений для каждого окна размера k.\n# average_of_windows([1, 2, 3, 4, 5], 2) → [1.5, 2.5, 3.5, 4.5]\n# average_of_windows([1, 2, 3], 3) → [2.0]\n#\n# Паттерн: тот же \"+новый -старый\", но сохраняй среднее\n# на каждом шаге в список результатов.\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m05-p2/average_of_windows",
+     "text": "def average_of_windows(lst, k):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(average_of_windows([1, 2, 3, 4, 5], 2), [1.5, 2.5, 3.5, 4.5], \"average_of_windows\")\ncheck(average_of_windows([1, 2, 3], 3), [2.0], \"average_of_windows\")\n\n\n# ------------------------------------------------------------\n# 3. longest_unique_substring(s) → str\n#\n# Самая длинная подстрока БЕЗ повторяющихся символов.\n# longest_unique_substring(\"abcabcbb\") → \"abc\"\n# longest_unique_substring(\"bbbbb\")    → \"b\"\n# longest_unique_substring(\"pwwkew\")   → \"wke\"\n# longest_unique_substring(\"\")         → \"\"\n#\n# Паттерн: окно ПЕРЕМЕННОГО размера + set с символами в окне.\n# Расширяй right, добавляя символ в set. Если символ уже в\n# set (значит повтор) — сжимай left, убирая символы из set,\n# пока повтора не станет. На каждом шаге сравнивай длину окна\n# с лучшей найденной.\n# Сложность: O(n)\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m05-p2/longest_unique_substring",
+     "text": "def longest_unique_substring(s):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(longest_unique_substring(\"abcabcbb\"), \"abc\", \"longest_unique_substring\")\ncheck(longest_unique_substring(\"bbbbb\"), \"b\", \"longest_unique_substring\")\ncheck(longest_unique_substring(\"pwwkew\"), \"wke\", \"longest_unique_substring\")\ncheck(longest_unique_substring(\"\"), \"\", \"longest_unique_substring\")\n\n\n# ------------------------------------------------------------\n# 4. min_len_subarray_sum(lst, target) → int\n#\n# Длина САМОГО КОРОТКОГО непрерывного куска, сумма которого\n# >= target. Если такого нет — 0.\n#\n# min_len_subarray_sum([2, 3, 1, 2, 4, 3], 7) → 2   (кусок [4, 3], сумма 7)\n# min_len_subarray_sum([1, 1, 1, 1], 100) → 0   (сумма всего списка < 100)\n# min_len_subarray_sum([4, 3, 5], 4) → 1   (сам 4 уже >= 4)\n#\n# Паттерн: окно переменного размера + текущая сумма окна.\n# Расширяй right, прибавляя к сумме. Пока сумма окна >= target —\n# сравнивай длину окна с минимумом и СЖИМАЙ left (окно должно\n# оставаться минимальным, но валидным).\n# Сложность: O(n)\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m05-p2/min_len_subarray_sum",
+     "text": "def min_len_subarray_sum(lst, target):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(min_len_subarray_sum([2, 3, 1, 2, 4, 3], 7), 2, \"min_len_subarray_sum\")\ncheck(min_len_subarray_sum([1, 1, 1, 1], 100), 0, \"min_len_subarray_sum\")\ncheck(min_len_subarray_sum([4, 3, 5], 4), 1, \"min_len_subarray_sum\")\n\n\n# ------------------------------------------------------------\n# 5. contains_nearby_duplicate(lst, k) → bool\n#\n# Есть ли два одинаковых элемента на расстоянии <= k друг от друга\n# (по индексам).\n#\n# contains_nearby_duplicate([1, 2, 3, 1], 3) → True   (индексы 0 и 3, разница 3)\n# contains_nearby_duplicate([1, 2, 3, 1], 2) → False  (разница 3 > 2)\n# contains_nearby_duplicate([1, 2, 3, 4], 2) → False\n#\n# Паттерн: окно ФИКСИРОВАННОГО размера k+1 через set — держи в\n# set только последние k+1 элементов. Если новый элемент уже\n# в set — нашёл. Если размер set превышает k+1 — убирай самый\n# старый (тот, что вышел из окна).\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m05-p2/contains_nearby_duplicate",
+     "text": "def contains_nearby_duplicate(lst, k):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(contains_nearby_duplicate([1, 2, 3, 1], 3), True, \"contains_nearby_duplicate\")\ncheck(contains_nearby_duplicate([1, 2, 3, 1], 2), False, \"contains_nearby_duplicate\")\ncheck(contains_nearby_duplicate([1, 2, 3, 4], 2), False, \"contains_nearby_duplicate\")\n"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "m05-p2/max_sum_subarray",
+     "ordinal": 1,
+     "name": "max_sum_subarray",
+     "kind": "function",
+     "title": "max_sum_subarray(lst, k) → int",
+     "description_html": "<p>Максимальная сумма подряд идущих k элементов.</p>\n<pre class=\"example\">max_sum_subarray(nums, 3) → 13   (окно 2+7+4 или 4+1+8, оба дают 13)\nmax_sum_subarray([1, 2, 3], 5) → None   (k больше длины списка)</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> окно фиксированного размера k — используй шаблон &quot;+новый -старый&quot; из шапки файла, не пересчитывай сумму заново на каждом шаге.</div>\n<div class=\"note note--сложность\"><span class=\"note__label\">Сложность</span> O(n), не O(n·k)</div>",
+     "starter_code": "def max_sum_subarray(lst, k):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(max_sum_subarray(nums, 3), 13, \"max_sum_subarray\")\ncheck(max_sum_subarray([1, 2, 3], 5), None, \"max_sum_subarray\")",
+     "has_own_tests": true,
+     "expected_checks": 2,
+     "needs": [
+      "max_sum_subarray"
+     ],
+     "slot_index": 1
+    },
+    {
+     "id": "m05-p2/average_of_windows",
+     "ordinal": 2,
+     "name": "average_of_windows",
+     "kind": "function",
+     "title": "average_of_windows(lst, k) → list[float]",
+     "description_html": "<p>Список средних значений для каждого окна размера k.</p>\n<pre class=\"example\">average_of_windows([1, 2, 3, 4, 5], 2) → [1.5, 2.5, 3.5, 4.5]\naverage_of_windows([1, 2, 3], 3) → [2.0]</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> тот же &quot;+новый -старый&quot;, но сохраняй среднее на каждом шаге в список результатов.</div>",
+     "starter_code": "def average_of_windows(lst, k):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(average_of_windows([1, 2, 3, 4, 5], 2), [1.5, 2.5, 3.5, 4.5], \"average_of_windows\")\ncheck(average_of_windows([1, 2, 3], 3), [2.0], \"average_of_windows\")",
+     "has_own_tests": true,
+     "expected_checks": 2,
+     "needs": [
+      "average_of_windows"
+     ],
+     "slot_index": 3
+    },
+    {
+     "id": "m05-p2/longest_unique_substring",
+     "ordinal": 3,
+     "name": "longest_unique_substring",
+     "kind": "function",
+     "title": "longest_unique_substring(s) → str",
+     "description_html": "<p>Самая длинная подстрока БЕЗ повторяющихся символов.</p>\n<pre class=\"example\">longest_unique_substring(&quot;abcabcbb&quot;) → &quot;abc&quot;\nlongest_unique_substring(&quot;bbbbb&quot;)    → &quot;b&quot;\nlongest_unique_substring(&quot;pwwkew&quot;)   → &quot;wke&quot;\nlongest_unique_substring(&quot;&quot;)         → &quot;&quot;</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> окно ПЕРЕМЕННОГО размера + set с символами в окне. Расширяй right, добавляя символ в set. Если символ уже в set (значит повтор) — сжимай left, убирая символы из set, пока повтора не станет. На каждом шаге сравнивай длину окна с лучшей найденной.</div>\n<div class=\"note note--сложность\"><span class=\"note__label\">Сложность</span> O(n)</div>",
+     "starter_code": "def longest_unique_substring(s):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(longest_unique_substring(\"abcabcbb\"), \"abc\", \"longest_unique_substring\")\ncheck(longest_unique_substring(\"bbbbb\"), \"b\", \"longest_unique_substring\")\ncheck(longest_unique_substring(\"pwwkew\"), \"wke\", \"longest_unique_substring\")\ncheck(longest_unique_substring(\"\"), \"\", \"longest_unique_substring\")",
+     "has_own_tests": true,
+     "expected_checks": 4,
+     "needs": [
+      "longest_unique_substring"
+     ],
+     "slot_index": 5
+    },
+    {
+     "id": "m05-p2/min_len_subarray_sum",
+     "ordinal": 4,
+     "name": "min_len_subarray_sum",
+     "kind": "function",
+     "title": "min_len_subarray_sum(lst, target) → int",
+     "description_html": "<p>Длина САМОГО КОРОТКОГО непрерывного куска, сумма которого &gt;= target. Если такого нет — 0.</p>\n<pre class=\"example\">min_len_subarray_sum([2, 3, 1, 2, 4, 3], 7) → 2   (кусок [4, 3], сумма 7)\nmin_len_subarray_sum([1, 1, 1, 1], 100) → 0   (сумма всего списка &lt; 100)\nmin_len_subarray_sum([4, 3, 5], 4) → 1   (сам 4 уже &gt;= 4)</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> окно переменного размера + текущая сумма окна. Расширяй right, прибавляя к сумме. Пока сумма окна &gt;= target — сравнивай длину окна с минимумом и СЖИМАЙ left (окно должно оставаться минимальным, но валидным).</div>\n<div class=\"note note--сложность\"><span class=\"note__label\">Сложность</span> O(n)</div>",
+     "starter_code": "def min_len_subarray_sum(lst, target):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(min_len_subarray_sum([2, 3, 1, 2, 4, 3], 7), 2, \"min_len_subarray_sum\")\ncheck(min_len_subarray_sum([1, 1, 1, 1], 100), 0, \"min_len_subarray_sum\")\ncheck(min_len_subarray_sum([4, 3, 5], 4), 1, \"min_len_subarray_sum\")",
+     "has_own_tests": true,
+     "expected_checks": 3,
+     "needs": [
+      "min_len_subarray_sum"
+     ],
+     "slot_index": 7
+    },
+    {
+     "id": "m05-p2/contains_nearby_duplicate",
+     "ordinal": 5,
+     "name": "contains_nearby_duplicate",
+     "kind": "function",
+     "title": "contains_nearby_duplicate(lst, k) → bool",
+     "description_html": "<p>Есть ли два одинаковых элемента на расстоянии &lt;= k друг от друга (по индексам).</p>\n<pre class=\"example\">contains_nearby_duplicate([1, 2, 3, 1], 3) → True   (индексы 0 и 3, разница 3)\ncontains_nearby_duplicate([1, 2, 3, 1], 2) → False  (разница 3 &gt; 2)\ncontains_nearby_duplicate([1, 2, 3, 4], 2) → False</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> окно ФИКСИРОВАННОГО размера k+1 через set — держи в set только последние k+1 элементов. Если новый элемент уже в set — нашёл. Если размер set превышает k+1 — убирай самый старый (тот, что вышел из окна).</div>",
+     "starter_code": "def contains_nearby_duplicate(lst, k):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(contains_nearby_duplicate([1, 2, 3, 1], 3), True, \"contains_nearby_duplicate\")\ncheck(contains_nearby_duplicate([1, 2, 3, 1], 2), False, \"contains_nearby_duplicate\")\ncheck(contains_nearby_duplicate([1, 2, 3, 4], 2), False, \"contains_nearby_duplicate\")",
+     "has_own_tests": true,
+     "expected_checks": 3,
+     "needs": [
+      "contains_nearby_duplicate"
+     ],
+     "slot_index": 9
+    }
+   ]
+  },
+  {
+   "id": "m05-p3",
+   "module": "m05",
+   "title": "P3: Итоговая проверка",
+   "source_file": "drills/05_patterns/p3_mastery_check.py",
+   "intro_html": "<p>МОДУЛЬ 5 — P3: ИТОГОВАЯ ПРОВЕРКА (two pointers + sliding window)\nЭто НЕ повтор p1/p2 под другим именем — задачи из той же\nсемьи паттернов, но с другой логикой внутри. Смотри заметку\nв Obsidian: &quot;Python — Модуль 5 Two Pointers и Sliding Window\n(на пальцах)&quot;, если завис — без интернета.\nПравило перед задачей:\n  # Вход: ... Выход: ... Паттерн: ... Сложность: ...\ncheck(actual, expected) печатает OK/FAIL и не роняет файл на\nпервой ошибке — видно все результаты разом.</p>",
+   "prelude": "",
+   "segments": [
+    {
+     "t": "raw",
+     "text": "# ============================================================\n# МОДУЛЬ 5 — P3: ИТОГОВАЯ ПРОВЕРКА (two pointers + sliding window)\n#\n# Это НЕ повтор p1/p2 под другим именем — задачи из той же\n# семьи паттернов, но с другой логикой внутри. Смотри заметку\n# в Obsidian: \"Python — Модуль 5 Two Pointers и Sliding Window\n# (на пальцах)\", если завис — без интернета.\n#\n# Правило перед задачей:\n#   # Вход: ... Выход: ... Паттерн: ... Сложность: ...\n#\n# check(actual, expected) печатает OK/FAIL и не роняет файл на\n# первой ошибке — видно все результаты разом.\n# ============================================================\n\n\ndef check(actual, expected, label=\"\"):\n    status = \"OK  \" if actual == expected else \"FAIL\"\n    print(f\"{status} {label}: {actual!r} (ожидалось {expected!r})\")\n\n\n# ------------------------------------------------------------\n# 1. max_area(heights) → int\n#\n# heights — список высот стен (НЕ отсортирован).\n# Площадь между стенами i и j = min(heights[i], heights[j]) * (j - i).\n# Найди максимальную возможную площадь.\n#\n# max_area([1, 8, 6, 2, 5, 4, 8, 3, 7]) → 49\n# max_area([1, 1])                     → 1\n# max_area([4, 3, 2, 1, 4])            → 16\n#\n# Паттерн: два указателя с концов. Руль ДРУГОЙ, чем в\n# two_sum_sorted — тут нет target. Подумай: какую стену\n# невыгодно двигать и почему (см. заметку в Obsidian,\n# Часть 1, Пример 3).\n# Сложность: O(n)\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m05-p3/max_area",
+     "text": "def max_area(heights):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(max_area([1, 8, 6, 2, 5, 4, 8, 3, 7]), 49, \"max_area\")\ncheck(max_area([1, 1]), 1, \"max_area\")\ncheck(max_area([4, 3, 2, 1, 4]), 16, \"max_area\")\n\n\n# ------------------------------------------------------------\n# 2. is_valid_palindrome(s) → bool\n#\n# Палиндром без учёта регистра и без учёта всего, что не\n# буква и не цифра (пробелы, запятые, двоеточия и т.д.).\n#\n# is_valid_palindrome(\"A man, a plan, a canal: Panama\") → True\n# is_valid_palindrome(\"race a car\")                     → False\n# is_valid_palindrome(\" \")                               → True\n#\n# Паттерн: два указателя с концов, как в is_palindrome из p1,\n# НО перед сравнением нужно ПРОПУСКАТЬ символы, которые не\n# буква/цифра (подсказка: str.isalnum() возвращает True/False).\n# Не создавай новую очищенную строку — работай прямо с указателями.\n# Сложность: O(n)\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m05-p3/is_valid_palindrome",
+     "text": "def is_valid_palindrome(s):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(is_valid_palindrome(\"A man, a plan, a canal: Panama\"), True, \"is_valid_palindrome\")\ncheck(is_valid_palindrome(\"race a car\"), False, \"is_valid_palindrome\")\ncheck(is_valid_palindrome(\" \"), True, \"is_valid_palindrome\")\n\n\n# ------------------------------------------------------------\n# 3. min_diff_pair(sorted_lst) → tuple[int, int]\n#\n# Пара чисел (соседних по значению) с МИНИМАЛЬНОЙ разностью.\n# Список уже отсортирован. Список содержит минимум 2 элемента.\n#\n# min_diff_pair([1, 4, 9, 13, 32]) → (1, 4)   # разность 3, меньше всех\n# min_diff_pair([2, 6, 6, 9])      → (6, 6)   # разность 0 — числа могут повторяться\n#\n# ЛОВУШКА: это НЕ задача про два указателя с разных концов.\n# Подумай (см. заметку в Obsidian, \"Когда two pointers\n# НЕ подходит\") — в отсортированном списке минимальная разность\n# всегда между какими элементами? Хватит одного прохода.\n# Сложность: O(n)\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m05-p3/min_diff_pair",
+     "text": "def min_diff_pair(sorted_lst):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(min_diff_pair([1, 4, 9, 13, 32]), (1, 4), \"min_diff_pair\")\ncheck(min_diff_pair([2, 6, 6, 9]), (6, 6), \"min_diff_pair\")\n\n\n# ------------------------------------------------------------\n# 4. (БОНУС, сложнее) three_sum_zero(sorted_lst) → list[tuple]\n#\n# Все УНИКАЛЬНЫЕ тройки чисел, которые в сумме дают 0.\n# Список отсортирован. Порядок троек в результате не важен,\n# но каждая тройка не должна повторяться.\n#\n# three_sum_zero([-4, -1, -1, 0, 1, 2]) → [(-1, -1, 2), (-1, 0, 1)]\n#\n# Паттерн: НЕ три указателя одновременно бегущих независимо.\n# Это цикл (фиксируешь первое число по очереди: -4, потом -1,\n# потом -1, потом 0...) + ВНУТРИ цикла — обычный two_sum_sorted\n# на два указателя для оставшейся части списка, ищущий пару\n# с суммой = -(зафиксированное число).\n#\n# Сложность: O(n²) — цикл O(n) снаружи, two pointers O(n) внутри\n#\n# Не решай, пока первые три не закрыты уверенно — это следующий\n# уровень, объединяющий цикл и two pointers вместе.\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m05-p3/three_sum_zero",
+     "text": "def three_sum_zero(sorted_lst):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\nactual_triples = three_sum_zero([-4, -1, -1, 0, 1, 2])\ncheck(\n    sorted(actual_triples) if actual_triples is not None else actual_triples,\n    sorted([(-1, -1, 2), (-1, 0, 1)]),\n    \"three_sum_zero\",\n)  # порядок троек не важен, поэтому сравниваем sorted()\n"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "m05-p3/max_area",
+     "ordinal": 1,
+     "name": "max_area",
+     "kind": "function",
+     "title": "max_area(heights) → int",
+     "description_html": "<p>heights — список высот стен (НЕ отсортирован). Площадь между стенами i и j = min(heights[i], heights[j]) * (j - i). Найди максимальную возможную площадь.</p>\n<pre class=\"example\">max_area([1, 8, 6, 2, 5, 4, 8, 3, 7]) → 49\nmax_area([1, 1])                     → 1\nmax_area([4, 3, 2, 1, 4])            → 16</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> два указателя с концов. Руль ДРУГОЙ, чем в two_sum_sorted — тут нет target. Подумай: какую стену невыгодно двигать и почему (см. заметку в Obsidian, Часть 1, Пример 3).</div>\n<div class=\"note note--сложность\"><span class=\"note__label\">Сложность</span> O(n)</div>",
+     "starter_code": "def max_area(heights):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(max_area([1, 8, 6, 2, 5, 4, 8, 3, 7]), 49, \"max_area\")\ncheck(max_area([1, 1]), 1, \"max_area\")\ncheck(max_area([4, 3, 2, 1, 4]), 16, \"max_area\")",
+     "has_own_tests": true,
+     "expected_checks": 3,
+     "needs": [
+      "max_area"
+     ],
+     "slot_index": 1
+    },
+    {
+     "id": "m05-p3/is_valid_palindrome",
+     "ordinal": 2,
+     "name": "is_valid_palindrome",
+     "kind": "function",
+     "title": "is_valid_palindrome(s) → bool",
+     "description_html": "<p>Палиндром без учёта регистра и без учёта всего, что не буква и не цифра (пробелы, запятые, двоеточия и т.д.).</p>\n<pre class=\"example\">is_valid_palindrome(&quot;A man, a plan, a canal: Panama&quot;) → True\nis_valid_palindrome(&quot;race a car&quot;)                     → False\nis_valid_palindrome(&quot; &quot;)                               → True</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> два указателя с концов, как в is_palindrome из p1, НО перед сравнением нужно ПРОПУСКАТЬ символы, которые не буква/цифра (подсказка: str.isalnum() возвращает True/False). Не создавай новую очищенную строку — работай прямо с указателями.</div>\n<div class=\"note note--сложность\"><span class=\"note__label\">Сложность</span> O(n)</div>",
+     "starter_code": "def is_valid_palindrome(s):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(is_valid_palindrome(\"A man, a plan, a canal: Panama\"), True, \"is_valid_palindrome\")\ncheck(is_valid_palindrome(\"race a car\"), False, \"is_valid_palindrome\")\ncheck(is_valid_palindrome(\" \"), True, \"is_valid_palindrome\")",
+     "has_own_tests": true,
+     "expected_checks": 3,
+     "needs": [
+      "is_valid_palindrome"
+     ],
+     "slot_index": 3
+    },
+    {
+     "id": "m05-p3/min_diff_pair",
+     "ordinal": 3,
+     "name": "min_diff_pair",
+     "kind": "function",
+     "title": "min_diff_pair(sorted_lst) → tuple[int, int]",
+     "description_html": "<p>Пара чисел (соседних по значению) с МИНИМАЛЬНОЙ разностью. Список уже отсортирован. Список содержит минимум 2 элемента.</p>\n<pre class=\"example\">min_diff_pair([1, 4, 9, 13, 32]) → (1, 4)   # разность 3, меньше всех\nmin_diff_pair([2, 6, 6, 9])      → (6, 6)   # разность 0 — числа могут повторяться</pre>\n<div class=\"note note--ловушка\"><span class=\"note__label\">ЛОВУШКА</span> это НЕ задача про два указателя с разных концов. Подумай (см. заметку в Obsidian, &quot;Когда two pointers НЕ подходит&quot;) — в отсортированном списке минимальная разность всегда между какими элементами? Хватит одного прохода.</div>\n<div class=\"note note--сложность\"><span class=\"note__label\">Сложность</span> O(n)</div>",
+     "starter_code": "def min_diff_pair(sorted_lst):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(min_diff_pair([1, 4, 9, 13, 32]), (1, 4), \"min_diff_pair\")\ncheck(min_diff_pair([2, 6, 6, 9]), (6, 6), \"min_diff_pair\")",
+     "has_own_tests": true,
+     "expected_checks": 2,
+     "needs": [
+      "min_diff_pair"
+     ],
+     "slot_index": 5
+    },
+    {
+     "id": "m05-p3/three_sum_zero",
+     "ordinal": 4,
+     "name": "three_sum_zero",
+     "kind": "function",
+     "title": "(БОНУС, сложнее) three_sum_zero(sorted_lst) → list[tuple]",
+     "description_html": "<p>Все УНИКАЛЬНЫЕ тройки чисел, которые в сумме дают 0. Список отсортирован. Порядок троек в результате не важен, но каждая тройка не должна повторяться.</p>\n<pre class=\"example\">three_sum_zero([-4, -1, -1, 0, 1, 2]) → [(-1, -1, 2), (-1, 0, 1)]</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> НЕ три указателя одновременно бегущих независимо. Это цикл (фиксируешь первое число по очереди: -4, потом -1, потом -1, потом 0...) + ВНУТРИ цикла — обычный two_sum_sorted на два указателя для оставшейся части списка, ищущий пару с суммой = -(зафиксированное число).</div>\n<div class=\"note note--сложность\"><span class=\"note__label\">Сложность</span> O(n²) — цикл O(n) снаружи, two pointers O(n) внутри</div>\n<p>Не решай, пока первые три не закрыты уверенно — это следующий уровень, объединяющий цикл и two pointers вместе.</p>",
+     "starter_code": "def three_sum_zero(sorted_lst):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "actual_triples = three_sum_zero([-4, -1, -1, 0, 1, 2])\ncheck(\n    sorted(actual_triples) if actual_triples is not None else actual_triples,\n    sorted([(-1, -1, 2), (-1, 0, 1)]),\n    \"three_sum_zero\",\n)",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "three_sum_zero"
+     ],
+     "slot_index": 7
+    }
+   ]
+  },
+  {
+   "id": "m06-p1",
+   "module": "m06",
+   "title": "P1: Stack (стек)",
+   "source_file": "drills/06_data_structures/p1_stack.py",
+   "intro_html": "<p>МОДУЛЬ 6 — P1: STACK (стек)\nСмотри ds_reference.py перед началом. Решения не даны — пишешь сам.\nПравило перед каждой задачей:\n  # Вход: ... Выход: ... Паттерн: ...\ncheck(actual, expected) печатает OK/FAIL и не роняет файл на\nпервой ошибке — видно все результаты разом.</p>",
+   "prelude": "",
+   "segments": [
+    {
+     "t": "raw",
+     "text": "# ============================================================\n# МОДУЛЬ 6 — P1: STACK (стек)\n#\n# Смотри ds_reference.py перед началом. Решения не даны — пишешь сам.\n# Правило перед каждой задачей:\n#   # Вход: ... Выход: ... Паттерн: ...\n#\n# check(actual, expected) печатает OK/FAIL и не роняет файл на\n# первой ошибке — видно все результаты разом.\n# ============================================================\n\n\ndef check(actual, expected, label=\"\"):\n    status = \"OK  \" if actual == expected else \"FAIL\"\n    print(f\"{status} {label}: {actual!r} (ожидалось {expected!r})\")\n\n\n# ------------------------------------------------------------\n# 1. is_balanced(s) → bool\n#\n# Дана строка из скобок трёх видов: (), [], {}.\n# Вернуть True, если все скобки закрыты правильно и в правильном порядке.\n#\n# is_balanced(\"([{}])\") → True\n# is_balanced(\"([)]\")   → False\n# is_balanced(\"(\")      → False\n#\n# Паттерн: стек — при открывающей push, при закрывающей pop и\n# сравни с ожидаемой парой (см. pairs в ds_reference.py)\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p1/is_balanced",
+     "text": "def is_balanced(s):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(is_balanced(\"([{}])\"), True, \"is_balanced\")\ncheck(is_balanced(\"([)]\"), False, \"is_balanced\")\ncheck(is_balanced(\"(\"), False, \"is_balanced\")\n\n\n# ------------------------------------------------------------\n# 2. min_remove_to_make_valid(s) → str\n#\n# Дана строка, содержащая буквы и круглые скобки '(' ')'.\n# Удалить минимум скобок так, чтобы оставшаяся строка стала валидной\n# (каждая открывающая закрыта, каждая закрывающая имеет пару).\n# Буквы не трогать.\n#\n# min_remove_to_make_valid(\"a)b(c)d\") → \"ab(c)d\"\n# min_remove_to_make_valid(\"))((\")    → \"\"\n#\n# Паттерн: стек с ИНДЕКСАМИ открывающих скобок. Лишнюю закрывающую\n# (стек пуст) сразу помечай на удаление. В конце всё, что осталось\n# в стеке — тоже лишние открывающие, тоже на удаление.\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p1/min_remove_to_make_valid",
+     "text": "def min_remove_to_make_valid(s):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(min_remove_to_make_valid(\"a)b(c)d\"), \"ab(c)d\", \"min_remove_to_make_valid\")\ncheck(min_remove_to_make_valid(\"))((\"), \"\", \"min_remove_to_make_valid\")\n\n\n# ------------------------------------------------------------\n# 3. evaluate_postfix(tokens) → int\n#\n# Вычислить выражение в постфиксной (обратной польской) записи.\n# tokens — список чисел и операторов (+, -, *, /), деление — целочисленное.\n#\n# evaluate_postfix([\"2\", \"1\", \"+\", \"3\", \"*\"]) → 9   # (2+1)*3\n# evaluate_postfix([\"4\", \"13\", \"5\", \"/\", \"+\"]) → 6  # 4 + (13//5)\n#\n# Паттерн: стек с числами. На операторе — pop два числа (второй pop —\n# левый операнд), применить операцию, push результат обратно.\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p1/evaluate_postfix",
+     "text": "def evaluate_postfix(tokens):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(evaluate_postfix([\"2\", \"1\", \"+\", \"3\", \"*\"]), 9, \"evaluate_postfix\")\ncheck(evaluate_postfix([\"4\", \"13\", \"5\", \"/\", \"+\"]), 6, \"evaluate_postfix\")\n\n\n# ------------------------------------------------------------\n# 4. MinStack — стек, у которого get_min() всегда возвращает\n# минимум за O(1)\n#\n# st = MinStack()\n# st.push(3); st.push(1); st.push(2)\n# st.get_min() → 1\n# st.pop()               # снял 2\n# st.get_min() → 1\n# st.pop()               # снял 1\n# st.get_min() → 3\n#\n# Паттерн: держать ВТОРОЙ стек с текущим минимумом на каждый момент,\n# а не искать min() по всему стеку каждый раз (это было бы O(n)).\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p1/MinStack",
+     "text": "class MinStack:\n    def __init__(self):\n        pass\n\n    def push(self, value):\n        pass\n\n    def pop(self):\n        pass\n\n    def get_min(self):\n        pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\nst = MinStack()\nst.push(3)\nst.push(1)\nst.push(2)\ncheck(st.get_min(), 1, \"MinStack.get_min\")\nst.pop()\ncheck(st.get_min(), 1, \"MinStack.get_min\")\nst.pop()\ncheck(st.get_min(), 3, \"MinStack.get_min\")\n\n\n# ------------------------------------------------------------\n# 5. daily_temperatures(temps) → list[int]\n#\n# Для каждого дня — через сколько дней температура станет выше.\n# Если такого дня нет — 0.\n#\n# daily_temperatures([73, 74, 75, 71, 69, 72, 76, 73])\n# → [1, 1, 4, 2, 1, 1, 0, 0]\n#\n# Паттерн: monotonic stack — храним ИНДЕКСЫ дней, для которых ещё\n# не нашли \"теплее\". Проходя новый день, снимаем со стека все дни,\n# которые холоднее текущего.\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p1/daily_temperatures",
+     "text": "def daily_temperatures(temps):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(\n    daily_temperatures([73, 74, 75, 71, 69, 72, 76, 73]),\n    [1, 1, 4, 2, 1, 1, 0, 0],\n    \"daily_temperatures\",\n)\n\n\n# ------------------------------------------------------------\n# 6. simplify_path(path) → str\n#\n# Дан абсолютный путь в Unix-стиле (как из os.path, но строкой).\n# Упростить: убрать лишние '/', обработать '.' (текущая папка)\n# и '..' (подняться на уровень выше).\n#\n# simplify_path(\"/a/./b/../../c/\") → \"/c\"\n# simplify_path(\"/../\")            → \"/\"\n# simplify_path(\"/home//foo/\")     → \"/home/foo\"\n#\n# Паттерн: стек папок. path.split(\"/\") даёт части, пропускай \"\" и \".\",\n# на \"..\" — pop из стека (если есть что снимать), иначе push part.\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p1/simplify_path",
+     "text": "def simplify_path(path):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(simplify_path(\"/a/./b/../../c/\"), \"/c\", \"simplify_path\")\ncheck(simplify_path(\"/../\"), \"/\", \"simplify_path\")\ncheck(simplify_path(\"/home//foo/\"), \"/home/foo\", \"simplify_path\")\n"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "m06-p1/is_balanced",
+     "ordinal": 1,
+     "name": "is_balanced",
+     "kind": "function",
+     "title": "is_balanced(s) → bool",
+     "description_html": "<p>Дана строка из скобок трёх видов: (), [], {}. Вернуть True, если все скобки закрыты правильно и в правильном порядке.</p>\n<pre class=\"example\">is_balanced(&quot;([{}])&quot;) → True\nis_balanced(&quot;([)]&quot;)   → False\nis_balanced(&quot;(&quot;)      → False</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> стек — при открывающей push, при закрывающей pop и сравни с ожидаемой парой (см. pairs в ds_reference.py)</div>",
+     "starter_code": "def is_balanced(s):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(is_balanced(\"([{}])\"), True, \"is_balanced\")\ncheck(is_balanced(\"([)]\"), False, \"is_balanced\")\ncheck(is_balanced(\"(\"), False, \"is_balanced\")",
+     "has_own_tests": true,
+     "expected_checks": 3,
+     "needs": [
+      "is_balanced"
+     ],
+     "slot_index": 1
+    },
+    {
+     "id": "m06-p1/min_remove_to_make_valid",
+     "ordinal": 2,
+     "name": "min_remove_to_make_valid",
+     "kind": "function",
+     "title": "min_remove_to_make_valid(s) → str",
+     "description_html": "<p>Дана строка, содержащая буквы и круглые скобки &#x27;(&#x27; &#x27;)&#x27;. Удалить минимум скобок так, чтобы оставшаяся строка стала валидной (каждая открывающая закрыта, каждая закрывающая имеет пару). Буквы не трогать.</p>\n<pre class=\"example\">min_remove_to_make_valid(&quot;a)b(c)d&quot;) → &quot;ab(c)d&quot;\nmin_remove_to_make_valid(&quot;))((&quot;)    → &quot;&quot;</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> стек с ИНДЕКСАМИ открывающих скобок. Лишнюю закрывающую (стек пуст) сразу помечай на удаление. В конце всё, что осталось в стеке — тоже лишние открывающие, тоже на удаление.</div>",
+     "starter_code": "def min_remove_to_make_valid(s):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(min_remove_to_make_valid(\"a)b(c)d\"), \"ab(c)d\", \"min_remove_to_make_valid\")\ncheck(min_remove_to_make_valid(\"))((\"), \"\", \"min_remove_to_make_valid\")",
+     "has_own_tests": true,
+     "expected_checks": 2,
+     "needs": [
+      "min_remove_to_make_valid"
+     ],
+     "slot_index": 3
+    },
+    {
+     "id": "m06-p1/evaluate_postfix",
+     "ordinal": 3,
+     "name": "evaluate_postfix",
+     "kind": "function",
+     "title": "evaluate_postfix(tokens) → int",
+     "description_html": "<p>Вычислить выражение в постфиксной (обратной польской) записи. tokens — список чисел и операторов (+, -, *, /), деление — целочисленное.</p>\n<pre class=\"example\">evaluate_postfix([&quot;2&quot;, &quot;1&quot;, &quot;+&quot;, &quot;3&quot;, &quot;*&quot;]) → 9   # (2+1)*3\nevaluate_postfix([&quot;4&quot;, &quot;13&quot;, &quot;5&quot;, &quot;/&quot;, &quot;+&quot;]) → 6  # 4 + (13//5)</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> стек с числами. На операторе — pop два числа (второй pop — левый операнд), применить операцию, push результат обратно.</div>",
+     "starter_code": "def evaluate_postfix(tokens):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(evaluate_postfix([\"2\", \"1\", \"+\", \"3\", \"*\"]), 9, \"evaluate_postfix\")\ncheck(evaluate_postfix([\"4\", \"13\", \"5\", \"/\", \"+\"]), 6, \"evaluate_postfix\")",
+     "has_own_tests": true,
+     "expected_checks": 2,
+     "needs": [
+      "evaluate_postfix"
+     ],
+     "slot_index": 5
+    },
+    {
+     "id": "m06-p1/MinStack",
+     "ordinal": 4,
+     "name": "MinStack",
+     "kind": "class",
+     "title": "MinStack — стек, у которого get_min() всегда возвращает минимум за O(1)",
+     "description_html": "<p>st = MinStack() st.push(3); st.push(1); st.push(2) st.get_min() → 1 st.pop()               # снял 2 st.get_min() → 1 st.pop()               # снял 1 st.get_min() → 3</p>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> держать ВТОРОЙ стек с текущим минимумом на каждый момент, а не искать min() по всему стеку каждый раз (это было бы O(n)).</div>",
+     "starter_code": "class MinStack:\n    def __init__(self):\n        pass\n\n    def push(self, value):\n        pass\n\n    def pop(self):\n        pass\n\n    def get_min(self):\n        pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "st = MinStack()\nst.push(3)\nst.push(1)\nst.push(2)\ncheck(st.get_min(), 1, \"MinStack.get_min\")\nst.pop()\ncheck(st.get_min(), 1, \"MinStack.get_min\")\nst.pop()\ncheck(st.get_min(), 3, \"MinStack.get_min\")",
+     "has_own_tests": true,
+     "expected_checks": 3,
+     "needs": [
+      "MinStack"
+     ],
+     "slot_index": 7
+    },
+    {
+     "id": "m06-p1/daily_temperatures",
+     "ordinal": 5,
+     "name": "daily_temperatures",
+     "kind": "function",
+     "title": "daily_temperatures(temps) → list[int]",
+     "description_html": "<p>Для каждого дня — через сколько дней температура станет выше. Если такого дня нет — 0.</p>\n<p>daily_temperatures([73, 74, 75, 71, 69, 72, 76, 73]) → [1, 1, 4, 2, 1, 1, 0, 0]</p>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> monotonic stack — храним ИНДЕКСЫ дней, для которых ещё не нашли &quot;теплее&quot;. Проходя новый день, снимаем со стека все дни, которые холоднее текущего.</div>",
+     "starter_code": "def daily_temperatures(temps):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(\n    daily_temperatures([73, 74, 75, 71, 69, 72, 76, 73]),\n    [1, 1, 4, 2, 1, 1, 0, 0],\n    \"daily_temperatures\",\n)",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "daily_temperatures"
+     ],
+     "slot_index": 9
+    },
+    {
+     "id": "m06-p1/simplify_path",
+     "ordinal": 6,
+     "name": "simplify_path",
+     "kind": "function",
+     "title": "simplify_path(path) → str",
+     "description_html": "<p>Дан абсолютный путь в Unix-стиле (как из os.path, но строкой). Упростить: убрать лишние &#x27;/&#x27;, обработать &#x27;.&#x27; (текущая папка) и &#x27;..&#x27; (подняться на уровень выше).</p>\n<pre class=\"example\">simplify_path(&quot;/a/./b/../../c/&quot;) → &quot;/c&quot;\nsimplify_path(&quot;/../&quot;)            → &quot;/&quot;\nsimplify_path(&quot;/home//foo/&quot;)     → &quot;/home/foo&quot;</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> стек папок. path.split(&quot;/&quot;) даёт части, пропускай &quot;&quot; и &quot;.&quot;, на &quot;..&quot; — pop из стека (если есть что снимать), иначе push part.</div>",
+     "starter_code": "def simplify_path(path):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(simplify_path(\"/a/./b/../../c/\"), \"/c\", \"simplify_path\")\ncheck(simplify_path(\"/../\"), \"/\", \"simplify_path\")\ncheck(simplify_path(\"/home//foo/\"), \"/home/foo\", \"simplify_path\")",
+     "has_own_tests": true,
+     "expected_checks": 3,
+     "needs": [
+      "simplify_path"
+     ],
+     "slot_index": 11
+    }
+   ]
+  },
+  {
+   "id": "m06-p2",
+   "module": "m06",
+   "title": "P2: Queue (очередь)",
+   "source_file": "drills/06_data_structures/p2_queue.py",
+   "intro_html": "<p>МОДУЛЬ 6 — P2: QUEUE (очередь), collections.deque\nСмотри ds_reference.py перед началом. Решения не даны — пишешь сам.\nПравило перед каждой задачей:\n  # Вход: ... Выход: ... Паттерн: ...\ncheck(actual, expected) печатает OK/FAIL и не роняет файл на\nпервой ошибке — видно все результаты разом.</p>",
+   "prelude": "from collections import deque",
+   "segments": [
+    {
+     "t": "raw",
+     "text": "# ============================================================\n# МОДУЛЬ 6 — P2: QUEUE (очередь), collections.deque\n#\n# Смотри ds_reference.py перед началом. Решения не даны — пишешь сам.\n# Правило перед каждой задачей:\n#   # Вход: ... Выход: ... Паттерн: ...\n#\n# check(actual, expected) печатает OK/FAIL и не роняет файл на\n# первой ошибке — видно все результаты разом.\n# ============================================================\n\nfrom collections import deque\n\n\ndef check(actual, expected, label=\"\"):\n    status = \"OK  \" if actual == expected else \"FAIL\"\n    print(f\"{status} {label}: {actual!r} (ожидалось {expected!r})\")\n\n\n# ------------------------------------------------------------\n# 1. process_in_order(tasks) → list\n#\n# Разминка: положить все задачи в очередь и вынуть их в том же\n# порядке (просто чтобы руками потрогать enqueue/dequeue через deque).\n#\n# process_in_order([\"a\", \"b\", \"c\"]) → [\"a\", \"b\", \"c\"]\n#\n# Паттерн: deque.append (enqueue) + deque.popleft (dequeue)\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p2/process_in_order",
+     "text": "def process_in_order(tasks):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(process_in_order([\"a\", \"b\", \"c\"]), [\"a\", \"b\", \"c\"], \"process_in_order\")\n\n\n# ------------------------------------------------------------\n# 2. moving_average(nums, window) → list[float]\n#\n# Скользящее среднее по окну размера window.\n#\n# moving_average([1, 2, 3, 4, 5], 2) → [1.5, 2.5, 3.5, 4.5]\n#\n# Паттерн: deque как окно — при добавлении нового элемента, если\n# размер окна превышен, удалить самый старый слева (popleft, O(1)).\n# Не пересчитывать сумму окна заново каждый раз — обновлять налету.\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p2/moving_average",
+     "text": "def moving_average(nums, window):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(moving_average([1, 2, 3, 4, 5], 2), [1.5, 2.5, 3.5, 4.5], \"moving_average\")\n\n\n# ------------------------------------------------------------\n# 3. first_unique_in_stream(stream) → list\n#\n# Для потока символов вернуть список: после добавления каждого символа —\n# какой сейчас первый уникальный символ среди уже добавленных (или None,\n# если такого нет).\n#\n# first_unique_in_stream([\"a\", \"b\", \"a\", \"c\"]) → [\"a\", \"a\", \"b\", \"b\"]\n#\n# Паттерн: deque с кандидатами на уникальность + dict со счётчиком\n# встречаемости. Когда кандидат слева перестаёт быть уникальным —\n# убрать его из очереди кандидатов (popleft).\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p2/first_unique_in_stream",
+     "text": "def first_unique_in_stream(stream):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(\n    first_unique_in_stream([\"a\", \"b\", \"a\", \"c\"]),\n    [\"a\", \"a\", \"b\", \"b\"],\n    \"first_unique_in_stream\",\n)\n\n\n# ------------------------------------------------------------\n# 4. can_finish_in_order(tasks) → bool\n#\n# tasks — словарь {задача: [список задач, которые должны быть\n# выполнены раньше]}. Вернуть True, если можно выполнить вообще\n# все задачи с учётом зависимостей (то есть нет циклической зависимости).\n#\n# can_finish_in_order({\"a\": [], \"b\": [\"a\"], \"c\": [\"b\"]}) → True\n# can_finish_in_order({\"a\": [\"b\"], \"b\": [\"a\"]})          → False\n#\n# Паттерн: BFS через очередь (topological sort, Kahn's algorithm) —\n# считаем, сколько у каждой задачи \"долгов\" (in-degree), в очередь\n# кладём задачи с нулём долгов, при обработке уменьшаем долги у зависимых.\n# Если в конце обработали не все задачи — есть цикл.\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p2/can_finish_in_order",
+     "text": "def can_finish_in_order(tasks):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(can_finish_in_order({\"a\": [], \"b\": [\"a\"], \"c\": [\"b\"]}), True, \"can_finish_in_order\")\ncheck(can_finish_in_order({\"a\": [\"b\"], \"b\": [\"a\"]}), False, \"can_finish_in_order\")\n\n\n# ------------------------------------------------------------\n# 5. sliding_window_max(nums, k) → list[int]\n#\n# Максимум в каждом окне размера k при движении окна слева направо.\n#\n# sliding_window_max([1, 3, -1, -3, 5, 3, 6, 7], 3)\n# → [3, 3, 5, 5, 6, 7]\n#\n# Паттерн: monotonic deque — храним в дек индексы элементов по убыванию\n# значений; при выходе элемента из окна слева — убираем его индекс\n# (если он там); при добавлении нового — убираем с конца всё, что\n# меньше нового (они уже никогда не станут максимумом).\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p2/sliding_window_max",
+     "text": "def sliding_window_max(nums, k):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(\n    sliding_window_max([1, 3, -1, -3, 5, 3, 6, 7], 3),\n    [3, 3, 5, 5, 6, 7],\n    \"sliding_window_max\",\n)\n"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "m06-p2/process_in_order",
+     "ordinal": 1,
+     "name": "process_in_order",
+     "kind": "function",
+     "title": "process_in_order(tasks) → list",
+     "description_html": "<p>Разминка: положить все задачи в очередь и вынуть их в том же порядке (просто чтобы руками потрогать enqueue/dequeue через deque).</p>\n<pre class=\"example\">process_in_order([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]) → [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> deque.append (enqueue) + deque.popleft (dequeue)</div>",
+     "starter_code": "def process_in_order(tasks):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(process_in_order([\"a\", \"b\", \"c\"]), [\"a\", \"b\", \"c\"], \"process_in_order\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "process_in_order"
+     ],
+     "slot_index": 1
+    },
+    {
+     "id": "m06-p2/moving_average",
+     "ordinal": 2,
+     "name": "moving_average",
+     "kind": "function",
+     "title": "moving_average(nums, window) → list[float]",
+     "description_html": "<p>Скользящее среднее по окну размера window.</p>\n<pre class=\"example\">moving_average([1, 2, 3, 4, 5], 2) → [1.5, 2.5, 3.5, 4.5]</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> deque как окно — при добавлении нового элемента, если размер окна превышен, удалить самый старый слева (popleft, O(1)). Не пересчитывать сумму окна заново каждый раз — обновлять налету.</div>",
+     "starter_code": "def moving_average(nums, window):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(moving_average([1, 2, 3, 4, 5], 2), [1.5, 2.5, 3.5, 4.5], \"moving_average\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "moving_average"
+     ],
+     "slot_index": 3
+    },
+    {
+     "id": "m06-p2/first_unique_in_stream",
+     "ordinal": 3,
+     "name": "first_unique_in_stream",
+     "kind": "function",
+     "title": "first_unique_in_stream(stream) → list",
+     "description_html": "<p>Для потока символов вернуть список: после добавления каждого символа — какой сейчас первый уникальный символ среди уже добавленных (или None, если такого нет).</p>\n<pre class=\"example\">first_unique_in_stream([&quot;a&quot;, &quot;b&quot;, &quot;a&quot;, &quot;c&quot;]) → [&quot;a&quot;, &quot;a&quot;, &quot;b&quot;, &quot;b&quot;]</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> deque с кандидатами на уникальность + dict со счётчиком встречаемости. Когда кандидат слева перестаёт быть уникальным — убрать его из очереди кандидатов (popleft).</div>",
+     "starter_code": "def first_unique_in_stream(stream):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(\n    first_unique_in_stream([\"a\", \"b\", \"a\", \"c\"]),\n    [\"a\", \"a\", \"b\", \"b\"],\n    \"first_unique_in_stream\",\n)",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "first_unique_in_stream"
+     ],
+     "slot_index": 5
+    },
+    {
+     "id": "m06-p2/can_finish_in_order",
+     "ordinal": 4,
+     "name": "can_finish_in_order",
+     "kind": "function",
+     "title": "can_finish_in_order(tasks) → bool",
+     "description_html": "<p>tasks — словарь {задача: [список задач, которые должны быть выполнены раньше]}. Вернуть True, если можно выполнить вообще все задачи с учётом зависимостей (то есть нет циклической зависимости).</p>\n<pre class=\"example\">can_finish_in_order({&quot;a&quot;: [], &quot;b&quot;: [&quot;a&quot;], &quot;c&quot;: [&quot;b&quot;]}) → True\ncan_finish_in_order({&quot;a&quot;: [&quot;b&quot;], &quot;b&quot;: [&quot;a&quot;]})          → False</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> BFS через очередь (topological sort, Kahn&#x27;s algorithm) — считаем, сколько у каждой задачи &quot;долгов&quot; (in-degree), в очередь кладём задачи с нулём долгов, при обработке уменьшаем долги у зависимых. Если в конце обработали не все задачи — есть цикл.</div>",
+     "starter_code": "def can_finish_in_order(tasks):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(can_finish_in_order({\"a\": [], \"b\": [\"a\"], \"c\": [\"b\"]}), True, \"can_finish_in_order\")\ncheck(can_finish_in_order({\"a\": [\"b\"], \"b\": [\"a\"]}), False, \"can_finish_in_order\")",
+     "has_own_tests": true,
+     "expected_checks": 2,
+     "needs": [
+      "can_finish_in_order"
+     ],
+     "slot_index": 7
+    },
+    {
+     "id": "m06-p2/sliding_window_max",
+     "ordinal": 5,
+     "name": "sliding_window_max",
+     "kind": "function",
+     "title": "sliding_window_max(nums, k) → list[int]",
+     "description_html": "<p>Максимум в каждом окне размера k при движении окна слева направо.</p>\n<p>sliding_window_max([1, 3, -1, -3, 5, 3, 6, 7], 3) → [3, 3, 5, 5, 6, 7]</p>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> monotonic deque — храним в дек индексы элементов по убыванию значений; при выходе элемента из окна слева — убираем его индекс (если он там); при добавлении нового — убираем с конца всё, что меньше нового (они уже никогда не станут максимумом).</div>",
+     "starter_code": "def sliding_window_max(nums, k):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(\n    sliding_window_max([1, 3, -1, -3, 5, 3, 6, 7], 3),\n    [3, 3, 5, 5, 6, 7],\n    \"sliding_window_max\",\n)",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "sliding_window_max"
+     ],
+     "slot_index": 9
+    }
+   ]
+  },
+  {
+   "id": "m06-p3",
+   "module": "m06",
+   "title": "P3: Linked List (связный список)",
+   "source_file": "drills/06_data_structures/p3_linked_list.py",
+   "intro_html": "<p>МОДУЛЬ 6 — P3: LINKED LIST (связный список)\nСмотри класс Node/LinkedList в ds_reference.py — используй такой\nже Node (с полями value и next). Решения не даны — пишешь сам.\nПравило перед каждой задачей:\n  # Вход: ... Выход: ... Паттерн: ...\ncheck(actual, expected) печатает OK/FAIL и не роняет файл на\nпервой ошибке — видно все результаты разом.</p>",
+   "prelude": "class Node:\n    def __init__(self, value):\n        self.value = value\n        self.next = None",
+   "segments": [
+    {
+     "t": "raw",
+     "text": "# ============================================================\n# МОДУЛЬ 6 — P3: LINKED LIST (связный список)\n#\n# Смотри класс Node/LinkedList в ds_reference.py — используй такой\n# же Node (с полями value и next). Решения не даны — пишешь сам.\n# Правило перед каждой задачей:\n#   # Вход: ... Выход: ... Паттерн: ...\n#\n# check(actual, expected) печатает OK/FAIL и не роняет файл на\n# первой ошибке — видно все результаты разом.\n# ============================================================\n\n\ndef check(actual, expected, label=\"\"):\n    status = \"OK  \" if actual == expected else \"FAIL\"\n    print(f\"{status} {label}: {actual!r} (ожидалось {expected!r})\")\n\n\nclass Node:\n    def __init__(self, value):\n        self.value = value\n        self.next = None\n\n\n# ------------------------------------------------------------\n# 1. build_list(values) → Node | None\n#\n# Вспомогательная: построить связный список из обычного list и\n# вернуть head. Нужна для проверки остальных функций (не задача\n# на \"подумать\", просто утилита — но написать самому, чтобы руки\n# привыкли к Node).\n#\n# to_list(build_list([1, 2, 3])) → [1, 2, 3]   # где to_list ниже\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p3/build_list",
+     "text": "def build_list(values):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\n# ------------------------------------------------------------\n# 2. to_list(head) → list\n#\n# Обратная операция: пройти по связному списку и собрать обычный list.\n# Используй для проверки результатов функций ниже.\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p3/to_list",
+     "text": "def to_list(head):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(to_list(build_list([1, 2, 3])), [1, 2, 3], \"build_list + to_list\")\n\n\n# ------------------------------------------------------------\n# 3. reverse_list(head) → Node | None\n#\n# Развернуть связный список (изменить направление ссылок), вернуть\n# новый head.\n#\n# to_list(reverse_list(build_list([1, 2, 3]))) → [3, 2, 1]\n#\n# Паттерн: три указателя (prev, current, next_node), на каждом шаге\n# разворачиваем current.next на prev, потом двигаем все три вперёд.\n# Без создания новых Node — только перелинковка.\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p3/reverse_list",
+     "text": "def reverse_list(head):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(to_list(reverse_list(build_list([1, 2, 3]))), [3, 2, 1], \"reverse_list\")\n\n\n# ------------------------------------------------------------\n# 4. find_middle(head) → Node | None\n#\n# Найти средний узел списка (при чётной длине — второй из двух средних).\n#\n# find_middle(build_list([1, 2, 3, 4, 5])).value → 3\n# find_middle(build_list([1, 2, 3, 4])).value    → 3\n#\n# Паттерн: slow/fast pointers — slow двигается на 1 шаг, fast на 2;\n# когда fast дойдёт до конца, slow будет посередине (уже видел этот\n# паттерн в Модуле 5 на массивах — здесь то же самое, но на ссылках).\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p3/find_middle",
+     "text": "def find_middle(head):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\nmiddle1 = find_middle(build_list([1, 2, 3, 4, 5]))\ncheck(middle1.value if middle1 else None, 3, \"find_middle\")\nmiddle2 = find_middle(build_list([1, 2, 3, 4]))\ncheck(middle2.value if middle2 else None, 3, \"find_middle\")\n\n\n# ------------------------------------------------------------\n# 5. has_cycle(head) → bool\n#\n# Определить, есть ли цикл в связном списке (последний узел\n# ссылается не на None, а обратно на один из предыдущих).\n#\n# Паттерн: тот же slow/fast — если есть цикл, fast рано или поздно\n# \"догонит\" slow внутри цикла. Если fast дошёл до None — цикла нет.\n#\n# Замечание: чтобы протестировать вручную, придётся построить список\n# и вручную приделать node.next = какой-то более ранний узел —\n# build_list() для этого не подходит, тестируй отдельным кодом.\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p3/has_cycle",
+     "text": "def has_cycle(head):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\nno_cycle = build_list([1, 2, 3])\ncheck(has_cycle(no_cycle), False, \"has_cycle (без цикла)\")\n\na = Node(1)\nb = Node(2)\nc = Node(3)\na.next = b\nb.next = c\nc.next = a  # цикл вручную\ncheck(has_cycle(a), True, \"has_cycle (с циклом)\")\n\n\n# ------------------------------------------------------------\n# 6. remove_duplicates_sorted(head) → Node | None\n#\n# Список уже отсортирован. Удалить узлы-дубликаты значений так,\n# чтобы каждое значение осталось только один раз.\n#\n# to_list(remove_duplicates_sorted(build_list([1, 1, 2, 3, 3, 3])))\n# → [1, 2, 3]\n#\n# Паттерн: один проход, сравниваем current.value с current.next.value;\n# если равны — \"перепрыгиваем\" через дубликат\n# (current.next = current.next.next), иначе двигаем current дальше.\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p3/remove_duplicates_sorted",
+     "text": "def remove_duplicates_sorted(head):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(\n    to_list(remove_duplicates_sorted(build_list([1, 1, 2, 3, 3, 3]))),\n    [1, 2, 3],\n    \"remove_duplicates_sorted\",\n)\n"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "m06-p3/build_list",
+     "ordinal": 1,
+     "name": "build_list",
+     "kind": "function",
+     "title": "build_list(values) → Node | None",
+     "description_html": "<p>Вспомогательная: построить связный список из обычного list и вернуть head. Нужна для проверки остальных функций (не задача на &quot;подумать&quot;, просто утилита — но написать самому, чтобы руки привыкли к Node).</p>\n<pre class=\"example\">to_list(build_list([1, 2, 3])) → [1, 2, 3]   # где to_list ниже</pre>",
+     "starter_code": "def build_list(values):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "",
+     "has_own_tests": false,
+     "expected_checks": 0,
+     "needs": [
+      "build_list"
+     ],
+     "slot_index": 1
+    },
+    {
+     "id": "m06-p3/to_list",
+     "ordinal": 2,
+     "name": "to_list",
+     "kind": "function",
+     "title": "to_list(head) → list",
+     "description_html": "<p>Обратная операция: пройти по связному списку и собрать обычный list. Используй для проверки результатов функций ниже.</p>",
+     "starter_code": "def to_list(head):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(to_list(build_list([1, 2, 3])), [1, 2, 3], \"build_list + to_list\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "build_list",
+      "to_list"
+     ],
+     "slot_index": 3
+    },
+    {
+     "id": "m06-p3/reverse_list",
+     "ordinal": 3,
+     "name": "reverse_list",
+     "kind": "function",
+     "title": "reverse_list(head) → Node | None",
+     "description_html": "<p>Развернуть связный список (изменить направление ссылок), вернуть новый head.</p>\n<pre class=\"example\">to_list(reverse_list(build_list([1, 2, 3]))) → [3, 2, 1]</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> три указателя (prev, current, next_node), на каждом шаге разворачиваем current.next на prev, потом двигаем все три вперёд. Без создания новых Node — только перелинковка.</div>",
+     "starter_code": "def reverse_list(head):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(to_list(reverse_list(build_list([1, 2, 3]))), [3, 2, 1], \"reverse_list\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "build_list",
+      "reverse_list",
+      "to_list"
+     ],
+     "slot_index": 5
+    },
+    {
+     "id": "m06-p3/find_middle",
+     "ordinal": 4,
+     "name": "find_middle",
+     "kind": "function",
+     "title": "find_middle(head) → Node | None",
+     "description_html": "<p>Найти средний узел списка (при чётной длине — второй из двух средних).</p>\n<pre class=\"example\">find_middle(build_list([1, 2, 3, 4, 5])).value → 3\nfind_middle(build_list([1, 2, 3, 4])).value    → 3</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> slow/fast pointers — slow двигается на 1 шаг, fast на 2; когда fast дойдёт до конца, slow будет посередине (уже видел этот паттерн в Модуле 5 на массивах — здесь то же самое, но на ссылках).</div>",
+     "starter_code": "def find_middle(head):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "middle1 = find_middle(build_list([1, 2, 3, 4, 5]))\ncheck(middle1.value if middle1 else None, 3, \"find_middle\")\nmiddle2 = find_middle(build_list([1, 2, 3, 4]))\ncheck(middle2.value if middle2 else None, 3, \"find_middle\")",
+     "has_own_tests": true,
+     "expected_checks": 2,
+     "needs": [
+      "build_list",
+      "find_middle"
+     ],
+     "slot_index": 7
+    },
+    {
+     "id": "m06-p3/has_cycle",
+     "ordinal": 5,
+     "name": "has_cycle",
+     "kind": "function",
+     "title": "has_cycle(head) → bool",
+     "description_html": "<p>Определить, есть ли цикл в связном списке (последний узел ссылается не на None, а обратно на один из предыдущих).</p>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> тот же slow/fast — если есть цикл, fast рано или поздно &quot;догонит&quot; slow внутри цикла. Если fast дошёл до None — цикла нет.</div>\n<div class=\"note note--замечание\"><span class=\"note__label\">Замечание</span> чтобы протестировать вручную, придётся построить список и вручную приделать node.next = какой-то более ранний узел — build_list() для этого не подходит, тестируй отдельным кодом.</div>",
+     "starter_code": "def has_cycle(head):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "no_cycle = build_list([1, 2, 3])\ncheck(has_cycle(no_cycle), False, \"has_cycle (без цикла)\")\na = Node(1)\nb = Node(2)\nc = Node(3)\na.next = b\nb.next = c\nc.next = a\ncheck(has_cycle(a), True, \"has_cycle (с циклом)\")",
+     "has_own_tests": true,
+     "expected_checks": 2,
+     "needs": [
+      "build_list",
+      "has_cycle"
+     ],
+     "slot_index": 9
+    },
+    {
+     "id": "m06-p3/remove_duplicates_sorted",
+     "ordinal": 6,
+     "name": "remove_duplicates_sorted",
+     "kind": "function",
+     "title": "remove_duplicates_sorted(head) → Node | None",
+     "description_html": "<p>Список уже отсортирован. Удалить узлы-дубликаты значений так, чтобы каждое значение осталось только один раз.</p>\n<p>to_list(remove_duplicates_sorted(build_list([1, 1, 2, 3, 3, 3]))) → [1, 2, 3]</p>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> один проход, сравниваем current.value с current.next.value; если равны — &quot;перепрыгиваем&quot; через дубликат (current.next = current.next.next), иначе двигаем current дальше.</div>",
+     "starter_code": "def remove_duplicates_sorted(head):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(\n    to_list(remove_duplicates_sorted(build_list([1, 1, 2, 3, 3, 3]))),\n    [1, 2, 3],\n    \"remove_duplicates_sorted\",\n)",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "build_list",
+      "remove_duplicates_sorted",
+      "to_list"
+     ],
+     "slot_index": 11
+    }
+   ]
+  },
+  {
+   "id": "m06-p4",
+   "module": "m06",
+   "title": "P4: Hashing (хэш-таблицы)",
+   "source_file": "drills/06_data_structures/p4_hashing.py",
+   "intro_html": "<p>МОДУЛЬ 6 — P4: HASHING (dict/set как хэш-таблицы,\nне просто &quot;словарь для данных&quot;)\nСмотри ds_reference.py — раздел про hash table под капотом.\nЭти задачи не про dict-паттерны из Модуля 3 (COUNT/GROUP BY) — тут\nакцент на том, что hash даёт O(1) поиск &quot;было / не было&quot;, и это\nсамостоятельный инструмент для задач, где иначе пришлось бы\nиспользовать вложенные циклы O(n²).\nРешения не даны — пишешь сам. Правило перед каждой задачей:\n  # Вход: ... Выход: ... Паттерн: ...\ncheck(actual, expected) печатает OK/FAIL и не роняет файл на\nпервой ошибке — видно все результаты разом.</p>",
+   "prelude": "",
+   "segments": [
+    {
+     "t": "raw",
+     "text": "# ============================================================\n# МОДУЛЬ 6 — P4: HASHING (dict/set как хэш-таблицы,\n# не просто \"словарь для данных\")\n#\n# Смотри ds_reference.py — раздел про hash table под капотом.\n# Эти задачи не про dict-паттерны из Модуля 3 (COUNT/GROUP BY) — тут\n# акцент на том, что hash даёт O(1) поиск \"было / не было\", и это\n# самостоятельный инструмент для задач, где иначе пришлось бы\n# использовать вложенные циклы O(n²).\n#\n# Решения не даны — пишешь сам. Правило перед каждой задачей:\n#   # Вход: ... Выход: ... Паттерн: ...\n#\n# check(actual, expected) печатает OK/FAIL и не роняет файл на\n# первой ошибке — видно все результаты разом.\n# ============================================================\n\n\ndef check(actual, expected, label=\"\"):\n    status = \"OK  \" if actual == expected else \"FAIL\"\n    print(f\"{status} {label}: {actual!r} (ожидалось {expected!r})\")\n\n\n# ------------------------------------------------------------\n# 1. has_duplicate(nums) → bool\n#\n# Разминка: есть ли повторяющееся число в списке.\n# Написать сначала наивно (вложенный цикл, O(n²)) в комментарии —\n# а решение сдать через set (O(n)). Это тренирует сам сдвиг мышления\n# \"перебор пар\" → \"хэш для быстрой проверки\".\n#\n# has_duplicate([1, 2, 3, 1]) → True\n# has_duplicate([1, 2, 3])    → False\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p4/has_duplicate",
+     "text": "def has_duplicate(nums):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(has_duplicate([1, 2, 3, 1]), True, \"has_duplicate\")\ncheck(has_duplicate([1, 2, 3]), False, \"has_duplicate\")\n\n\n# ------------------------------------------------------------\n# 2. two_sum_indices(nums, target) → tuple[int, int] | None\n#\n# Найти индексы ДВУХ чисел, которые в сумме дают target.\n# (Отличается от two-pointer версии в Модуле 5 тем, что список\n# НЕ отсортирован — сортировать нельзя, индексы должны быть исходные.)\n#\n# two_sum_indices([2, 7, 11, 15], 9) → (0, 1)\n#\n# Паттерн: dict {значение: индекс}, на каждом числе проверяем,\n# не встречали ли уже (target - число) — O(n) вместо O(n²).\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p4/two_sum_indices",
+     "text": "def two_sum_indices(nums, target):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(two_sum_indices([2, 7, 11, 15], 9), (0, 1), \"two_sum_indices\")\n\n\n# ------------------------------------------------------------\n# 3. group_anagrams(words) → list[list[str]]\n#\n# Сгруппировать слова, которые являются анаграммами друг друга\n# (состоят из одних и тех же букв в любом порядке).\n#\n# group_anagrams([\"eat\", \"tea\", \"tan\", \"ate\", \"nat\", \"bat\"])\n# → [[\"eat\", \"tea\", \"ate\"], [\"tan\", \"nat\"], [\"bat\"]]\n# (порядок групп и порядок внутри группы не важен)\n#\n# Паттерн: ключ группировки — не само слово, а нормализованная форма\n# (например \"\".join(sorted(word))) — анаграммы дают одинаковый ключ.\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p4/group_anagrams",
+     "text": "def group_anagrams(words):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\nresult = group_anagrams([\"eat\", \"tea\", \"tan\", \"ate\", \"nat\", \"bat\"])\nnormalized = sorted(sorted(group) for group in result) if result else result\nexpected_normalized = sorted(sorted(g) for g in [[\"eat\", \"tea\", \"ate\"], [\"tan\", \"nat\"], [\"bat\"]])\ncheck(normalized, expected_normalized, \"group_anagrams\")  # порядок не важен\n\n\n# ------------------------------------------------------------\n# 4. longest_consecutive_sequence(nums) → int\n#\n# Длина самой длинной последовательности идущих подряд чисел\n# (не обязательно подряд в исходном списке, важен только сам факт\n# существования всей цепочки n, n+1, n+2, ...).\n#\n# longest_consecutive_sequence([100, 4, 200, 1, 3, 2]) → 4\n# (последовательность 1, 2, 3, 4)\n#\n# Паттерн: положить всё в set для O(1) проверки \"есть ли число\".\n# Начинать цепочку только с чисел, у которых нет (n-1) в множестве —\n# иначе один и тот же прогон посчитается несколько раз, и решение\n# станет O(n²) вместо O(n).\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p4/longest_consecutive_sequence",
+     "text": "def longest_consecutive_sequence(nums):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(\n    longest_consecutive_sequence([100, 4, 200, 1, 3, 2]),\n    4,\n    \"longest_consecutive_sequence\",\n)\n\n\n# ------------------------------------------------------------\n# 5. subarray_sum_equals_k(nums, k) → int\n#\n# Сколько всего непрерывных подмассивов дают в сумме ровно k.\n# (Числа могут быть отрицательными — поэтому two pointers из Модуля 5\n# тут не подходит, нужен другой инструмент.)\n#\n# subarray_sum_equals_k([1, 1, 1], 2) → 2\n# subarray_sum_equals_k([1, 2, 3], 3) → 2   # [1,2] и [3]\n#\n# Паттерн: префиксная сумма + dict {сумма: сколько раз встречалась}.\n# Если prefix_sum - k уже встречалась N раз — значит есть N подмассивов,\n# заканчивающихся на текущем элементе, с суммой k.\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m06-p4/subarray_sum_equals_k",
+     "text": "def subarray_sum_equals_k(nums, k):\n    pass\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(subarray_sum_equals_k([1, 1, 1], 2), 2, \"subarray_sum_equals_k\")\ncheck(subarray_sum_equals_k([1, 2, 3], 3), 2, \"subarray_sum_equals_k\")\n"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "m06-p4/has_duplicate",
+     "ordinal": 1,
+     "name": "has_duplicate",
+     "kind": "function",
+     "title": "has_duplicate(nums) → bool",
+     "description_html": "<p>Разминка: есть ли повторяющееся число в списке. Написать сначала наивно (вложенный цикл, O(n²)) в комментарии — а решение сдать через set (O(n)). Это тренирует сам сдвиг мышления &quot;перебор пар&quot; → &quot;хэш для быстрой проверки&quot;.</p>\n<pre class=\"example\">has_duplicate([1, 2, 3, 1]) → True\nhas_duplicate([1, 2, 3])    → False</pre>",
+     "starter_code": "def has_duplicate(nums):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(has_duplicate([1, 2, 3, 1]), True, \"has_duplicate\")\ncheck(has_duplicate([1, 2, 3]), False, \"has_duplicate\")",
+     "has_own_tests": true,
+     "expected_checks": 2,
+     "needs": [
+      "has_duplicate"
+     ],
+     "slot_index": 1
+    },
+    {
+     "id": "m06-p4/two_sum_indices",
+     "ordinal": 2,
+     "name": "two_sum_indices",
+     "kind": "function",
+     "title": "two_sum_indices(nums, target) → tuple[int, int] | None",
+     "description_html": "<p>Найти индексы ДВУХ чисел, которые в сумме дают target. (Отличается от two-pointer версии в Модуле 5 тем, что список НЕ отсортирован — сортировать нельзя, индексы должны быть исходные.)</p>\n<pre class=\"example\">two_sum_indices([2, 7, 11, 15], 9) → (0, 1)</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> dict {значение: индекс}, на каждом числе проверяем, не встречали ли уже (target - число) — O(n) вместо O(n²).</div>",
+     "starter_code": "def two_sum_indices(nums, target):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(two_sum_indices([2, 7, 11, 15], 9), (0, 1), \"two_sum_indices\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "two_sum_indices"
+     ],
+     "slot_index": 3
+    },
+    {
+     "id": "m06-p4/group_anagrams",
+     "ordinal": 3,
+     "name": "group_anagrams",
+     "kind": "function",
+     "title": "group_anagrams(words) → list[list[str]]",
+     "description_html": "<p>Сгруппировать слова, которые являются анаграммами друг друга (состоят из одних и тех же букв в любом порядке).</p>\n<p>group_anagrams([&quot;eat&quot;, &quot;tea&quot;, &quot;tan&quot;, &quot;ate&quot;, &quot;nat&quot;, &quot;bat&quot;]) → [[&quot;eat&quot;, &quot;tea&quot;, &quot;ate&quot;], [&quot;tan&quot;, &quot;nat&quot;], [&quot;bat&quot;]] (порядок групп и порядок внутри группы не важен)</p>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> ключ группировки — не само слово, а нормализованная форма (например &quot;&quot;.join(sorted(word))) — анаграммы дают одинаковый ключ.</div>",
+     "starter_code": "def group_anagrams(words):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "result = group_anagrams([\"eat\", \"tea\", \"tan\", \"ate\", \"nat\", \"bat\"])\nnormalized = sorted(sorted(group) for group in result) if result else result\nexpected_normalized = sorted(sorted(g) for g in [[\"eat\", \"tea\", \"ate\"], [\"tan\", \"nat\"], [\"bat\"]])\ncheck(normalized, expected_normalized, \"group_anagrams\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "group_anagrams"
+     ],
+     "slot_index": 5
+    },
+    {
+     "id": "m06-p4/longest_consecutive_sequence",
+     "ordinal": 4,
+     "name": "longest_consecutive_sequence",
+     "kind": "function",
+     "title": "longest_consecutive_sequence(nums) → int",
+     "description_html": "<p>Длина самой длинной последовательности идущих подряд чисел (не обязательно подряд в исходном списке, важен только сам факт существования всей цепочки n, n+1, n+2, ...).</p>\n<pre class=\"example\">longest_consecutive_sequence([100, 4, 200, 1, 3, 2]) → 4</pre>\n<p>(последовательность 1, 2, 3, 4)</p>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> положить всё в set для O(1) проверки &quot;есть ли число&quot;. Начинать цепочку только с чисел, у которых нет (n-1) в множестве — иначе один и тот же прогон посчитается несколько раз, и решение станет O(n²) вместо O(n).</div>",
+     "starter_code": "def longest_consecutive_sequence(nums):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(\n    longest_consecutive_sequence([100, 4, 200, 1, 3, 2]),\n    4,\n    \"longest_consecutive_sequence\",\n)",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "longest_consecutive_sequence"
+     ],
+     "slot_index": 7
+    },
+    {
+     "id": "m06-p4/subarray_sum_equals_k",
+     "ordinal": 5,
+     "name": "subarray_sum_equals_k",
+     "kind": "function",
+     "title": "subarray_sum_equals_k(nums, k) → int",
+     "description_html": "<p>Сколько всего непрерывных подмассивов дают в сумме ровно k. (Числа могут быть отрицательными — поэтому two pointers из Модуля 5 тут не подходит, нужен другой инструмент.)</p>\n<pre class=\"example\">subarray_sum_equals_k([1, 1, 1], 2) → 2\nsubarray_sum_equals_k([1, 2, 3], 3) → 2   # [1,2] и [3]</pre>\n<div class=\"note note--паттерн\"><span class=\"note__label\">Паттерн</span> префиксная сумма + dict {сумма: сколько раз встречалась}. Если prefix_sum - k уже встречалась N раз — значит есть N подмассивов, заканчивающихся на текущем элементе, с суммой k.</div>",
+     "starter_code": "def subarray_sum_equals_k(nums, k):\n    pass\n",
+     "reference_solution": null,
+     "solved_in_repo": false,
+     "test_source": "check(subarray_sum_equals_k([1, 1, 1], 2), 2, \"subarray_sum_equals_k\")\ncheck(subarray_sum_equals_k([1, 2, 3], 3), 2, \"subarray_sum_equals_k\")",
+     "has_own_tests": true,
+     "expected_checks": 2,
+     "needs": [
+      "subarray_sum_equals_k"
+     ],
+     "slot_index": 9
+    }
+   ]
+  }
+ ]
+}
