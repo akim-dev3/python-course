@@ -21,6 +21,12 @@
 #   # Вход: ... Выход: ... Поиск: линейный | бинарный
 # ============================================================
 
+
+def check(actual, expected, label=""):
+    status = "OK  " if actual == expected else "FAIL"
+    print(f"{status} {label}: {actual!r} (ожидалось {expected!r})")
+
+
 sorted_nums = [1, 3, 5, 7, 9, 12, 15, 18, 21, 24, 27, 30]
 
 products = [
@@ -51,10 +57,10 @@ def linear_search(lst, target):
     return -1
 
 
-print(linear_search(sorted_nums, 12))  # 5
-print(linear_search(sorted_nums, 1))  # 0
-print(linear_search(sorted_nums, 30))  # 11
-print(linear_search(sorted_nums, 99))  # -1
+check(linear_search(sorted_nums, 12), 5, "linear_search")
+check(linear_search(sorted_nums, 1), 0, "linear_search")
+check(linear_search(sorted_nums, 30), 11, "linear_search")
+check(linear_search(sorted_nums, 99), -1, "linear_search")
 
 
 # ------------------------------------------------------------
@@ -81,10 +87,10 @@ def binary_search(lst, target):
     return -1
 
 
-print(binary_search(sorted_nums, 12))  # 5
-print(binary_search(sorted_nums, 1))  # 0
-print(binary_search(sorted_nums, 30))  # 11
-print(binary_search(sorted_nums, 99))  # -1
+check(binary_search(sorted_nums, 12), 5, "binary_search")
+check(binary_search(sorted_nums, 1), 0, "binary_search")
+check(binary_search(sorted_nums, 30), 11, "binary_search")
+check(binary_search(sorted_nums, 99), -1, "binary_search")
 
 
 # ------------------------------------------------------------
@@ -105,10 +111,10 @@ def count_in_range(sorted_lst, low, high):
     return count
 
 
-print(count_in_range(sorted_nums, 7, 21))  # 6
-print(count_in_range(sorted_nums, 1, 1))  # 1
-print(count_in_range(sorted_nums, 100, 200))  # 0
-print(count_in_range(sorted_nums, 1, 30))  # 12 (все)
+check(count_in_range(sorted_nums, 7, 21), 6, "count_in_range")
+check(count_in_range(sorted_nums, 1, 1), 1, "count_in_range")
+check(count_in_range(sorted_nums, 100, 200), 0, "count_in_range")
+check(count_in_range(sorted_nums, 1, 30), 12, "count_in_range")
 
 
 # ------------------------------------------------------------
@@ -139,11 +145,11 @@ def find_insert_position(sorted_lst, value):
     return left
 
 
-print(find_insert_position([1, 3, 5, 7], 4))  # 2
-print(find_insert_position([1, 3, 5, 7], 0))  # 0
-print(find_insert_position([1, 3, 5, 7], 8))  # 4
-print(find_insert_position(sorted_nums, 10))  # 5 (между 9 и 12)
-print(find_insert_position(sorted_nums, 0))  # 0 (перед всеми)
+check(find_insert_position([1, 3, 5, 7], 4), 2, "find_insert_position")
+check(find_insert_position([1, 3, 5, 7], 0), 0, "find_insert_position")
+check(find_insert_position([1, 3, 5, 7], 8), 4, "find_insert_position")
+check(find_insert_position(sorted_nums, 10), 5, "find_insert_position")
+check(find_insert_position(sorted_nums, 0), 0, "find_insert_position")
 
 
 # ------------------------------------------------------------
@@ -161,10 +167,10 @@ def first_exceeding(sorted_lst, threshold):
     return None
 
 
-print(first_exceeding(sorted_nums, 5))  # 7
-print(first_exceeding(sorted_nums, 30))  # None
-print(first_exceeding(sorted_nums, 0))  # 1
-print(first_exceeding(sorted_nums, 29))  # 30
+check(first_exceeding(sorted_nums, 5), 7, "first_exceeding")
+check(first_exceeding(sorted_nums, 30), None, "first_exceeding")
+check(first_exceeding(sorted_nums, 0), 1, "first_exceeding")
+check(first_exceeding(sorted_nums, 29), 30, "first_exceeding")
 
 
 # ------------------------------------------------------------
@@ -183,10 +189,10 @@ def search_by_field(data, field, target):
     return None
 
 
-print(search_by_field(products, "name", "Monitor"))  # {"id": 103, ...}
-print(search_by_field(products, "id", 999))  # None
-print(search_by_field(products, "in_stock", False))  # {"id": 103, ...} (первый)
-print(search_by_field(products, "price", 80))  # {"id": 104, ...}
+check(search_by_field(products, "name", "Monitor"), {"id": 103, "name": "Monitor", "price": 450, "in_stock": False}, "search_by_field")
+check(search_by_field(products, "id", 999), None, "search_by_field")
+check(search_by_field(products, "in_stock", False), {"id": 103, "name": "Monitor", "price": 450, "in_stock": False}, "search_by_field")
+check(search_by_field(products, "price", 80), {"id": 104, "name": "Keyboard", "price": 80, "in_stock": True}, "search_by_field")
 
 
 # ------------------------------------------------------------
@@ -215,7 +221,7 @@ def binary_search_by_field(data, sort_field, target):
     return None
 
 
-print(binary_search_by_field(products_by_id, "id", 103))  # {"id": 103, ...}
-print(binary_search_by_field(products_by_id, "id", 999))  # None
-print(binary_search_by_field(products_by_id, "id", 101))  # {"id": 101, ...}
-print(binary_search_by_field(products_by_id, "id", 105))  # {"id": 105, ...}
+check(binary_search_by_field(products_by_id, "id", 103), {"id": 103, "name": "Monitor", "price": 450, "in_stock": False}, "binary_search_by_field")
+check(binary_search_by_field(products_by_id, "id", 999), None, "binary_search_by_field")
+check(binary_search_by_field(products_by_id, "id", 101), {"id": 101, "name": "Laptop", "price": 1200, "in_stock": True}, "binary_search_by_field")
+check(binary_search_by_field(products_by_id, "id", 105), {"id": 105, "name": "Headset", "price": 150, "in_stock": False}, "binary_search_by_field")

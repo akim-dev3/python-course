@@ -9,6 +9,12 @@
 #   # Вход: ... Выход: ... Паттерн: ...
 # ============================================================
 
+
+def check(actual, expected, label=""):
+    status = "OK  " if actual == expected else "FAIL"
+    print(f"{status} {label}: {actual!r} (ожидалось {expected!r})")
+
+
 students = [
     {
         "name": "Ivan",
@@ -65,7 +71,7 @@ def total_courses_taken(students):
     return sum(len(s.get("courses", [])) for s in students)
 
 
-print(total_courses_taken(students))
+check(total_courses_taken(students), 13, "total_courses_taken")
 
 
 # ------------------------------------------------------------
@@ -79,7 +85,7 @@ def total_passed(students):
     )
 
 
-print(total_passed(students))
+check(total_passed(students), 9, "total_passed")
 
 
 # ------------------------------------------------------------
@@ -99,7 +105,7 @@ def avg_score_by_student(students):
     return {name: round(totals[name] / counts[name], 2) for name in totals}
 
 
-print(avg_score_by_student(students))
+check(avg_score_by_student(students), {"Ivan": 84.33, "Anna": 70.0, "Oleg": 52.5, "Mila": 88.33, "Petr": 62.5}, "avg_score_by_student")
 
 
 # ------------------------------------------------------------
@@ -117,7 +123,7 @@ def total_score_by_course(students):
     return score_courses
 
 
-print(total_score_by_course(students))
+check(total_score_by_course(students), {"math": 344, "physics": 215, "history": 246, "biology": 153}, "total_score_by_course")
 
 
 # ------------------------------------------------------------
@@ -137,7 +143,7 @@ def failing_students(students):
     return fail_stud
 
 
-print(failing_students(students))
+check(failing_students(students), ["Anna", "Oleg", "Petr"], "failing_students")
 
 
 # ------------------------------------------------------------
@@ -155,7 +161,7 @@ def top_course(students):
     return max(score_courses, key=score_courses.get)
 
 
-print(top_course(students))
+check(top_course(students), "math", "top_course")
 
 
 # ------------------------------------------------------------
@@ -168,4 +174,4 @@ def best_student(students):
     return max(avg_score_stud, key=avg_score_stud.get)
 
 
-print(best_student(students))
+check(best_student(students), "Mila", "best_student")

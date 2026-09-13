@@ -14,6 +14,12 @@
 #   # Вход: ... Выход: ... Паттерн: ... Сложность: ...
 # ============================================================
 
+
+def check(actual, expected, label=""):
+    status = "OK  " if actual == expected else "FAIL"
+    print(f"{status} {label}: {actual!r} (ожидалось {expected!r})")
+
+
 words = [
     "apple",
     "banana",
@@ -58,10 +64,10 @@ def has_target_fast(lst, target):
     return target in s
 
 
-print(has_target_slow(words, "cherry"))  # True
-print(has_target_slow(words, "mango"))  # False
-print(has_target_fast(words, "cherry"))  # True
-print(has_target_fast(words, "mango"))  # False
+check(has_target_slow(words, "cherry"), True, "has_target_slow")
+check(has_target_slow(words, "mango"), False, "has_target_slow")
+check(has_target_fast(words, "cherry"), True, "has_target_fast")
+check(has_target_fast(words, "mango"), False, "has_target_fast")
 
 
 # ------------------------------------------------------------
@@ -92,10 +98,10 @@ def has_duplicate_fast(lst):
     return False
 
 
-print(has_duplicate_slow(words))  # True
-print(has_duplicate_fast(words))  # True
-print(has_duplicate_fast(numbers))  # True
-print(has_duplicate_fast(["a", "b", "c"]))  # False
+check(has_duplicate_slow(words), True, "has_duplicate_slow")
+check(has_duplicate_fast(words), True, "has_duplicate_fast")
+check(has_duplicate_fast(numbers), True, "has_duplicate_fast")
+check(has_duplicate_fast(["a", "b", "c"]), False, "has_duplicate_fast")
 
 
 # ------------------------------------------------------------
@@ -118,9 +124,9 @@ def first_duplicate(lst):
     return None
 
 
-print(first_duplicate(words))  # "apple"
-print(first_duplicate(numbers))  # 2
-print(first_duplicate(["x", "y", "z"]))  # None
+check(first_duplicate(words), "apple", "first_duplicate")
+check(first_duplicate(numbers), 2, "first_duplicate")
+check(first_duplicate(["x", "y", "z"]), None, "first_duplicate")
 
 
 # ------------------------------------------------------------
@@ -140,8 +146,7 @@ def count_frequencies(lst):
     return counts
 
 
-print(count_frequencies(sentence))
-# {"the": 3, "cat": 2, "sat": 1, "on": 1, "mat": 1}
+check(count_frequencies(sentence), {"the": 3, "cat": 2, "sat": 1, "on": 1, "mat": 1}, "count_frequencies")
 
 
 # ------------------------------------------------------------
@@ -168,8 +173,8 @@ def common_elements_fast(lst1, lst2):
     return common
 
 
-print(sorted(common_elements_slow(lst_a, lst_b)))  # ["apple", "banana", "cherry"]
-print(sorted(common_elements_fast(lst_a, lst_b)))  # ["apple", "banana", "cherry"]
+check(sorted(common_elements_slow(lst_a, lst_b)), ["apple", "banana", "cherry"], "common_elements_slow")
+check(sorted(common_elements_fast(lst_a, lst_b)), ["apple", "banana", "cherry"], "common_elements_fast")
 
 
 # ------------------------------------------------------------
@@ -191,9 +196,9 @@ def find_pair_sum(lst, target):
     return None
 
 
-print(find_pair_sum(numbers, 11))  # например (7, 4) или (4, 7)
-print(find_pair_sum(numbers, 100))  # None
-print(find_pair_sum(numbers, 3))  # например (2, 1) или (1, 2)
+check(sorted(find_pair_sum(numbers, 11)), [4, 7], "find_pair_sum")  # пара в любом порядке
+check(find_pair_sum(numbers, 100), None, "find_pair_sum")
+check(sorted(find_pair_sum(numbers, 3)), [1, 2], "find_pair_sum")  # пара в любом порядке
 
 
 # ------------------------------------------------------------
@@ -208,5 +213,5 @@ def unique_count(lst):
     return len(set(lst))
 
 
-print(unique_count(words))  # 7
-print(unique_count(numbers))  # 10
+check(unique_count(words), 7, "unique_count")
+check(unique_count(numbers), 10, "unique_count")

@@ -6,6 +6,12 @@
 #   # Вход: ... Выход: ... Паттерн: ...
 # ============================================================
 
+
+def check(actual, expected, label=""):
+    status = "OK  " if actual == expected else "FAIL"
+    print(f"{status} {label}: {actual!r} (ожидалось {expected!r})")
+
+
 athletes = [
     {
         "name": "Ivan",
@@ -92,7 +98,7 @@ def avg_score_by_sport(athletes):
     return {sport: round(totals[sport] / counts[sport], 2) for sport in totals}
 
 
-print(avg_score_by_sport(athletes))
+check(avg_score_by_sport(athletes), {"swimming": 81.67, "running": 77.67, "gymnastics": 96.0}, "avg_score_by_sport")
 
 
 # ------------------------------------------------------------
@@ -117,7 +123,7 @@ def avg_gold_by_country(athletes):
     }
 
 
-print(avg_gold_by_country(athletes))
+check(avg_gold_by_country(athletes), {"RUS": 2.67, "USA": 1.5, "GBR": 2.0, "JPN": 2.0}, "avg_gold_by_country")
 
 
 # ------------------------------------------------------------
@@ -132,10 +138,7 @@ def top3_athletes(athletes):
     ]
 
 
-print(top3_athletes(athletes))
-
-
-print(top3_athletes(athletes))
+check(top3_athletes(athletes), ["Mila", "Sara", "Ivan"], "top3_athletes")
 
 
 # ------------------------------------------------------------
@@ -148,7 +151,7 @@ def top2_sports_by_score(athletes):
     return sorted(avg_sports, key=avg_sports.get, reverse=True)[:2]
 
 
-print(top2_sports_by_score(athletes))
+check(top2_sports_by_score(athletes), ["gymnastics", "swimming"], "top2_sports_by_score")
 
 
 # ------------------------------------------------------------
@@ -165,7 +168,7 @@ def best_country_by_gold(athletes):
     return max(country_dict, key=country_dict.get)
 
 
-print(best_country_by_gold(athletes))
+check(best_country_by_gold(athletes), "RUS", "best_country_by_gold")
 
 
 # ------------------------------------------------------------
@@ -181,7 +184,7 @@ def top2_runners(athletes):
     ]
 
 
-print(top2_runners(athletes))
+check(top2_runners(athletes), ["Tom", "Anna"], "top2_runners")
 
 
 # ------------------------------------------------------------
@@ -200,4 +203,4 @@ def medals_by_country(athletes):
     return country_medals
 
 
-print(medals_by_country(athletes))
+check(medals_by_country(athletes), {"RUS": 12, "USA": 10, "GBR": 8, "JPN": 2}, "medals_by_country")

@@ -57,6 +57,29 @@ LESSONS = [
     dict(id="diag",   module="diag", parser="check",
          src="diagnostic_check.py",
          title="Диагностика после паузы"),
+    dict(id="m03-p1", module="m03", parser="check",
+         src="drills/03_patterns/p1_count_sum.py", title="P1: COUNT и SUM"),
+    dict(id="m03-p2", module="m03", parser="check",
+         src="drills/03_patterns/p2_filter_sorted.py", title="P2: FILTER и SORTED"),
+    dict(id="m03-p3", module="m03", parser="check",
+         src="drills/03_patterns/p3_groupby.py", title="P3: GROUP BY"),
+    dict(id="m03-p4", module="m03", parser="check",
+         src="drills/03_patterns/p4_avg_topn.py", title="P4: AVG, TOP N и MAX"),
+    dict(id="m03-p5", module="m03", parser="check",
+         src="drills/03_patterns/p5_nested.py", title="P5: вложенные структуры"),
+
+    dict(id="m04-p1", module="m04", parser="check",
+         src="drills/04_algo/p1_complexity.py", title="P1: сложность алгоритмов (Big O)"),
+    dict(id="m04-p2", module="m04", parser="check",
+         src="drills/04_algo/p2_recursion.py", title="P2: рекурсия"),
+    dict(id="m04-p3", module="m04", parser="check",
+         src="drills/04_algo/p3_search.py", title="P3: линейный и бинарный поиск"),
+
+    dict(id="m05-p1", module="m05", parser="check",
+         src="drills/05_patterns/p1_two_pointers.py", title="P1: два указателя"),
+    dict(id="m05-p1b", module="m05", parser="check",
+         src="drills/05_patterns/p1b_two_pointers_reinforce.py",
+         title="P1b: закрепление двух указателей"),
     dict(id="m05-p2", module="m05", parser="check",
          src="drills/05_patterns/p2_sliding_window.py",
          title="P2: Sliding Window (скользящее окно)"),
@@ -80,6 +103,10 @@ LESSONS = [
 MODULES = [
     dict(id="diag", title="Диагностика",
          subtitle="Что осталось после паузы — Модули 1-4"),
+    dict(id="m03", title="Модуль 3 — Dict и агрегации",
+         subtitle="COUNT, SUM, FILTER, GROUP BY, AVG, TOP N, вложенность"),
+    dict(id="m04", title="Модуль 4 — Алгоритмическое мышление",
+         subtitle="Big O, рекурсия, бинарный поиск"),
     dict(id="m05", title="Модуль 5 — Two Pointers и Sliding Window",
          subtitle="Два указателя и скользящее окно"),
     dict(id="m06", title="Модуль 6 — Структуры данных",
@@ -234,7 +261,7 @@ def chunks_to_html(chunks):
 # Разбор кода
 # ---------------------------------------------------------------------------
 
-def is_stub(node):
+def is_stub_one(node):
     """Тело — ровно `pass`? Для класса: все методы `pass`."""
     if isinstance(node, ast.ClassDef):
         methods = [m for m in node.body if isinstance(m, ast.FunctionDef)]
@@ -244,13 +271,17 @@ def is_stub(node):
     return len(node.body) == 1 and isinstance(node.body[0], ast.Pass)
 
 
+def is_stub(nodes):
+    return all(is_stub_one(n) for n in nodes)
+
+
 def signature_lines(lines, node):
     """Текст сигнатуры: от `def`/`class` до строки перед первым телом."""
     first_body = node.body[0].lineno
     return lines[node.lineno - 1: first_body - 1]
 
 
-def make_stub(lines, node):
+def make_stub_one(lines, node):
     """Заготовка с оригинальной сигнатурой и `pass` вместо тела."""
     if isinstance(node, ast.ClassDef):
         out = list(signature_lines(lines, node))
@@ -261,6 +292,11 @@ def make_stub(lines, node):
             out.append("        pass\n")
         return "".join(out)
     return "".join(signature_lines(lines, node)) + "    pass\n"
+
+
+def make_stub(lines, nodes):
+    """Одна задача может состоять из нескольких функций (пары _slow/_fast)."""
+    return "\n\n".join(make_stub_one(lines, n) for n in nodes)
 
 
 class _Refs(ast.NodeVisitor):
@@ -292,30 +328,74 @@ def parse_check_file(path, lesson):
     lines = src.splitlines(keepends=True)
     tree = ast.parse(src, filename=str(path))
 
-    top = [n for n in tree.body if isinstance(n, (ast.FunctionDef, ast.ClassDef))]
+    def is_def(n):
+        # def check — служебная обвязка, а не задача: в рантайме она заменяется
+        # своей версией, копящей результаты.
+        return (isinstance(n, (ast.FunctionDef, ast.ClassDef))
+                and not (isinstance(n, ast.FunctionDef) and n.name == "check"))
 
-    # Задача — это def/class, над которым есть комментарный блок.
-    # Так автоматически отсеиваются служебные def check и class Node,
-    # без хрупкого чёрного списка по именам.
-    task_nodes = []
-    for n in top:
-        open_i, close_i = comment_block_bounds(lines, n.lineno)
-        if open_i is not None:
-            task_nodes.append((n, open_i, close_i))
+    # Сначала находим комментарные блоки `# ---…---`, и лишь потом привязываем
+    # к ним функции. Обратный порядок («блок обязан быть прямо над def»)
+    # ломается там, где между блоком и функцией лежат данные задачи.
+    blocks = []
+    i = 0
+    while i < len(lines):
+        if lines[i].rstrip() == SEP:
+            j = i + 1
+            while j < len(lines) and lines[j].lstrip().startswith("#") \
+                    and lines[j].rstrip() != SEP:
+                j += 1
+            if j < len(lines) and lines[j].rstrip() == SEP:
+                blocks.append((i, j))
+                i = j + 1
+                continue
+        i += 1
 
-    if not task_nodes:
+    if not blocks:
+        raise SystemExit(f"{path}: не найдено ни одного блока задачи")
+
+    # --- разбор регионов ---
+    # Регион задачи — от её блока до блока следующей. Внутри по порядку:
+    #   данные-заготовки → функции (это и есть решение) → тесты.
+    # Одна задача может состоять из НЕСКОЛЬКИХ функций: в 04_algo есть пары
+    # has_target_slow/has_target_fast под одним заданием «напиши оба варианта».
+    regions = []
+    for k, (open_i, close_i) in enumerate(blocks):
+        stop = blocks[k + 1][0] + 1 if k + 1 < len(blocks) else len(lines) + 1
+        inside = [n for n in tree.body
+                  if n.lineno > close_i and n.end_lineno < stop]
+
+        slot_nodes, rest = [], []
+        for n in inside:
+            if isinstance(n, ast.FunctionDef) and n.name == "check":
+                continue                     # обвязка: ни в решение, ни в тесты
+            if is_def(n) and not rest:
+                slot_nodes.append(n)
+            elif not slot_nodes:
+                continue                     # данные до функции — уедут в prelude
+            else:
+                rest.append(n)
+        if not slot_nodes:
+            continue                    # блок без функции — не задача
+        regions.append({"open": open_i, "close": close_i,
+                        "slot": slot_nodes, "tests": rest})
+
+    if not regions:
         raise SystemExit(f"{path}: не найдено ни одной задачи")
 
-    task_names = {n.name for n, _, _ in task_nodes}
-    first_task_line = task_nodes[0][1]          # строка первого разделителя
-
-    # --- prelude: исполняемый код до первой задачи, без оригинального check ---
+    # Данные, объявленные до первой задачи, плюс всё, что лежит между
+    # комментарным блоком и функциями (например employees в p2_recursion) —
+    # это заготовки, поднимаем их в prelude с сохранением порядка.
+    slot_lines = {n.lineno for r in regions for n in r["slot"]}
+    test_lines = {n.lineno for r in regions for n in r["tests"]}
     prelude_nodes = [
         n for n in tree.body
-        if n.end_lineno <= first_task_line
+        if n.lineno not in slot_lines and n.lineno not in test_lines
         and not (isinstance(n, ast.FunctionDef) and n.name == "check")
     ]
     prelude = "\n".join(ast.get_source_segment(src, n) for n in prelude_nodes)
+
+    task_names = {n.name for r in regions for n in r["slot"]}
 
     # --- шапка файла для показа в уроке ---
     intro_lines = []
@@ -333,50 +413,44 @@ def parse_check_file(path, lesson):
 
     # --- сегменты и задачи ---
     segments, tasks, cursor = [], [], 0
-    for idx, (node, open_i, close_i) in enumerate(task_nodes):
-        a, b = node.lineno - 1, node.end_lineno
+    for idx, region in enumerate(regions):
+        slot_nodes = region["slot"]
+        a = slot_nodes[0].lineno - 1
+        b = slot_nodes[-1].end_lineno
 
         segments.append({"t": "raw", "text": "".join(lines[cursor:a])})
-        task_id = f"{lesson['id']}/{node.name}"
+        task_id = f"{lesson['id']}/{slot_nodes[0].name}"
         segments.append({"t": "slot", "task": task_id, "text": "".join(lines[a:b])})
         cursor = b
 
-        # Тест-блок: узлы между этой задачей и следующей.
-        # Комментарный блок следующей задачи сюда не попадает — берём узлы AST,
-        # а не текст.
-        next_start = (task_nodes[idx + 1][0].lineno
-                      if idx + 1 < len(task_nodes) else len(lines) + 1)
-        test_nodes = [
-            n for n in tree.body
-            if n.lineno > node.end_lineno and n.end_lineno < next_start
-        ]
-        test_source = "\n".join(ast.get_source_segment(src, n) for n in test_nodes)
+        test_source = "\n".join(ast.get_source_segment(src, n) for n in region["tests"])
 
         refs = _Refs(task_names)
-        for n in test_nodes:
+        for n in region["tests"]:
             refs.visit(n)
 
-        title, chunks = parse_block(lines[open_i + 1: close_i])
+        title, chunks = parse_block(lines[region["open"] + 1: region["close"]])
         m = re.match(r"^\s*(\d+)[.)]\s*(.*)$", title)
         ordinal, title_text = (int(m.group(1)), m.group(2).strip()) if m else (idx + 1, title)
 
-        stub = is_stub(node)
-        current = "".join(lines[a:b])
+        own = [n.name for n in slot_nodes]
+        stub = is_stub(slot_nodes)
 
         tasks.append({
             "id": task_id,
             "ordinal": ordinal,
-            "name": node.name,
-            "kind": "class" if isinstance(node, ast.ClassDef) else "function",
+            "name": slot_nodes[0].name,
+            "names": own,
+            "kind": "class" if isinstance(slot_nodes[0], ast.ClassDef) else "function",
             "title": title_text,
             "description_html": chunks_to_html(chunks),
-            "starter_code": make_stub(lines, node),
-            "reference_solution": None if stub else current,
+            "starter_code": make_stub(lines, slot_nodes),
+            "reference_solution": None if stub else "".join(lines[a:b]),
             "solved_in_repo": not stub,
             "test_source": test_source,
             "has_own_tests": refs.checks > 0,
             "expected_checks": refs.checks,
-            "needs": sorted(refs.used | {node.name}),
+            "needs": sorted(refs.used | set(own)),
             "slot_index": len(segments) - 1,
         })
 

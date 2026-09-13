@@ -4,6 +4,12 @@
 #   # Вход: ... Выход: ... Паттерн: ...
 # ============================================================
 
+
+def check(actual, expected, label=""):
+    status = "OK  " if actual == expected else "FAIL"
+    print(f"{status} {label}: {actual!r} (ожидалось {expected!r})")
+
+
 players = [
     {"name": "Alex", "level": 15, "premium": True, "coins": 4500, "wins": 120},
     {"name": "Bob", "level": 8, "premium": False, "coins": 900, "wins": 34},
@@ -25,7 +31,7 @@ def count_premium(players):
     return sum(1 for player in players if player.get("premium"))
 
 
-print(count_premium(players))
+check(count_premium(players), 4, "count_premium")
 
 
 # ------------------------------------------------------------
@@ -37,7 +43,7 @@ def count_high_level(players):
     return sum(1 for player in players if player.get("level", 0) >= 10)
 
 
-print(count_high_level(players))
+check(count_high_level(players), 5, "count_high_level")
 
 
 # ------------------------------------------------------------
@@ -53,7 +59,7 @@ def count_winning_free(players):
     )
 
 
-print(count_winning_free(players))
+check(count_winning_free(players), 2, "count_winning_free")
 
 
 # ------------------------------------------------------------
@@ -65,7 +71,7 @@ def total_coins(players):
     return sum(player.get("coins", 0) for player in players)
 
 
-print(total_coins(players))
+check(total_coins(players), 33650, "total_coins")
 
 
 # ------------------------------------------------------------
@@ -77,7 +83,7 @@ def premium_wins(players):
     return sum(player.get("wins", 0) for player in players if player.get("premium"))
 
 
-print(premium_wins(players))
+check(premium_wins(players), 945, "premium_wins")
 
 
 # ------------------------------------------------------------
@@ -91,7 +97,7 @@ def coins_high_level(players):
     )
 
 
-print(coins_high_level(players))
+check(coins_high_level(players), 32300, "coins_high_level")
 
 
 # ------------------------------------------------------------
@@ -105,4 +111,4 @@ def count_elite(players):
     )
 
 
-print(count_elite(players))
+check(count_elite(players), 2, "count_elite")

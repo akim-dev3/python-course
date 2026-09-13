@@ -29,15 +29,22 @@
 # База: n < 0 → []  (или n == 0 → [0])
 # Шаг: [n] + countdown(n - 1)
 # ------------------------------------------------------------
+
+
+def check(actual, expected, label=""):
+    status = "OK  " if actual == expected else "FAIL"
+    print(f"{status} {label}: {actual!r} (ожидалось {expected!r})")
+
+
 def countdown(n):
     if n < 0:
         return []
     return [n] + countdown(n - 1)
 
 
-print(countdown(5))  # [5, 4, 3, 2, 1, 0]
-print(countdown(0))  # [0]
-print(countdown(3))  # [3, 2, 1, 0]
+check(countdown(5), [5, 4, 3, 2, 1, 0], "countdown")
+check(countdown(0), [0], "countdown")
+check(countdown(3), [3, 2, 1, 0], "countdown")
 
 
 # ------------------------------------------------------------
@@ -57,9 +64,9 @@ def factorial(n):
     return n * factorial(n - 1)
 
 
-print(factorial(5))  # 120
-print(factorial(0))  # 1
-print(factorial(10))  # 3628800
+check(factorial(5), 120, "factorial")
+check(factorial(0), 1, "factorial")
+check(factorial(10), 3628800, "factorial")
 
 
 # ------------------------------------------------------------
@@ -80,10 +87,10 @@ def power(base, exp):
     return base * power(base, exp - 1)
 
 
-print(power(2, 10))  # 1024
-print(power(3, 0))  # 1
-print(power(5, 3))  # 125
-print(power(2, 8))  # 256
+check(power(2, 10), 1024, "power")
+check(power(3, 0), 1, "power")
+check(power(5, 3), 125, "power")
+check(power(2, 8), 256, "power")
 
 
 # ------------------------------------------------------------
@@ -108,10 +115,10 @@ def sum_digits(n):
     return last + sum_digits(rest)
 
 
-print(sum_digits(123))  # 6
-print(sum_digits(9999))  # 36
-print(sum_digits(0))  # 0
-print(sum_digits(1))  # 1
+check(sum_digits(123), 6, "sum_digits")
+check(sum_digits(9999), 36, "sum_digits")
+check(sum_digits(0), 0, "sum_digits")
+check(sum_digits(1), 1, "sum_digits")
 
 
 # ------------------------------------------------------------
@@ -135,10 +142,10 @@ def reverse_string(s):
     return reverse_string(s[1:]) + s[0]
 
 
-print(reverse_string("hello"))  # "olleh"
-print(reverse_string("python"))  # "nohtyp"
-print(reverse_string("a"))  # "a"
-print(reverse_string(""))  # ""
+check(reverse_string("hello"), "olleh", "reverse_string")
+check(reverse_string("python"), "nohtyp", "reverse_string")
+check(reverse_string("a"), "a", "reverse_string")
+check(reverse_string(""), "", "reverse_string")
 
 
 # ------------------------------------------------------------
@@ -169,10 +176,10 @@ def flatten(nested):
     return result
 
 
-print(flatten([1, [2, 3], [4, [5, 6]]]))  # [1, 2, 3, 4, 5, 6]
-print(flatten([1, [2, [3, [4, [5]]]]]))  # [1, 2, 3, 4, 5]
-print(flatten([1, 2, 3]))  # [1, 2, 3]
-print(flatten([]))  # []
+check(flatten([1, [2, 3], [4, [5, 6]]]), [1, 2, 3, 4, 5, 6], "flatten")
+check(flatten([1, [2, [3, [4, [5]]]]]), [1, 2, 3, 4, 5], "flatten")
+check(flatten([1, 2, 3]), [1, 2, 3], "flatten")
+check(flatten([]), [], "flatten")
 
 
 # ------------------------------------------------------------
@@ -223,6 +230,6 @@ def count_nested(data, key, value):
     return count
 
 
-print(count_nested(employees, "dept", "IT"))  # 3
-print(count_nested(employees, "dept", "HR"))  # 2
-print(count_nested(employees, "dept", "Finance"))  # 1
+check(count_nested(employees, "dept", "IT"), 3, "count_nested")
+check(count_nested(employees, "dept", "HR"), 2, "count_nested")
+check(count_nested(employees, "dept", "Finance"), 1, "count_nested")

@@ -5,6 +5,12 @@
 #   # Вход: ... Выход: ... Паттерн: ...
 # ============================================================
 
+
+def check(actual, expected, label=""):
+    status = "OK  " if actual == expected else "FAIL"
+    print(f"{status} {label}: {actual!r} (ожидалось {expected!r})")
+
+
 sales = [
     {
         "id": 1,
@@ -56,7 +62,7 @@ def count_by_region(sales):
     return regions_count
 
 
-print(count_by_region(sales))
+check(count_by_region(sales), {"north": 4, "south": 3, "west": 3}, "count_by_region")
 
 
 # ------------------------------------------------------------
@@ -73,7 +79,7 @@ def revenue_by_category(sales):
     return categories
 
 
-print(revenue_by_category(sales))
+check(revenue_by_category(sales), {"food": 4160, "tech": 17300, "clothes": 3900}, "revenue_by_category")
 
 
 # ------------------------------------------------------------
@@ -90,7 +96,7 @@ def revenue_by_region(sales):
     return amount_regions
 
 
-print(revenue_by_region(sales))
+check(revenue_by_region(sales), {"north": 7380, "south": 11250, "west": 6730}, "revenue_by_region")
 
 
 # ------------------------------------------------------------
@@ -106,7 +112,7 @@ def count_by_manager(sales):
     return managers_count
 
 
-print(count_by_manager(sales))
+check(count_by_manager(sales), {"Alice": 3, "Bob": 3, "Carol": 3, "Dave": 1}, "count_by_manager")
 
 
 # ------------------------------------------------------------
@@ -123,7 +129,7 @@ def revenue_by_manager(sales):
     return amount_managers
 
 
-print(revenue_by_manager(sales))
+check(revenue_by_manager(sales), {"Alice": 6500, "Bob": 11250, "Carol": 6730, "Dave": 880}, "revenue_by_manager")
 
 
 # ------------------------------------------------------------
@@ -141,7 +147,7 @@ def big_deals_by_region(sales):
     return big_deals
 
 
-print(big_deals_by_region(sales))
+check(big_deals_by_region(sales), {"north": 3, "south": 2, "west": 1}, "big_deals_by_region")
 
 
 # ------------------------------------------------------------
@@ -160,4 +166,4 @@ def food_revenue_by_region(sales):
     return food_amount
 
 
-print(food_revenue_by_region(sales))
+check(food_revenue_by_region(sales), {"north": 2080, "south": 950, "west": 1130}, "food_revenue_by_region")

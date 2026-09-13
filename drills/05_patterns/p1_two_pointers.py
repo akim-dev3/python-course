@@ -26,6 +26,12 @@
 #   # Вход: ... Выход: ... Паттерн: какой шаблон ... Сложность: ...
 # ============================================================
 
+
+def check(actual, expected, label=""):
+    status = "OK  " if actual == expected else "FAIL"
+    print(f"{status} {label}: {actual!r} (ожидалось {expected!r})")
+
+
 sorted_nums = [1, 3, 5, 7, 9, 12, 15, 18, 21, 24, 27, 30]
 
 lst_a = [1, 2, 2, 3, 3, 3, 4, 5, 5]
@@ -54,10 +60,10 @@ def is_palindrome(s):
     return True
 
 
-print(is_palindrome("racecar"))  # True
-print(is_palindrome("hello"))  # False
-print(is_palindrome("a"))  # True
-print(is_palindrome(""))  # True
+check(is_palindrome("racecar"), True, "is_palindrome")
+check(is_palindrome("hello"), False, "is_palindrome")
+check(is_palindrome("a"), True, "is_palindrome")
+check(is_palindrome(""), True, "is_palindrome")
 
 
 # ------------------------------------------------------------
@@ -81,11 +87,11 @@ def reverse_in_place(lst):
 
 test_lst = [1, 2, 3, 4, 5]
 reverse_in_place(test_lst)
-print(test_lst)  # [5, 4, 3, 2, 1]
+check(test_lst, [5, 4, 3, 2, 1], "проверка")
 
 test_lst2 = [1, 2]
 reverse_in_place(test_lst2)
-print(test_lst2)  # [2, 1]
+check(test_lst2, [2, 1], "проверка")
 
 
 # ------------------------------------------------------------
@@ -117,9 +123,9 @@ def two_sum_sorted(sorted_lst, target):
             return sorted_lst[left], sorted_lst[right]
 
 
-print(two_sum_sorted(sorted_nums, 16))  # (1, 15)
-print(two_sum_sorted(sorted_nums, 100))  # None
-print(two_sum_sorted(sorted_nums, 4))  # (1, 3)
+check(two_sum_sorted(sorted_nums, 16), (1, 15), "two_sum_sorted")
+check(two_sum_sorted(sorted_nums, 100), None, "two_sum_sorted")
+check(two_sum_sorted(sorted_nums, 4), (1, 3), "two_sum_sorted")
 
 
 # ------------------------------------------------------------
@@ -148,9 +154,9 @@ def remove_duplicates_sorted(sorted_lst):
     return sorted_lst
 
 
-print(remove_duplicates_sorted(lst_a))  # [1, 2, 3, 4, 5]
-print(remove_duplicates_sorted([1, 1, 1]))  # [1]
-print(remove_duplicates_sorted([]))  # []
+check(remove_duplicates_sorted(lst_a), [1, 2, 3, 4, 5], "remove_duplicates_sorted")
+check(remove_duplicates_sorted([1, 1, 1]), [1], "remove_duplicates_sorted")
+check(remove_duplicates_sorted([]), [], "remove_duplicates_sorted")
 
 
 # ------------------------------------------------------------
@@ -186,9 +192,9 @@ def merge_sorted(lst1, lst2):
     return result
 
 
-print(merge_sorted([1, 3, 5], [2, 4, 6]))  # [1, 2, 3, 4, 5, 6]
-print(merge_sorted([1, 2], [3, 4, 5]))  # [1, 2, 3, 4, 5]
-print(merge_sorted([], [1, 2]))  # [1, 2]
+check(merge_sorted([1, 3, 5], [2, 4, 6]), [1, 2, 3, 4, 5, 6], "merge_sorted")
+check(merge_sorted([1, 2], [3, 4, 5]), [1, 2, 3, 4, 5], "merge_sorted")
+check(merge_sorted([], [1, 2]), [1, 2], "merge_sorted")
 
 
 # ------------------------------------------------------------
@@ -232,5 +238,5 @@ def closest_pair_sum(sorted_lst, target):
     return best_pair
 
 
-print(closest_pair_sum(sorted_nums, 20))  # (5, 15)
-print(closest_pair_sum(sorted_nums, 2))  # (1, 3)
+check(closest_pair_sum(sorted_nums, 20), (5, 15), "closest_pair_sum")
+check(closest_pair_sum(sorted_nums, 2), (1, 3), "closest_pair_sum")

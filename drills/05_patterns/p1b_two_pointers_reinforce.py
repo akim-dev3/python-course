@@ -32,6 +32,13 @@
 # следующую пару.
 # Сложность: O(n)
 # ------------------------------------------------------------
+
+
+def check(actual, expected, label=""):
+    status = "OK  " if actual == expected else "FAIL"
+    print(f"{status} {label}: {actual!r} (ожидалось {expected!r})")
+
+
 def count_pairs_with_sum(sorted_lst, target):
     counter = 0
     left, right = 0, len(sorted_lst) - 1
@@ -47,9 +54,9 @@ def count_pairs_with_sum(sorted_lst, target):
     return counter
 
 
-print(count_pairs_with_sum([1, 2, 3, 4, 5, 6], 7))  # 3
-print(count_pairs_with_sum([1, 2, 3, 4, 5], 6))  # 2
-print(count_pairs_with_sum([1, 2, 3], 10))  # 0
+check(count_pairs_with_sum([1, 2, 3, 4, 5, 6], 7), 3, "count_pairs_with_sum")
+check(count_pairs_with_sum([1, 2, 3, 4, 5], 6), 2, "count_pairs_with_sum")
+check(count_pairs_with_sum([1, 2, 3], 10), 0, "count_pairs_with_sum")
 
 
 # ------------------------------------------------------------
@@ -91,8 +98,8 @@ def intersection_sorted(lst1, lst2):
     return result
 
 
-print(intersection_sorted([1, 3, 4, 6, 8, 10], [2, 3, 4, 7, 8]))  # [3, 4, 8]
-print(intersection_sorted([1, 2, 3], [4, 5, 6]))  # []
+check(intersection_sorted([1, 3, 4, 6, 8, 10], [2, 3, 4, 7, 8]), [3, 4, 8], "intersection_sorted")
+check(intersection_sorted([1, 2, 3], [4, 5, 6]), [], "intersection_sorted")
 
 
 # ------------------------------------------------------------
@@ -130,5 +137,5 @@ def count_pairs_sum_less_than(sorted_lst, target):
         
     return count
 
-print(count_pairs_sum_less_than([1, 2, 3, 4, 5], 6))  # 4
-print(count_pairs_sum_less_than([1, 1, 1, 1], 2))  # 0
+check(count_pairs_sum_less_than([1, 2, 3, 4, 5], 6), 4, "count_pairs_sum_less_than")
+check(count_pairs_sum_less_than([1, 1, 1, 1], 2), 0, "count_pairs_sum_less_than")

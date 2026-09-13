@@ -5,6 +5,12 @@
 #   # Вход: ... Выход: ... Паттерн: ...
 # ============================================================
 
+
+def check(actual, expected, label=""):
+    status = "OK  " if actual == expected else "FAIL"
+    print(f"{status} {label}: {actual!r} (ожидалось {expected!r})")
+
+
 movies = [
     {
         "title": "Inception",
@@ -62,7 +68,7 @@ def watched_titles(movies):
     return sorted(movie.get("title") for movie in movies if movie.get("watched"))
 
 
-print(watched_titles(movies))
+check(sorted(watched_titles(movies)), sorted(["Inception", "Interstellar", "Parasite", "Joker", "Oppenheimer"]), "watched_titles")
 
 
 # ------------------------------------------------------------
@@ -80,7 +86,7 @@ def top_rated_watched(movies):
     ]
 
 
-print(top_rated_watched(movies))
+check(top_rated_watched(movies), ["Oppenheimer", "Inception", "Parasite", "Interstellar", "Joker"], "top_rated_watched")
 
 
 # ------------------------------------------------------------
@@ -102,7 +108,7 @@ def watchlist(movies):
     ]
 
 
-print(watchlist(movies))
+check(watchlist(movies), ["Dune"], "watchlist")
 
 
 # ------------------------------------------------------------
@@ -122,7 +128,7 @@ def good_recent(movies):
     return [m.get("title") for m in sorted_movies]
 
 
-print(good_recent(movies))
+check(good_recent(movies), ["Oppenheimer", "Parasite"], "good_recent")
 
 
 # ------------------------------------------------------------
@@ -140,7 +146,7 @@ def sci_fi_titles(movies):
     ]
 
 
-print(sci_fi_titles(movies))
+check(sci_fi_titles(movies), ["Inception", "Interstellar", "Dune"], "sci_fi_titles")
 
 
 # ------------------------------------------------------------
@@ -156,7 +162,7 @@ def top3_overall(movies):
     return [movie.get("title") for movie in sort_rait_movies]
 
 
-print(top3_overall(movies))
+check(top3_overall(movies), ["Oppenheimer", "Inception", "Parasite"], "top3_overall")
 
 
 # ------------------------------------------------------------
@@ -172,4 +178,4 @@ def new_releases(movies):
     ]
 
 
-print(new_releases(movies))
+check(new_releases(movies), ["Oppenheimer", "Morbius", "Dune", "Parasite", "Joker"], "new_releases")
