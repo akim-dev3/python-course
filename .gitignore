@@ -1,0 +1,19 @@
+# Личное — не публикуется
+# CLAUDE.md содержит таблицу слабых точек студента и даты провалов,
+# leetcode_tracker.md ссылается на личный план в хранилище заметок.
+CLAUDE.md
+leetcode_tracker.md
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Редакторы и ОС
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ВНИМАНИЕ: docs/ НЕ игнорировать — это и есть публикуемый сайт.
