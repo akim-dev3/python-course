@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Модуль 6 — Структуры данных на пальцах — Python-курс</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../pygments.css">
+<link rel="stylesheet" href="../theory.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html#/">Python-курс</a>
+  <span class="crumbs">Теория › Модуль 6 — Структуры данных на пальцах</span>
+  <a class="btn btn--ghost" href="../index.html#/">К задачам</a>
+</header>
+<main class="wrap theory">
+<h1>Модуль 6 — Структуры данных на пальцах</h1>
+<p class="muted">Конспект обновлён 2026-09-14</p>
+<h2 id="_1">Зачем эта заметка</h2>
+<p>У Модуля 6 не было конспекта — только шпаргалка с синтаксисом. Шпаргалка отвечает на вопрос «как написать», но не на вопрос «почему именно эта структура». Здесь второе.</p>
+<p>Главная мысль модуля одна: <strong>структура данных — это не хранилище, а выбор того, какая операция будет дешёвой.</strong> Список, стек, очередь и словарь хранят одно и то же. Разница в том, что у каждого дёшево, а что дорого.</p>
+<hr />
+<h2 id="_2">Стек — «последний пришёл, первый вышел»</h2>
+<p><strong>Образ.</strong> Стопка тарелок. Кладёшь сверху, берёшь сверху. Достать нижнюю, не сняв верхние, нельзя.</p>
+<p>В Python стек — это обычный <code>list</code>: <code>append()</code> кладёт, <code>pop()</code> снимает. Оба с конца, оба за O(1).</p>
+<div class="codehilite"><pre><span></span><code><span class="n">stack</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>   <span class="c1"># положили</span>
+<span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>         <span class="c1"># посмотрели верхний, не снимая → 2</span>
+<span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>       <span class="c1"># сняли → 2</span>
+</code></pre></div>
+
+<p><strong>Когда стек — правильный ответ.</strong> Всякий раз, когда задача про <strong>вложенность</strong> или про <strong>«вернуться к предыдущему»</strong>:</p>
+<ul>
+<li>скобки <code>([{}])</code> — открывающую надо запомнить, чтобы потом сверить с закрывающей</li>
+<li>отмена действия (undo) — последнее действие отменяется первым</li>
+<li>путь в файловой системе: <code>..</code> означает «вернуться на уровень выше», то есть снять последнюю папку</li>
+<li>вычисление выражения в постфиксной записи: операнды копятся, оператор снимает два последних</li>
+</ul>
+<p>Общий признак: <strong>то, что положили последним, понадобится первым.</strong> Как только видишь это в условии — бери стек, не раздумывая.</p>
+<h3 id="_3">Монотонный стек — приём, который не очевиден</h3>
+<p>Задача <code>daily_temperatures</code>: для каждого дня сказать, через сколько дней станет теплее.</p>
+<p>Наивно — для каждого дня перебирать все следующие: O(n²). Приём: держать в стеке <strong>индексы дней, для которых ответ ещё не найден</strong>, и следить, чтобы температуры в стеке убывали. Приходит новый день — снимаем со стека все дни холоднее его: для каждого из них ответ найден, и это ровно текущий день.</p>
+<p>Почему это O(n), а не O(n²): каждый день кладётся в стек ровно один раз и снимается ровно один раз. Двух проходов по одному элементу не бывает — значит операций порядка 2n.</p>
+<hr />
+<h2 id="_4">Очередь — «первый пришёл, первый вышел»</h2>
+<p><strong>Образ.</strong> Очередь в кассу. Встал в конец, обслужили с начала.</p>
+<p>Здесь важная ловушка. Очередь напрашивается делать так:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">q</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>      <span class="c1"># это O(1), нормально</span>
+<span class="n">q</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>         <span class="c1"># а это O(n) — ЛОВУШКА</span>
+</code></pre></div>
+
+<p><code>pop(0)</code> вынимает элемент из начала списка, и все остальные элементы физически сдвигаются на одну позицию влево. На списке из миллиона элементов один такой вызов — миллион перемещений. Цикл из таких вызовов превращает O(n) алгоритм в O(n²).</p>
+<p>Правильно — <code>collections.deque</code> (произносится «дэк», от double-ended queue). Он устроен так, что вставка и удаление <strong>с обоих концов</strong> стоят O(1):</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">deque</span>
+
+<span class="n">q</span> <span class="o">=</span> <span class="n">deque</span><span class="p">()</span>
+<span class="n">q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>       <span class="c1"># в конец, O(1)</span>
+<span class="n">q</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>       <span class="c1"># из начала, O(1) — вот ради этого всё</span>
+<span class="n">q</span><span class="o">.</span><span class="n">appendleft</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>   <span class="c1"># в начало, тоже O(1)</span>
+</code></pre></div>
+
+<p><strong>Когда очередь.</strong> Обработка «в порядке поступления»: задачи, события, уровни обхода. Плюс два неочевидных применения:</p>
+<ul>
+<li><strong>скользящее окно с быстрым удалением слева</strong> — окно растёт справа (<code>append</code>) и сжимается слева (<code>popleft</code>), ровно две операции deque</li>
+<li><strong>топологическая сортировка</strong> (<code>can_finish_in_order</code>): считаем, сколько у каждой задачи невыполненных зависимостей, кладём в очередь задачи с нулём зависимостей, обрабатываем и уменьшаем счётчики у зависимых. Если в конце обработали не все задачи — в графе цикл, порядок невозможен</li>
+</ul>
+<hr />
+<h2 id="list">Связный список — зачем он, если есть list</h2>
+<p>Честный ответ: <strong>в рабочем коде на Python — почти никогда.</strong> Встроенный <code>list</code> быстрее почти во всём, потому что лежит в памяти одним куском.</p>
+<p>Учат его по двум причинам: это классика собеседований и это единственный простой способ прочувствовать, что такое ссылка на объект.</p>
+<p><strong>Устройство.</strong> Узел хранит значение и ссылку на следующий узел. Последний ссылается на <code>None</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Node</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+
+<p>Обход всегда выглядит одинаково — этот шаблон стоит выучить как есть:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">current</span> <span class="o">=</span> <span class="n">head</span>
+<span class="k">while</span> <span class="n">current</span><span class="p">:</span>
+    <span class="o">...</span>            <span class="c1"># что-то делаем с current.value</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">next</span>
+</code></pre></div>
+
+<h3 id="_5">Разворот списка — три указателя</h3>
+<p>Единственная по-настоящему хитрая операция. Разворачивать надо <strong>перелинковкой</strong>, не создавая новых узлов.</p>
+<p>Проблема: как только мы напишем <code>current.next = prev</code>, мы потеряем ссылку на следующий узел — она была только в <code>current.next</code>. Поэтому её надо сохранить <strong>до</strong> перезаписи:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">prev</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">while</span> <span class="n">current</span><span class="p">:</span>
+    <span class="n">next_node</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">next</span>    <span class="c1"># сохранили, иначе потеряем</span>
+    <span class="n">current</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">prev</span>         <span class="c1"># развернули ссылку назад</span>
+    <span class="n">prev</span> <span class="o">=</span> <span class="n">current</span>              <span class="c1"># сдвинули оба указателя</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">next_node</span>
+<span class="c1"># prev теперь новая голова</span>
+</code></pre></div>
+
+<h3 id="slow-fast-5">Slow / fast — тот же приём, что в Модуле 5</h3>
+<p>Два указателя, но один идёт по одному шагу, второй по два.</p>
+<ul>
+<li><strong>Середина списка:</strong> когда быстрый дошёл до конца, медленный ровно посередине. Один проход вместо двух (сначала посчитать длину, потом пройти половину).</li>
+<li><strong>Цикл в списке:</strong> если список зациклен, быстрый рано или поздно догонит медленного — они оба ходят по кругу с разной скоростью. Если быстрый дошёл до <code>None</code> — цикла нет.</li>
+</ul>
+<p>Это тот же slow/fast, что был на массивах в Модуле 5, только вместо <code>i += 1</code> пишется <code>node = node.next</code>.</p>
+<hr />
+<h2 id="-in">Хэш-таблица — почему <code>in</code> у множества мгновенный</h2>
+<p>Это самая полезная часть модуля для реальной работы.</p>
+<p><strong>Что происходит внутри <code>dict</code> и <code>set</code>.</strong> От ключа считается <code>hash(key)</code> — число. Это число превращается в индекс ячейки массива. Значение кладётся сразу в нужную ячейку — не перебирая остальные.</p>
+<p>Отсюда главное следствие:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">x</span> <span class="ow">in</span> <span class="n">some_list</span>   <span class="c1"># O(n)  — перебирает элементы по одному</span>
+<span class="n">x</span> <span class="ow">in</span> <span class="n">some_set</span>    <span class="c1"># O(1)  — считает хэш и смотрит в одну ячейку</span>
+<span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>           <span class="c1"># O(1)  — то же самое</span>
+</code></pre></div>
+
+<p>Разница не «немного быстрее», а качественно другая. На списке из 100 000 элементов проверка <code>in</code> перебирает до 100 000 элементов; на множестве — считает одно число.</p>
+<p><strong>Коллизия</strong> — когда два разных ключа попали в одну ячейку. Такое бывает, и структура умеет это разруливать, поэтому в худшем случае операция деградирует до O(n). На практике это почти не встречается, и O(1) считают честной оценкой (говорят «в среднем» или «амортизированно»).</p>
+<p><strong>Ключ должен быть хэшируемым</strong>, то есть неизменяемым: <code>int</code>, <code>str</code>, <code>tuple</code> — можно; <code>list</code>, <code>dict</code>, <code>set</code> — нельзя. Причина простая: если ключ изменить после вставки, его хэш станет другим, и найти его в таблице будет уже невозможно.</p>
+<h3 id="_6">Сдвиг мышления, ради которого всё это</h3>
+<p>Многие задачи выглядят как «перебрать все пары» — то есть O(n²) с двумя вложенными циклами. Хэш превращает их в один проход.</p>
+<p><strong>Пример — two_sum.</strong> Найти два числа с суммой <code>target</code>.</p>
+<p>Наивно: для каждого числа перебрать все остальные — O(n²).
+Через хэш: идём по списку один раз и на каждом числе <code>x</code> спрашиваем — «а встречалось ли мне раньше <code>target - x</code>?». Это вопрос вида «было / не было», а он у словаря стоит O(1):</p>
+<div class="codehilite"><pre><span></span><code><span class="n">seen</span> <span class="o">=</span> <span class="p">{}</span>                        <span class="c1"># значение → индекс</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nums</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">target</span> <span class="o">-</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">seen</span><span class="p">[</span><span class="n">target</span> <span class="o">-</span> <span class="n">x</span><span class="p">],</span> <span class="n">i</span><span class="p">)</span>
+    <span class="n">seen</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+</code></pre></div>
+
+<p>Общий признак: <strong>как только в задаче звучит «а было ли уже такое» — это хэш, а не второй цикл.</strong></p>
+<p>Ещё два узнаваемых применения:</p>
+<ul>
+<li><strong>Группировка по вычисляемому ключу</strong> (<code>group_anagrams</code>): ключом делается не сам объект, а его нормальная форма. У анаграмм <code>"eat"</code> и <code>"tea"</code> отсортированные буквы совпадают → один ключ → одна группа.</li>
+<li><strong>Префиксные суммы</strong> (<code>subarray_sum_equals_k</code>): в словарь копятся суммы префиксов. Если текущая сумма минус <code>k</code> уже встречалась N раз — значит есть N подмассивов с суммой <code>k</code>, заканчивающихся здесь. Работает и с отрицательными числами, где два указателя из Модуля 5 уже неприменимы.</li>
+</ul>
+<hr />
+<h2 id="_7">Что выбрать — одной строкой</h2>
+<table>
+<thead>
+<tr>
+<th>Признак в условии</th>
+<th>Структура</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>вложенность, парность, «вернуться назад», undo</td>
+<td>стек (<code>list</code>)</td>
+</tr>
+<tr>
+<td>«в порядке поступления», обход по уровням, окно</td>
+<td>очередь (<code>deque</code>)</td>
+</tr>
+<tr>
+<td>«было / не было», группировка, счётчики</td>
+<td><code>set</code> / <code>dict</code></td>
+</tr>
+<tr>
+<td>нужны ссылки и перелинковка (собеседование)</td>
+<td>связный список</td>
+</tr>
+</tbody>
+</table>
+<p>И главный красный флаг: <strong>если пишешь два вложенных цикла — остановись и спроси, нельзя ли заменить внутренний на <code>set</code> или <code>dict</code>.</strong> Чаще всего можно.</p>
+<h2 id="_8">Вопросы для самопроверки</h2>
+<ol>
+<li>Почему <code>q.pop(0)</code> на списке — плохая идея, и что вместо этого?</li>
+<li>Почему в монотонном стеке получается O(n), хотя внутри есть <code>while</code>?</li>
+<li>Что случится, если в <code>reverse_list</code> не сохранить <code>current.next</code> до перезаписи?</li>
+<li>Почему <code>list</code> нельзя использовать как ключ словаря, а <code>tuple</code> можно?</li>
+<li>В каком случае <code>x in set</code> может оказаться не O(1)?</li>
+</ol>
+<div class="theory-footer"><div class="panel__title">Задачи по этой теме</div><a href="../index.html#/l/m06-p1">P1: Stack (стек)</a> · <a href="../index.html#/l/m06-p2">P2: Queue (очередь)</a> · <a href="../index.html#/l/m06-p3">P3: Linked List (связный список)</a> · <a href="../index.html#/l/m06-p4">P4: Hashing (хэш-таблицы)</a></div>
+</main>
+
+</body>
+</html>

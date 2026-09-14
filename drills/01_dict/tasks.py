@@ -7,6 +7,11 @@
 #   3. Пиши код
 # ============================================================
 
+def check(actual, expected, label=""):
+    status = "OK  " if actual == expected else "FAIL"
+    print(f"{status} {label}: {actual!r} (ожидалось {expected!r})")
+
+
 users = [
     {"name": "Ivan", "age": 25, "city": "Moscow", "active": True, "score": 85},
     {"name": "Anna", "age": 17, "city": "Moscow", "active": True, "score": 92},
@@ -25,6 +30,9 @@ def count_active_adults(users):
     return sum(1 for u in users if u.get("age") > 18 and u.get("active"))
 
 
+check(count_active_adults(users), 1, "count_active_adults")
+
+
 # ------------------------------------------------------------
 # Задача 2 — SUM ✅
 # total_score(users) → int
@@ -36,6 +44,9 @@ def total_score(users):
     return sum(u.get("score", 0) for u in users if u.get("active"))
 
 
+check(total_score(users), 255, "total_score")
+
+
 # ------------------------------------------------------------
 # Задача 3 — FILTER ✅
 # get_high_scorers(users) → list[dict]
@@ -45,6 +56,9 @@ def total_score(users):
 def get_high_scorers(users):
     # list[dict], list[dict], filter
     return [u for u in users if u.get("score", 0) > 80 and u.get("active")]
+
+
+check(get_high_scorers(users), [{'name': 'Ivan', 'age': 25, 'city': 'Moscow', 'active': True, 'score': 85}, {'name': 'Anna', 'age': 17, 'city': 'Moscow', 'active': True, 'score': 92}], "get_high_scorers")
 
 
 # ------------------------------------------------------------
@@ -60,6 +74,9 @@ def count_by_city(users):
         city = u.get("city")
         count_users[city] = count_users.get(city, 0) + 1
     return count_users
+
+
+check(count_by_city(users), {"Moscow": 3, "Kazan": 2}, "count_by_city")
 
 
 # ------------------------------------------------------------
@@ -79,6 +96,9 @@ def score_by_city(users):
     return count_score
 
 
+check(score_by_city(users), {"Moscow": 177, "Kazan": 78}, "score_by_city")
+
+
 # ------------------------------------------------------------
 # Задача 6 — TOP N ✅
 # top_cities(users) → list[str]
@@ -93,6 +113,9 @@ def top_cities(users):
     return top_two_keys
 
 
+check(top_cities(users), ["Moscow", "Kazan"], "top_cities")
+
+
 # ------------------------------------------------------------
 # Задача 7 — MAX В DICT ✅
 # best_city(users) → str
@@ -103,6 +126,9 @@ def best_city(users):
     # dict, key(str), max в dict
     dict_score = score_by_city(users)
     return max(dict_score, key=dict_score.get)
+
+
+check(best_city(users), "Moscow", "best_city")
 
 
 # ------------------------------------------------------------
@@ -117,6 +143,9 @@ def top_active_users(users):
     return [
         u["name"] for u in sorted(active, key=lambda x: x.get("score", 0), reverse=True)
     ]
+
+
+check(top_active_users(users), ["Anna", "Ivan", "Mila"], "top_active_users")
 
 
 # ============================================================
@@ -144,6 +173,9 @@ def count_paid(orders):
     return sum(1 for o in orders if o.get("paid"))
 
 
+check(count_paid(orders), 5, "count_paid")
+
+
 # ------------------------------------------------------------
 # Задача 10 — SUM ✅
 # total_revenue(orders) → int
@@ -154,6 +186,9 @@ def total_revenue(orders):
     return sum(o.get("amount", 0) for o in orders if o.get("paid"))
 
 
+check(total_revenue(orders), 12700, "total_revenue")
+
+
 # ------------------------------------------------------------
 # Задача 11 — FILTER ✅
 # big_paid_orders(orders) → list[dict]
@@ -162,6 +197,9 @@ def total_revenue(orders):
 # ------------------------------------------------------------
 def big_paid_orders(orders):
     return [o for o in orders if o.get("amount", 0) > 1000 and o.get("paid")]
+
+
+check(big_paid_orders(orders), [{'id': 1, 'user': 'Ivan', 'category': 'food', 'amount': 1500, 'paid': True}, {'id': 2, 'user': 'Anna', 'category': 'electronics', 'amount': 8000, 'paid': True}, {'id': 7, 'user': 'Mila', 'category': 'electronics', 'amount': 2000, 'paid': True}], "big_paid_orders")
 
 
 # ------------------------------------------------------------
@@ -180,6 +218,9 @@ def revenue_by_category(orders):
     return category_dict
 
 
+check(revenue_by_category(orders), {"food": 2700, "electronics": 10000}, "revenue_by_category")
+
+
 # ------------------------------------------------------------
 # Задача 13 — TOP N ✅
 # top_categories(orders) → list[str]
@@ -192,6 +233,9 @@ def top_categories(orders):
         paid_categories.items(), key=lambda x: x[1], reverse=True
     )[:1]
     return [k for k, v in sorted_categories]
+
+
+check(top_categories(orders), ["electronics"], "top_categories")
 
 
 # ------------------------------------------------------------
@@ -210,6 +254,9 @@ def best_user(orders):
     return max(user_dict, key=user_dict.get)
 
 
+check(best_user(orders), "Anna", "best_user")
+
+
 # ------------------------------------------------------------
 # Задача 15 — КОМБО ✅
 # user_order_counts(orders) → list[tuple]
@@ -224,6 +271,9 @@ def user_order_counts(orders):
         user = o.get("user")
         sorted_users[user] = sorted_users.get(user, 0) + 1
     return sorted(sorted_users.items(), key=lambda x: x[1], reverse=True)
+
+
+check(user_order_counts(orders), [("Ivan", 2), ("Anna", 2), ("Mila", 2), ("Oleg", 1)], "user_order_counts")
 
 
 # ============================================================
@@ -256,6 +306,9 @@ def dept_headcount(employees):
     return count_dept
 
 
+check(dept_headcount(employees), {"dev": 2, "hr": 2}, "dept_headcount")
+
+
 # ------------------------------------------------------------
 # Задача 17 — GROUP BY + AVG ✅
 # avg_salary_by_dept(employees) → dict
@@ -272,11 +325,14 @@ def avg_salary_by_dept(employees):
     return {dept: round(totals[dept] / counts[dept], 2) for dept in totals}
 
 
+check(avg_salary_by_dept(employees), {"dev": 103750.0, "hr": 81666.67}, "avg_salary_by_dept")
+
+
 # ------------------------------------------------------------
 # Задача 18 — FILTER + SORTED → list[str] ✅
 # top_earners(employees) → list[str]
 # Имена senior-сотрудников, отсортированные по зарплате убыванию
-# Ожидается: ["Mila", "Ivan", "Petr", "Olga"]
+# Ожидается: ["Mila", "Ivan", "Olga", "Petr"]
 # ------------------------------------------------------------
 def top_earners(employees):
     seniors = [e for e in employees if e.get("senior")]
@@ -284,6 +340,9 @@ def top_earners(employees):
         e["name"]
         for e in sorted(seniors, key=lambda x: x.get("salary", 0), reverse=True)
     ]
+
+
+check(top_earners(employees), ["Mila", "Ivan", "Olga", "Petr"], "top_earners")
 
 
 # ------------------------------------------------------------
@@ -301,6 +360,9 @@ def richest_depts(employees):
     return [max(dept_totals, key=dept_totals.get)]
 
 
+check(richest_depts(employees), ["dev"], "richest_depts")
+
+
 # ------------------------------------------------------------
 # Задача 20 — КОМБО с защитой ✅
 # best_senior(employees, dept) → str | None
@@ -308,7 +370,7 @@ def richest_depts(employees):
 # Если таких нет — вернуть None.
 # Примеры:
 #   best_senior(employees, "dev")  → "Mila"
-#   best_senior(employees, "hr")   → "Petr"
+#   best_senior(employees, "hr")   → "Olga"
 #   best_senior(employees, "qa")   → None
 # ------------------------------------------------------------
 def best_senior(employees, dept):
@@ -316,3 +378,8 @@ def best_senior(employees, dept):
     if not candidates:
         return None
     return max(candidates, key=lambda x: x.get("salary", 0))["name"]
+
+
+check(best_senior(employees, "dev"), "Mila", "best_senior")
+check(best_senior(employees, "hr"), "Olga", "best_senior")
+check(best_senior(employees, "qa"), None, "best_senior")

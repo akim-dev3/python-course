@@ -57,6 +57,11 @@ LESSONS = [
     dict(id="diag",   module="diag", parser="check",
          src="diagnostic_check.py",
          title="Диагностика после паузы"),
+    dict(id="m03-d1", module="m03", parser="check",
+         src="drills/01_dict/tasks.py", title="Дриллы dict — 20 задач"),
+    dict(id="m03-d2", module="m03", parser="check",
+         src="drills/01_dict/drill_weak.py", title="Закрепление слабых точек"),
+
     dict(id="m03-p1", module="m03", parser="check",
          src="drills/03_patterns/p1_count_sum.py", title="P1: COUNT и SUM"),
     dict(id="m03-p2", module="m03", parser="check",

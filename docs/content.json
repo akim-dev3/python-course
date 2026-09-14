@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generated_at": "2026-09-14T05:44:16+00:00",
+ "generated_at": "2026-09-14T05:52:12+00:00",
  "runtime": {
   "pyodide_version": "314.0.6",
   "index_url": "https://cdn.jsdelivr.net/pyodide/v314.0.6/full/",
@@ -35,6 +35,8 @@
    "title": "Модуль 3 — Dict и агрегации",
    "subtitle": "COUNT, SUM, FILTER, GROUP BY, AVG, TOP N, вложенность",
    "lessons": [
+    "m03-d1",
+    "m03-d2",
     "m03-p1",
     "m03-p2",
     "m03-p3",
@@ -87,6 +89,7 @@
     "m06-p4"
    ],
    "theory": [
+    "m6-data-structures",
     "ref-ds"
    ]
   }
@@ -168,6 +171,17 @@
    ],
    "images": 6,
    "has_mermaid": true
+  },
+  {
+   "id": "m6-data-structures",
+   "title": "Модуль 6 — Структуры данных на пальцах",
+   "href": "theory/m6-data-structures.html",
+   "kind": "note",
+   "modules": [
+    "m06"
+   ],
+   "images": 0,
+   "has_mermaid": false
   },
   {
    "id": "ref-dict",
@@ -457,6 +471,788 @@
       "binary_search"
      ],
      "slot_index": 15
+    }
+   ]
+  },
+  {
+   "id": "m03-d1",
+   "module": "m03",
+   "title": "Дриллы dict — 20 задач",
+   "source_file": "drills/01_dict/tasks.py",
+   "intro_html": "<p>DICT DRILLS — тренировка паттернов до автоматизма\nПеред каждой задачей:\n  1. Что на входе, что на выходе (тип)\n  2. Назови паттерн\n  3. Пиши код</p>",
+   "prelude": "users = [\n    {\"name\": \"Ivan\", \"age\": 25, \"city\": \"Moscow\", \"active\": True, \"score\": 85},\n    {\"name\": \"Anna\", \"age\": 17, \"city\": \"Moscow\", \"active\": True, \"score\": 92},\n    {\"name\": \"Oleg\", \"age\": 30, \"city\": \"Kazan\", \"active\": False, \"score\": 60},\n    {\"name\": \"Mila\", \"age\": 15, \"city\": \"Kazan\", \"active\": True, \"score\": 78},\n    {\"name\": \"Petr\", \"age\": 22, \"city\": \"Moscow\", \"active\": False, \"score\": 55},\n]",
+   "segments": [
+    {
+     "t": "raw",
+     "text": "# ============================================================\n# DICT DRILLS — тренировка паттернов до автоматизма\n# ============================================================\n# Перед каждой задачей:\n#   1. Что на входе, что на выходе (тип)\n#   2. Назови паттерн\n#   3. Пиши код\n# ============================================================\n\ndef check(actual, expected, label=\"\"):\n    status = \"OK  \" if actual == expected else \"FAIL\"\n    print(f\"{status} {label}: {actual!r} (ожидалось {expected!r})\")\n\n\nusers = [\n    {\"name\": \"Ivan\", \"age\": 25, \"city\": \"Moscow\", \"active\": True, \"score\": 85},\n    {\"name\": \"Anna\", \"age\": 17, \"city\": \"Moscow\", \"active\": True, \"score\": 92},\n    {\"name\": \"Oleg\", \"age\": 30, \"city\": \"Kazan\", \"active\": False, \"score\": 60},\n    {\"name\": \"Mila\", \"age\": 15, \"city\": \"Kazan\", \"active\": True, \"score\": 78},\n    {\"name\": \"Petr\", \"age\": 22, \"city\": \"Moscow\", \"active\": False, \"score\": 55},\n]\n\n\n# ------------------------------------------------------------\n# Задача 1 — COUNT ✅\n# count_active_adults(users) → int\n# Количество активных пользователей старше 18\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/count_active_adults",
+     "text": "def count_active_adults(users):\n    return sum(1 for u in users if u.get(\"age\") > 18 and u.get(\"active\"))\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(count_active_adults(users), 1, \"count_active_adults\")\n\n\n# ------------------------------------------------------------\n# Задача 2 — SUM ✅\n# total_score(users) → int\n# Сумма score только активных пользователей\n# Ожидается: 255  (85 + 92 + 78)\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/total_score",
+     "text": "def total_score(users):\n    # list[dict], int, sum\n    return sum(u.get(\"score\", 0) for u in users if u.get(\"active\"))\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(total_score(users), 255, \"total_score\")\n\n\n# ------------------------------------------------------------\n# Задача 3 — FILTER ✅\n# get_high_scorers(users) → list[dict]\n# Список активных пользователей со score > 80\n# Ожидается: [{\"name\": \"Ivan\"...}, {\"name\": \"Anna\"...}]\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/get_high_scorers",
+     "text": "def get_high_scorers(users):\n    # list[dict], list[dict], filter\n    return [u for u in users if u.get(\"score\", 0) > 80 and u.get(\"active\")]\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(get_high_scorers(users), [{'name': 'Ivan', 'age': 25, 'city': 'Moscow', 'active': True, 'score': 85}, {'name': 'Anna', 'age': 17, 'city': 'Moscow', 'active': True, 'score': 92}], \"get_high_scorers\")\n\n\n# ------------------------------------------------------------\n# Задача 4 — GROUP BY ✅\n# count_by_city(users) → dict\n# Количество пользователей в каждом городе (все, не только active)\n# Ожидается: {\"Moscow\": 3, \"Kazan\": 2}\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/count_by_city",
+     "text": "def count_by_city(users):\n    # list[dict], dict, group by\n    count_users = {}\n    for u in users:\n        city = u.get(\"city\")\n        count_users[city] = count_users.get(city, 0) + 1\n    return count_users\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(count_by_city(users), {\"Moscow\": 3, \"Kazan\": 2}, \"count_by_city\")\n\n\n# ------------------------------------------------------------\n# Задача 5 — GROUP BY с суммой ✅\n# score_by_city(users) → dict\n# Сумма score по городам только для активных\n# Ожидается: {\"Moscow\": 177, \"Kazan\": 78}\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/score_by_city",
+     "text": "def score_by_city(users):\n    # list[dict], dict, group by\n    count_score = {}\n    for u in users:\n        city = u.get(\"city\")\n        score = u.get(\"score\", 0)\n        if u.get(\"active\"):\n            count_score[city] = count_score.get(city, 0) + score\n    return count_score\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(score_by_city(users), {\"Moscow\": 177, \"Kazan\": 78}, \"score_by_city\")\n\n\n# ------------------------------------------------------------\n# Задача 6 — TOP N ✅\n# top_cities(users) → list[str]\n# ТОП-2 города по количеству пользователей (все)\n# Ожидается: [\"Moscow\", \"Kazan\"]\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/top_cities",
+     "text": "def top_cities(users):\n    # dict, list, top N\n    dict_users = count_by_city(users)\n    top_two = sorted(dict_users.items(), key=lambda x: x[1], reverse=True)[:2]\n    top_two_keys = [k for k, v in top_two]\n    return top_two_keys\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(top_cities(users), [\"Moscow\", \"Kazan\"], \"top_cities\")\n\n\n# ------------------------------------------------------------\n# Задача 7 — MAX В DICT ✅\n# best_city(users) → str\n# Город с максимальной суммой score (только active)\n# Ожидается: \"Moscow\"\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/best_city",
+     "text": "def best_city(users):\n    # dict, key(str), max в dict\n    dict_score = score_by_city(users)\n    return max(dict_score, key=dict_score.get)\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(best_city(users), \"Moscow\", \"best_city\")\n\n\n# ------------------------------------------------------------\n# Задача 8 — КОМБО (FILTER + SORTED) ✅\n# top_active_users(users) → list[str]\n# Имена активных пользователей, отсортированные по score убыванию\n# Ожидается: [\"Anna\", \"Ivan\", \"Mila\"]\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/top_active_users",
+     "text": "def top_active_users(users):\n    # dict, list, GROUP BY + FILTER + SORTED\n    active = [u for u in users if u.get(\"active\")]\n    return [\n        u[\"name\"] for u in sorted(active, key=lambda x: x.get(\"score\", 0), reverse=True)\n    ]\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(top_active_users(users), [\"Anna\", \"Ivan\", \"Mila\"], \"top_active_users\")\n\n\n# ============================================================\n# РАУНД 2 — новые данные\n# ============================================================\n\norders = [\n    {\"id\": 1, \"user\": \"Ivan\", \"category\": \"food\", \"amount\": 1500, \"paid\": True},\n    {\"id\": 2, \"user\": \"Anna\", \"category\": \"electronics\", \"amount\": 8000, \"paid\": True},\n    {\"id\": 3, \"user\": \"Ivan\", \"category\": \"electronics\", \"amount\": 3000, \"paid\": False},\n    {\"id\": 4, \"user\": \"Mila\", \"category\": \"food\", \"amount\": 500, \"paid\": True},\n    {\"id\": 5, \"user\": \"Anna\", \"category\": \"food\", \"amount\": 700, \"paid\": True},\n    {\"id\": 6, \"user\": \"Oleg\", \"category\": \"electronics\", \"amount\": 5000, \"paid\": False},\n    {\"id\": 7, \"user\": \"Mila\", \"category\": \"electronics\", \"amount\": 2000, \"paid\": True},\n]\n\n\n# ------------------------------------------------------------\n# Задача 9 — COUNT ✅\n# count_paid(orders) → int\n# Количество оплаченных заказов\n# Ожидается: 5\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/count_paid",
+     "text": "def count_paid(orders):\n    return sum(1 for o in orders if o.get(\"paid\"))\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(count_paid(orders), 5, \"count_paid\")\n\n\n# ------------------------------------------------------------\n# Задача 10 — SUM ✅\n# total_revenue(orders) → int\n# Сумма amount только по оплаченным заказам\n# Ожидается: 12700\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/total_revenue",
+     "text": "def total_revenue(orders):\n    return sum(o.get(\"amount\", 0) for o in orders if o.get(\"paid\"))\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(total_revenue(orders), 12700, \"total_revenue\")\n\n\n# ------------------------------------------------------------\n# Задача 11 — FILTER ✅\n# big_paid_orders(orders) → list[dict]\n# Оплаченные заказы с amount > 1000\n# Ожидается: [заказ Ivan 1500, Anna 8000, Mila 2000]\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/big_paid_orders",
+     "text": "def big_paid_orders(orders):\n    return [o for o in orders if o.get(\"amount\", 0) > 1000 and o.get(\"paid\")]\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(big_paid_orders(orders), [{'id': 1, 'user': 'Ivan', 'category': 'food', 'amount': 1500, 'paid': True}, {'id': 2, 'user': 'Anna', 'category': 'electronics', 'amount': 8000, 'paid': True}, {'id': 7, 'user': 'Mila', 'category': 'electronics', 'amount': 2000, 'paid': True}], \"big_paid_orders\")\n\n\n# ------------------------------------------------------------\n# Задача 12 — GROUP BY ✅\n# revenue_by_category(orders) → dict\n# Сумма amount по категориям — только оплаченные\n# Ожидается: {\"food\": 2700, \"electronics\": 10000}\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/revenue_by_category",
+     "text": "def revenue_by_category(orders):\n    category_dict = {}\n    for o in orders:\n        category = o.get(\"category\")\n        amount = o.get(\"amount\", 0)\n        if o.get(\"paid\"):\n            category_dict[category] = category_dict.get(category, 0) + amount\n    return category_dict\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(revenue_by_category(orders), {\"food\": 2700, \"electronics\": 10000}, \"revenue_by_category\")\n\n\n# ------------------------------------------------------------\n# Задача 13 — TOP N ✅\n# top_categories(orders) → list[str]\n# ТОП-1 категория по выручке (оплаченные)\n# Ожидается: [\"electronics\"]\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/top_categories",
+     "text": "def top_categories(orders):\n    paid_categories = revenue_by_category(orders)\n    sorted_categories = sorted(\n        paid_categories.items(), key=lambda x: x[1], reverse=True\n    )[:1]\n    return [k for k, v in sorted_categories]\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(top_categories(orders), [\"electronics\"], \"top_categories\")\n\n\n# ------------------------------------------------------------\n# Задача 14 — GROUP BY + MAX ✅\n# best_user(orders) → str\n# Пользователь с наибольшей суммой оплаченных заказов\n# Ожидается: \"Anna\"  (8000 + 700 = 8700)\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/best_user",
+     "text": "def best_user(orders):\n    user_dict = {}\n    for o in orders:\n        user = o.get(\"user\")\n        amount = o.get(\"amount\", 0)\n        if o.get(\"paid\"):\n            user_dict[user] = user_dict.get(user, 0) + amount\n    return max(user_dict, key=user_dict.get)\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(best_user(orders), \"Anna\", \"best_user\")\n\n\n# ------------------------------------------------------------\n# Задача 15 — КОМБО ✅\n# user_order_counts(orders) → list[tuple]\n# Список (user, кол-во_заказов) всех пользователей,\n# отсортированный по убыванию количества. Все заказы (не только paid).\n# Ожидается: [(\"Ivan\", 2), (\"Anna\", 2), (\"Mila\", 2), (\"Oleg\", 1)]\n# Примечание: при равенстве порядок между Ivan/Anna/Mila не важен\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/user_order_counts",
+     "text": "def user_order_counts(orders):\n    sorted_users = {}\n    for o in orders:\n        user = o.get(\"user\")\n        sorted_users[user] = sorted_users.get(user, 0) + 1\n    return sorted(sorted_users.items(), key=lambda x: x[1], reverse=True)\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(user_order_counts(orders), [(\"Ivan\", 2), (\"Anna\", 2), (\"Mila\", 2), (\"Oleg\", 1)], \"user_order_counts\")\n\n\n# ============================================================\n# РАУНД 3 — комбо, стресс-тест\n# ============================================================\n\nemployees = [\n    {\"name\": \"Ivan\", \"dept\": \"dev\", \"salary\": 120000, \"senior\": True},\n    {\"name\": \"Anna\", \"dept\": \"dev\", \"salary\": 95000, \"senior\": False},\n    {\"name\": \"Oleg\", \"dept\": \"hr\", \"salary\": 70000, \"senior\": False},\n    {\"name\": \"Mila\", \"dept\": \"dev\", \"salary\": 140000, \"senior\": True},\n    {\"name\": \"Petr\", \"dept\": \"hr\", \"salary\": 85000, \"senior\": True},\n    {\"name\": \"Dima\", \"dept\": \"dev\", \"salary\": 60000, \"senior\": False},\n    {\"name\": \"Olga\", \"dept\": \"hr\", \"salary\": 90000, \"senior\": True},\n]\n\n\n# ------------------------------------------------------------\n# Задача 16 — FILTER + COUNT ✅\n# dept_headcount(employees) → dict\n# Количество сотрудников в каждом отделе — только senior\n# Ожидается: {\"dev\": 2, \"hr\": 2}\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/dept_headcount",
+     "text": "def dept_headcount(employees):\n    count_dept = {}\n    for e in employees:\n        dept = e.get(\"dept\")\n        if e.get(\"senior\"):\n            count_dept[dept] = count_dept.get(dept, 0) + 1\n    return count_dept\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(dept_headcount(employees), {\"dev\": 2, \"hr\": 2}, \"dept_headcount\")\n\n\n# ------------------------------------------------------------\n# Задача 17 — GROUP BY + AVG ✅\n# avg_salary_by_dept(employees) → dict\n# Средняя зарплата по каждому отделу (все сотрудники)\n# Ожидается: {\"dev\": 103750.0, \"hr\": 81666.67}  (округли до 2 знаков)\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/avg_salary_by_dept",
+     "text": "def avg_salary_by_dept(employees):\n    totals = {}\n    counts = {}\n    for e in employees:\n        dept = e.get(\"dept\")\n        totals[dept] = totals.get(dept, 0) + e.get(\"salary\", 0)\n        counts[dept] = counts.get(dept, 0) + 1\n    return {dept: round(totals[dept] / counts[dept], 2) for dept in totals}\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(avg_salary_by_dept(employees), {\"dev\": 103750.0, \"hr\": 81666.67}, \"avg_salary_by_dept\")\n\n\n# ------------------------------------------------------------\n# Задача 18 — FILTER + SORTED → list[str] ✅\n# top_earners(employees) → list[str]\n# Имена senior-сотрудников, отсортированные по зарплате убыванию\n# Ожидается: [\"Mila\", \"Ivan\", \"Olga\", \"Petr\"]\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/top_earners",
+     "text": "def top_earners(employees):\n    seniors = [e for e in employees if e.get(\"senior\")]\n    return [\n        e[\"name\"]\n        for e in sorted(seniors, key=lambda x: x.get(\"salary\", 0), reverse=True)\n    ]\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(top_earners(employees), [\"Mila\", \"Ivan\", \"Olga\", \"Petr\"], \"top_earners\")\n\n\n# ------------------------------------------------------------\n# Задача 19 — GROUP BY + TOP N → list[str] ✅\n# richest_depts(employees) → list[str]\n# ТОП-1 отдел по суммарной зарплате (все сотрудники)\n# Ожидается: [\"dev\"]\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/richest_depts",
+     "text": "def richest_depts(employees):\n    dept_totals = {}\n    for e in employees:\n        dept = e.get(\"dept\")\n        salary = e.get(\"salary\", 0)\n        dept_totals[dept] = dept_totals.get(dept, 0) + salary\n    return [max(dept_totals, key=dept_totals.get)]\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(richest_depts(employees), [\"dev\"], \"richest_depts\")\n\n\n# ------------------------------------------------------------\n# Задача 20 — КОМБО с защитой ✅\n# best_senior(employees, dept) → str | None\n# Имя senior-сотрудника с максимальной зарплатой в указанном отделе.\n# Если таких нет — вернуть None.\n# Примеры:\n#   best_senior(employees, \"dev\")  → \"Mila\"\n#   best_senior(employees, \"hr\")   → \"Olga\"\n#   best_senior(employees, \"qa\")   → None\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d1/best_senior",
+     "text": "def best_senior(employees, dept):\n    candidates = [e for e in employees if e.get(\"dept\") == dept and e.get(\"senior\")]\n    if not candidates:\n        return None\n    return max(candidates, key=lambda x: x.get(\"salary\", 0))[\"name\"]\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(best_senior(employees, \"dev\"), \"Mila\", \"best_senior\")\ncheck(best_senior(employees, \"hr\"), \"Olga\", \"best_senior\")\ncheck(best_senior(employees, \"qa\"), None, \"best_senior\")\n"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "m03-d1/count_active_adults",
+     "ordinal": 1,
+     "name": "count_active_adults",
+     "names": [
+      "count_active_adults"
+     ],
+     "kind": "function",
+     "title": "Задача 1 — COUNT ✅ count_active_adults(users) → int Количество активных пользователей старше 18",
+     "description_html": "",
+     "starter_code": "def count_active_adults(users):\n    pass\n",
+     "reference_solution": "def count_active_adults(users):\n    return sum(1 for u in users if u.get(\"age\") > 18 and u.get(\"active\"))\n",
+     "solved_in_repo": true,
+     "test_source": "check(count_active_adults(users), 1, \"count_active_adults\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "count_active_adults"
+     ],
+     "slot_index": 1
+    },
+    {
+     "id": "m03-d1/total_score",
+     "ordinal": 2,
+     "name": "total_score",
+     "names": [
+      "total_score"
+     ],
+     "kind": "function",
+     "title": "Задача 2 — SUM ✅ total_score(users) → int Сумма score только активных пользователей Ожидается: 255  (85 + 92 + 78)",
+     "description_html": "",
+     "starter_code": "def total_score(users):\n    # list[dict], int, sum\n    pass\n",
+     "reference_solution": "def total_score(users):\n    # list[dict], int, sum\n    return sum(u.get(\"score\", 0) for u in users if u.get(\"active\"))\n",
+     "solved_in_repo": true,
+     "test_source": "check(total_score(users), 255, \"total_score\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "total_score"
+     ],
+     "slot_index": 3
+    },
+    {
+     "id": "m03-d1/get_high_scorers",
+     "ordinal": 3,
+     "name": "get_high_scorers",
+     "names": [
+      "get_high_scorers"
+     ],
+     "kind": "function",
+     "title": "Задача 3 — FILTER ✅ get_high_scorers(users) → list[dict] Список активных пользователей со score > 80 Ожидается: [{\"name\": \"Ivan\"...}, {\"name\": \"Anna\"...}]",
+     "description_html": "",
+     "starter_code": "def get_high_scorers(users):\n    # list[dict], list[dict], filter\n    pass\n",
+     "reference_solution": "def get_high_scorers(users):\n    # list[dict], list[dict], filter\n    return [u for u in users if u.get(\"score\", 0) > 80 and u.get(\"active\")]\n",
+     "solved_in_repo": true,
+     "test_source": "check(get_high_scorers(users), [{'name': 'Ivan', 'age': 25, 'city': 'Moscow', 'active': True, 'score': 85}, {'name': 'Anna', 'age': 17, 'city': 'Moscow', 'active': True, 'score': 92}], \"get_high_scorers\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "get_high_scorers"
+     ],
+     "slot_index": 5
+    },
+    {
+     "id": "m03-d1/count_by_city",
+     "ordinal": 4,
+     "name": "count_by_city",
+     "names": [
+      "count_by_city"
+     ],
+     "kind": "function",
+     "title": "Задача 4 — GROUP BY ✅ count_by_city(users) → dict Количество пользователей в каждом городе (все, не только active) Ожидается: {\"Moscow\": 3, \"Kazan\": 2}",
+     "description_html": "",
+     "starter_code": "def count_by_city(users):\n    # list[dict], dict, group by\n    pass\n",
+     "reference_solution": "def count_by_city(users):\n    # list[dict], dict, group by\n    count_users = {}\n    for u in users:\n        city = u.get(\"city\")\n        count_users[city] = count_users.get(city, 0) + 1\n    return count_users\n",
+     "solved_in_repo": true,
+     "test_source": "check(count_by_city(users), {\"Moscow\": 3, \"Kazan\": 2}, \"count_by_city\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "count_by_city"
+     ],
+     "slot_index": 7
+    },
+    {
+     "id": "m03-d1/score_by_city",
+     "ordinal": 5,
+     "name": "score_by_city",
+     "names": [
+      "score_by_city"
+     ],
+     "kind": "function",
+     "title": "Задача 5 — GROUP BY с суммой ✅ score_by_city(users) → dict Сумма score по городам только для активных Ожидается: {\"Moscow\": 177, \"Kazan\": 78}",
+     "description_html": "",
+     "starter_code": "def score_by_city(users):\n    # list[dict], dict, group by\n    pass\n",
+     "reference_solution": "def score_by_city(users):\n    # list[dict], dict, group by\n    count_score = {}\n    for u in users:\n        city = u.get(\"city\")\n        score = u.get(\"score\", 0)\n        if u.get(\"active\"):\n            count_score[city] = count_score.get(city, 0) + score\n    return count_score\n",
+     "solved_in_repo": true,
+     "test_source": "check(score_by_city(users), {\"Moscow\": 177, \"Kazan\": 78}, \"score_by_city\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "score_by_city"
+     ],
+     "slot_index": 9
+    },
+    {
+     "id": "m03-d1/top_cities",
+     "ordinal": 6,
+     "name": "top_cities",
+     "names": [
+      "top_cities"
+     ],
+     "kind": "function",
+     "title": "Задача 6 — TOP N ✅ top_cities(users) → list[str] ТОП-2 города по количеству пользователей (все) Ожидается: [\"Moscow\", \"Kazan\"]",
+     "description_html": "",
+     "starter_code": "def top_cities(users):\n    # dict, list, top N\n    pass\n",
+     "reference_solution": "def top_cities(users):\n    # dict, list, top N\n    dict_users = count_by_city(users)\n    top_two = sorted(dict_users.items(), key=lambda x: x[1], reverse=True)[:2]\n    top_two_keys = [k for k, v in top_two]\n    return top_two_keys\n",
+     "solved_in_repo": true,
+     "test_source": "check(top_cities(users), [\"Moscow\", \"Kazan\"], \"top_cities\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "top_cities"
+     ],
+     "slot_index": 11
+    },
+    {
+     "id": "m03-d1/best_city",
+     "ordinal": 7,
+     "name": "best_city",
+     "names": [
+      "best_city"
+     ],
+     "kind": "function",
+     "title": "Задача 7 — MAX В DICT ✅ best_city(users) → str Город с максимальной суммой score (только active) Ожидается: \"Moscow\"",
+     "description_html": "",
+     "starter_code": "def best_city(users):\n    # dict, key(str), max в dict\n    pass\n",
+     "reference_solution": "def best_city(users):\n    # dict, key(str), max в dict\n    dict_score = score_by_city(users)\n    return max(dict_score, key=dict_score.get)\n",
+     "solved_in_repo": true,
+     "test_source": "check(best_city(users), \"Moscow\", \"best_city\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "best_city"
+     ],
+     "slot_index": 13
+    },
+    {
+     "id": "m03-d1/top_active_users",
+     "ordinal": 8,
+     "name": "top_active_users",
+     "names": [
+      "top_active_users"
+     ],
+     "kind": "function",
+     "title": "Задача 8 — КОМБО (FILTER + SORTED) ✅ top_active_users(users) → list[str] Имена активных пользователей, отсортированные по score убыванию Ожидается: [\"Anna\", \"Ivan\", \"Mila\"]",
+     "description_html": "",
+     "starter_code": "def top_active_users(users):\n    # dict, list, GROUP BY + FILTER + SORTED\n    pass\n",
+     "reference_solution": "def top_active_users(users):\n    # dict, list, GROUP BY + FILTER + SORTED\n    active = [u for u in users if u.get(\"active\")]\n    return [\n        u[\"name\"] for u in sorted(active, key=lambda x: x.get(\"score\", 0), reverse=True)\n    ]\n",
+     "solved_in_repo": true,
+     "test_source": "check(top_active_users(users), [\"Anna\", \"Ivan\", \"Mila\"], \"top_active_users\")\norders = [\n    {\"id\": 1, \"user\": \"Ivan\", \"category\": \"food\", \"amount\": 1500, \"paid\": True},\n    {\"id\": 2, \"user\": \"Anna\", \"category\": \"electronics\", \"amount\": 8000, \"paid\": True},\n    {\"id\": 3, \"user\": \"Ivan\", \"category\": \"electronics\", \"amount\": 3000, \"paid\": False},\n    {\"id\": 4, \"user\": \"Mila\", \"category\": \"food\", \"amount\": 500, \"paid\": True},\n    {\"id\": 5, \"user\": \"Anna\", \"category\": \"food\", \"amount\": 700, \"paid\": True},\n    {\"id\": 6, \"user\": \"Oleg\", \"category\": \"electronics\", \"amount\": 5000, \"paid\": False},\n    {\"id\": 7, \"user\": \"Mila\", \"category\": \"electronics\", \"amount\": 2000, \"paid\": True},\n]",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "top_active_users"
+     ],
+     "slot_index": 15
+    },
+    {
+     "id": "m03-d1/count_paid",
+     "ordinal": 9,
+     "name": "count_paid",
+     "names": [
+      "count_paid"
+     ],
+     "kind": "function",
+     "title": "Задача 9 — COUNT ✅ count_paid(orders) → int Количество оплаченных заказов Ожидается: 5",
+     "description_html": "",
+     "starter_code": "def count_paid(orders):\n    pass\n",
+     "reference_solution": "def count_paid(orders):\n    return sum(1 for o in orders if o.get(\"paid\"))\n",
+     "solved_in_repo": true,
+     "test_source": "check(count_paid(orders), 5, \"count_paid\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "count_paid"
+     ],
+     "slot_index": 17
+    },
+    {
+     "id": "m03-d1/total_revenue",
+     "ordinal": 10,
+     "name": "total_revenue",
+     "names": [
+      "total_revenue"
+     ],
+     "kind": "function",
+     "title": "Задача 10 — SUM ✅ total_revenue(orders) → int Сумма amount только по оплаченным заказам Ожидается: 12700",
+     "description_html": "",
+     "starter_code": "def total_revenue(orders):\n    pass\n",
+     "reference_solution": "def total_revenue(orders):\n    return sum(o.get(\"amount\", 0) for o in orders if o.get(\"paid\"))\n",
+     "solved_in_repo": true,
+     "test_source": "check(total_revenue(orders), 12700, \"total_revenue\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "total_revenue"
+     ],
+     "slot_index": 19
+    },
+    {
+     "id": "m03-d1/big_paid_orders",
+     "ordinal": 11,
+     "name": "big_paid_orders",
+     "names": [
+      "big_paid_orders"
+     ],
+     "kind": "function",
+     "title": "Задача 11 — FILTER ✅ big_paid_orders(orders) → list[dict] Оплаченные заказы с amount > 1000 Ожидается: [заказ Ivan 1500, Anna 8000, Mila 2000]",
+     "description_html": "",
+     "starter_code": "def big_paid_orders(orders):\n    pass\n",
+     "reference_solution": "def big_paid_orders(orders):\n    return [o for o in orders if o.get(\"amount\", 0) > 1000 and o.get(\"paid\")]\n",
+     "solved_in_repo": true,
+     "test_source": "check(big_paid_orders(orders), [{'id': 1, 'user': 'Ivan', 'category': 'food', 'amount': 1500, 'paid': True}, {'id': 2, 'user': 'Anna', 'category': 'electronics', 'amount': 8000, 'paid': True}, {'id': 7, 'user': 'Mila', 'category': 'electronics', 'amount': 2000, 'paid': True}], \"big_paid_orders\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "big_paid_orders"
+     ],
+     "slot_index": 21
+    },
+    {
+     "id": "m03-d1/revenue_by_category",
+     "ordinal": 12,
+     "name": "revenue_by_category",
+     "names": [
+      "revenue_by_category"
+     ],
+     "kind": "function",
+     "title": "Задача 12 — GROUP BY ✅ revenue_by_category(orders) → dict Сумма amount по категориям — только оплаченные Ожидается: {\"food\": 2700, \"electronics\": 10000}",
+     "description_html": "",
+     "starter_code": "def revenue_by_category(orders):\n    pass\n",
+     "reference_solution": "def revenue_by_category(orders):\n    category_dict = {}\n    for o in orders:\n        category = o.get(\"category\")\n        amount = o.get(\"amount\", 0)\n        if o.get(\"paid\"):\n            category_dict[category] = category_dict.get(category, 0) + amount\n    return category_dict\n",
+     "solved_in_repo": true,
+     "test_source": "check(revenue_by_category(orders), {\"food\": 2700, \"electronics\": 10000}, \"revenue_by_category\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "revenue_by_category"
+     ],
+     "slot_index": 23
+    },
+    {
+     "id": "m03-d1/top_categories",
+     "ordinal": 13,
+     "name": "top_categories",
+     "names": [
+      "top_categories"
+     ],
+     "kind": "function",
+     "title": "Задача 13 — TOP N ✅ top_categories(orders) → list[str] ТОП-1 категория по выручке (оплаченные) Ожидается: [\"electronics\"]",
+     "description_html": "",
+     "starter_code": "def top_categories(orders):\n    pass\n",
+     "reference_solution": "def top_categories(orders):\n    paid_categories = revenue_by_category(orders)\n    sorted_categories = sorted(\n        paid_categories.items(), key=lambda x: x[1], reverse=True\n    )[:1]\n    return [k for k, v in sorted_categories]\n",
+     "solved_in_repo": true,
+     "test_source": "check(top_categories(orders), [\"electronics\"], \"top_categories\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "top_categories"
+     ],
+     "slot_index": 25
+    },
+    {
+     "id": "m03-d1/best_user",
+     "ordinal": 14,
+     "name": "best_user",
+     "names": [
+      "best_user"
+     ],
+     "kind": "function",
+     "title": "Задача 14 — GROUP BY + MAX ✅ best_user(orders) → str Пользователь с наибольшей суммой оплаченных заказов Ожидается: \"Anna\"  (8000 + 700 = 8700)",
+     "description_html": "",
+     "starter_code": "def best_user(orders):\n    pass\n",
+     "reference_solution": "def best_user(orders):\n    user_dict = {}\n    for o in orders:\n        user = o.get(\"user\")\n        amount = o.get(\"amount\", 0)\n        if o.get(\"paid\"):\n            user_dict[user] = user_dict.get(user, 0) + amount\n    return max(user_dict, key=user_dict.get)\n",
+     "solved_in_repo": true,
+     "test_source": "check(best_user(orders), \"Anna\", \"best_user\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "best_user"
+     ],
+     "slot_index": 27
+    },
+    {
+     "id": "m03-d1/user_order_counts",
+     "ordinal": 15,
+     "name": "user_order_counts",
+     "names": [
+      "user_order_counts"
+     ],
+     "kind": "function",
+     "title": "Задача 15 — КОМБО ✅ user_order_counts(orders) → list[tuple] Список (user, кол-во_заказов) всех пользователей, отсортированный по убыванию количества. Все заказы (не только paid). Ожидается: [(\"Ivan\", 2), (\"Anna\", 2), (\"Mila\", 2), (\"Oleg\", 1)] Примечание: при равенстве порядок между Ivan/Anna/Mila не важен",
+     "description_html": "",
+     "starter_code": "def user_order_counts(orders):\n    pass\n",
+     "reference_solution": "def user_order_counts(orders):\n    sorted_users = {}\n    for o in orders:\n        user = o.get(\"user\")\n        sorted_users[user] = sorted_users.get(user, 0) + 1\n    return sorted(sorted_users.items(), key=lambda x: x[1], reverse=True)\n",
+     "solved_in_repo": true,
+     "test_source": "check(user_order_counts(orders), [(\"Ivan\", 2), (\"Anna\", 2), (\"Mila\", 2), (\"Oleg\", 1)], \"user_order_counts\")\nemployees = [\n    {\"name\": \"Ivan\", \"dept\": \"dev\", \"salary\": 120000, \"senior\": True},\n    {\"name\": \"Anna\", \"dept\": \"dev\", \"salary\": 95000, \"senior\": False},\n    {\"name\": \"Oleg\", \"dept\": \"hr\", \"salary\": 70000, \"senior\": False},\n    {\"name\": \"Mila\", \"dept\": \"dev\", \"salary\": 140000, \"senior\": True},\n    {\"name\": \"Petr\", \"dept\": \"hr\", \"salary\": 85000, \"senior\": True},\n    {\"name\": \"Dima\", \"dept\": \"dev\", \"salary\": 60000, \"senior\": False},\n    {\"name\": \"Olga\", \"dept\": \"hr\", \"salary\": 90000, \"senior\": True},\n]",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "user_order_counts"
+     ],
+     "slot_index": 29
+    },
+    {
+     "id": "m03-d1/dept_headcount",
+     "ordinal": 16,
+     "name": "dept_headcount",
+     "names": [
+      "dept_headcount"
+     ],
+     "kind": "function",
+     "title": "Задача 16 — FILTER + COUNT ✅ dept_headcount(employees) → dict Количество сотрудников в каждом отделе — только senior Ожидается: {\"dev\": 2, \"hr\": 2}",
+     "description_html": "",
+     "starter_code": "def dept_headcount(employees):\n    pass\n",
+     "reference_solution": "def dept_headcount(employees):\n    count_dept = {}\n    for e in employees:\n        dept = e.get(\"dept\")\n        if e.get(\"senior\"):\n            count_dept[dept] = count_dept.get(dept, 0) + 1\n    return count_dept\n",
+     "solved_in_repo": true,
+     "test_source": "check(dept_headcount(employees), {\"dev\": 2, \"hr\": 2}, \"dept_headcount\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "dept_headcount"
+     ],
+     "slot_index": 31
+    },
+    {
+     "id": "m03-d1/avg_salary_by_dept",
+     "ordinal": 17,
+     "name": "avg_salary_by_dept",
+     "names": [
+      "avg_salary_by_dept"
+     ],
+     "kind": "function",
+     "title": "Задача 17 — GROUP BY + AVG ✅ avg_salary_by_dept(employees) → dict Средняя зарплата по каждому отделу (все сотрудники) Ожидается: {\"dev\": 103750.0, \"hr\": 81666.67}  (округли до 2 знаков)",
+     "description_html": "",
+     "starter_code": "def avg_salary_by_dept(employees):\n    pass\n",
+     "reference_solution": "def avg_salary_by_dept(employees):\n    totals = {}\n    counts = {}\n    for e in employees:\n        dept = e.get(\"dept\")\n        totals[dept] = totals.get(dept, 0) + e.get(\"salary\", 0)\n        counts[dept] = counts.get(dept, 0) + 1\n    return {dept: round(totals[dept] / counts[dept], 2) for dept in totals}\n",
+     "solved_in_repo": true,
+     "test_source": "check(avg_salary_by_dept(employees), {\"dev\": 103750.0, \"hr\": 81666.67}, \"avg_salary_by_dept\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "avg_salary_by_dept"
+     ],
+     "slot_index": 33
+    },
+    {
+     "id": "m03-d1/top_earners",
+     "ordinal": 18,
+     "name": "top_earners",
+     "names": [
+      "top_earners"
+     ],
+     "kind": "function",
+     "title": "Задача 18 — FILTER + SORTED → list[str] ✅ top_earners(employees) → list[str] Имена senior-сотрудников, отсортированные по зарплате убыванию Ожидается: [\"Mila\", \"Ivan\", \"Olga\", \"Petr\"]",
+     "description_html": "",
+     "starter_code": "def top_earners(employees):\n    pass\n",
+     "reference_solution": "def top_earners(employees):\n    seniors = [e for e in employees if e.get(\"senior\")]\n    return [\n        e[\"name\"]\n        for e in sorted(seniors, key=lambda x: x.get(\"salary\", 0), reverse=True)\n    ]\n",
+     "solved_in_repo": true,
+     "test_source": "check(top_earners(employees), [\"Mila\", \"Ivan\", \"Olga\", \"Petr\"], \"top_earners\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "top_earners"
+     ],
+     "slot_index": 35
+    },
+    {
+     "id": "m03-d1/richest_depts",
+     "ordinal": 19,
+     "name": "richest_depts",
+     "names": [
+      "richest_depts"
+     ],
+     "kind": "function",
+     "title": "Задача 19 — GROUP BY + TOP N → list[str] ✅ richest_depts(employees) → list[str] ТОП-1 отдел по суммарной зарплате (все сотрудники) Ожидается: [\"dev\"]",
+     "description_html": "",
+     "starter_code": "def richest_depts(employees):\n    pass\n",
+     "reference_solution": "def richest_depts(employees):\n    dept_totals = {}\n    for e in employees:\n        dept = e.get(\"dept\")\n        salary = e.get(\"salary\", 0)\n        dept_totals[dept] = dept_totals.get(dept, 0) + salary\n    return [max(dept_totals, key=dept_totals.get)]\n",
+     "solved_in_repo": true,
+     "test_source": "check(richest_depts(employees), [\"dev\"], \"richest_depts\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "richest_depts"
+     ],
+     "slot_index": 37
+    },
+    {
+     "id": "m03-d1/best_senior",
+     "ordinal": 20,
+     "name": "best_senior",
+     "names": [
+      "best_senior"
+     ],
+     "kind": "function",
+     "title": "Задача 20 — КОМБО с защитой ✅ best_senior(employees, dept) → str | None Имя senior-сотрудника с максимальной зарплатой в указанном отделе. Если таких нет — вернуть None. Примеры: best_senior(employees, \"dev\")  → \"Mila\" best_senior(employees, \"hr\")   → \"Olga\" best_senior(employees, \"qa\")   → None",
+     "description_html": "",
+     "starter_code": "def best_senior(employees, dept):\n    pass\n",
+     "reference_solution": "def best_senior(employees, dept):\n    candidates = [e for e in employees if e.get(\"dept\") == dept and e.get(\"senior\")]\n    if not candidates:\n        return None\n    return max(candidates, key=lambda x: x.get(\"salary\", 0))[\"name\"]\n",
+     "solved_in_repo": true,
+     "test_source": "check(best_senior(employees, \"dev\"), \"Mila\", \"best_senior\")\ncheck(best_senior(employees, \"hr\"), \"Olga\", \"best_senior\")\ncheck(best_senior(employees, \"qa\"), None, \"best_senior\")",
+     "has_own_tests": true,
+     "expected_checks": 3,
+     "needs": [
+      "best_senior"
+     ],
+     "slot_index": 39
+    }
+   ]
+  },
+  {
+   "id": "m03-d2",
+   "module": "m03",
+   "title": "Закрепление слабых точек",
+   "source_file": "drills/01_dict/drill_weak.py",
+   "intro_html": "<p>ЗАКРЕПЛЕНИЕ СЛАБЫХ ТОЧЕК\nПеред каждой задачей пиши:\n  # Вход: ...\n  # Выход: ...\n  # Паттерн: ...\n  # dict нужен / не нужен — потому что ...</p>",
+   "prelude": "products = [\n    {\"name\": \"apple\", \"category\": \"fruit\", \"price\": 30, \"in_stock\": True},\n    {\"name\": \"banana\", \"category\": \"fruit\", \"price\": 15, \"in_stock\": True},\n    {\"name\": \"milk\", \"category\": \"dairy\", \"price\": 80, \"in_stock\": False},\n    {\"name\": \"cheese\", \"category\": \"dairy\", \"price\": 250, \"in_stock\": True},\n    {\"name\": \"bread\", \"category\": \"bakery\", \"price\": 45, \"in_stock\": True},\n    {\"name\": \"butter\", \"category\": \"dairy\", \"price\": 120, \"in_stock\": False},\n    {\"name\": \"mango\", \"category\": \"fruit\", \"price\": 200, \"in_stock\": True},\n]",
+   "segments": [
+    {
+     "t": "raw",
+     "text": "# ============================================================\n# ЗАКРЕПЛЕНИЕ СЛАБЫХ ТОЧЕК\n# Перед каждой задачей пиши:\n#   # Вход: ...\n#   # Выход: ...\n#   # Паттерн: ...\n#   # dict нужен / не нужен — потому что ...\n# ============================================================\n\ndef check(actual, expected, label=\"\"):\n    status = \"OK  \" if actual == expected else \"FAIL\"\n    print(f\"{status} {label}: {actual!r} (ожидалось {expected!r})\")\n\n\nproducts = [\n    {\"name\": \"apple\", \"category\": \"fruit\", \"price\": 30, \"in_stock\": True},\n    {\"name\": \"banana\", \"category\": \"fruit\", \"price\": 15, \"in_stock\": True},\n    {\"name\": \"milk\", \"category\": \"dairy\", \"price\": 80, \"in_stock\": False},\n    {\"name\": \"cheese\", \"category\": \"dairy\", \"price\": 250, \"in_stock\": True},\n    {\"name\": \"bread\", \"category\": \"bakery\", \"price\": 45, \"in_stock\": True},\n    {\"name\": \"butter\", \"category\": \"dairy\", \"price\": 120, \"in_stock\": False},\n    {\"name\": \"mango\", \"category\": \"fruit\", \"price\": 200, \"in_stock\": True},\n]\n\n\n# ------------------------------------------------------------\n# Задача A — FILTER + SORTED\n# cheap_in_stock(products) → list[str]\n# Имена товаров в наличии, отсортированные по цене возрастанию\n# Ожидается: [\"banana\", \"apple\", \"bread\", \"mango\", \"cheese\"]\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d2/cheap_in_stock",
+     "text": "def cheap_in_stock(products):\n    # list[dict], list[str], filter + sorted\n    in_stock = [p for p in products if p.get(\"in_stock\")]\n    return [p[\"name\"] for p in sorted(in_stock, key=lambda x: x.get(\"price\", 0))]\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(cheap_in_stock(products), [\"banana\", \"apple\", \"bread\", \"mango\", \"cheese\"], \"cheap_in_stock\")\n\n\n# ------------------------------------------------------------\n# Задача B — GROUP BY + AVG\n# avg_price_by_category(products) → dict\n# Средняя цена по каждой категории (все товары, не только in_stock)\n# Ожидается: {\"fruit\": 81.67, \"dairy\": 150.0, \"bakery\": 45.0}\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d2/avg_price_by_category",
+     "text": "def avg_price_by_category(products):\n    # list[dict], dict, group by + avg\n    totals = {}\n    counts = {}\n    for p in products:\n        category = p.get(\"category\")\n        totals[category] = totals.get(category, 0) + p.get(\"price\", 0)\n        counts[category] = counts.get(category, 0) + 1\n    return {\n        category: round(totals[category] / counts[category], 2) for category in totals\n    }\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(avg_price_by_category(products), {\"fruit\": 81.67, \"dairy\": 150.0, \"bakery\": 45.0}, \"avg_price_by_category\")\n\n\n# ------------------------------------------------------------\n# Задача C — GROUP BY (реальная группировка)\n# stock_value_by_category(products) → dict\n# Суммарная стоимость товаров в наличии по категориям\n# Ожидается: {\"fruit\": 245, \"dairy\": 250, \"bakery\": 45}\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d2/stock_value_by_category",
+     "text": "def stock_value_by_category(products):\n    # list[dict], dict, group by\n    totals = {}\n    for p in products:\n        category = p.get(\"category\")\n        if p.get(\"in_stock\"):\n            totals[category] = totals.get(category, 0) + p.get(\"price\", 0)\n    return totals\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(stock_value_by_category(products), {\"fruit\": 245, \"dairy\": 250, \"bakery\": 45}, \"stock_value_by_category\")\n\n\n# ------------------------------------------------------------\n# Задача D — FILTER + SORTED (снова, без dict)\n# top_expensive(products) → list[str]\n# Имена ТОП-3 самых дорогих товаров в наличии\n# Ожидается: [\"cheese\", \"mango\", \"bread\"]\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d2/top_expensive",
+     "text": "def top_expensive(products):\n    in_stock_product = [p for p in products if p.get(\"in_stock\")]\n    return [\n        p.get(\"name\")\n        for p in sorted(\n            in_stock_product, key=lambda x: x.get(\"price\", 0), reverse=True\n        )[:3]\n    ]\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(top_expensive(products), [\"cheese\", \"mango\", \"bread\"], \"top_expensive\")\n\n\n# ------------------------------------------------------------\n# Задача E — КОМБО с защитой\n# cheapest_in_category(products, category) → str | None\n# Самый дешёвый товар в наличии в указанной категории.\n# Если таких нет — вернуть None.\n# Примеры:\n#   cheapest_in_category(products, \"fruit\")  → \"banana\"\n#   cheapest_in_category(products, \"dairy\")  → \"cheese\"\n#   cheapest_in_category(products, \"frozen\") → None\n# ------------------------------------------------------------\n"
+    },
+    {
+     "t": "slot",
+     "task": "m03-d2/cheapest_in_category",
+     "text": "def cheapest_in_category(products, category):\n    candidates = [\n        p for p in products if p.get(\"category\") == category and p.get(\"in_stock\")\n    ]\n    if not candidates:\n        return None\n\n    return min(candidates, key=lambda x: x.get(\"price\", 0))[\"name\"]\n"
+    },
+    {
+     "t": "raw",
+     "text": "\n\ncheck(cheapest_in_category(products, \"fruit\"), \"banana\", \"cheapest_in_category\")\ncheck(cheapest_in_category(products, \"dairy\"), \"cheese\", \"cheapest_in_category\")\ncheck(cheapest_in_category(products, \"frozen\"), None, \"cheapest_in_category\")\n"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "m03-d2/cheap_in_stock",
+     "ordinal": 1,
+     "name": "cheap_in_stock",
+     "names": [
+      "cheap_in_stock"
+     ],
+     "kind": "function",
+     "title": "Задача A — FILTER + SORTED cheap_in_stock(products) → list[str] Имена товаров в наличии, отсортированные по цене возрастанию Ожидается: [\"banana\", \"apple\", \"bread\", \"mango\", \"cheese\"]",
+     "description_html": "",
+     "starter_code": "def cheap_in_stock(products):\n    # list[dict], list[str], filter + sorted\n    pass\n",
+     "reference_solution": "def cheap_in_stock(products):\n    # list[dict], list[str], filter + sorted\n    in_stock = [p for p in products if p.get(\"in_stock\")]\n    return [p[\"name\"] for p in sorted(in_stock, key=lambda x: x.get(\"price\", 0))]\n",
+     "solved_in_repo": true,
+     "test_source": "check(cheap_in_stock(products), [\"banana\", \"apple\", \"bread\", \"mango\", \"cheese\"], \"cheap_in_stock\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "cheap_in_stock"
+     ],
+     "slot_index": 1
+    },
+    {
+     "id": "m03-d2/avg_price_by_category",
+     "ordinal": 2,
+     "name": "avg_price_by_category",
+     "names": [
+      "avg_price_by_category"
+     ],
+     "kind": "function",
+     "title": "Задача B — GROUP BY + AVG avg_price_by_category(products) → dict Средняя цена по каждой категории (все товары, не только in_stock) Ожидается: {\"fruit\": 81.67, \"dairy\": 150.0, \"bakery\": 45.0}",
+     "description_html": "",
+     "starter_code": "def avg_price_by_category(products):\n    # list[dict], dict, group by + avg\n    pass\n",
+     "reference_solution": "def avg_price_by_category(products):\n    # list[dict], dict, group by + avg\n    totals = {}\n    counts = {}\n    for p in products:\n        category = p.get(\"category\")\n        totals[category] = totals.get(category, 0) + p.get(\"price\", 0)\n        counts[category] = counts.get(category, 0) + 1\n    return {\n        category: round(totals[category] / counts[category], 2) for category in totals\n    }\n",
+     "solved_in_repo": true,
+     "test_source": "check(avg_price_by_category(products), {\"fruit\": 81.67, \"dairy\": 150.0, \"bakery\": 45.0}, \"avg_price_by_category\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "avg_price_by_category"
+     ],
+     "slot_index": 3
+    },
+    {
+     "id": "m03-d2/stock_value_by_category",
+     "ordinal": 3,
+     "name": "stock_value_by_category",
+     "names": [
+      "stock_value_by_category"
+     ],
+     "kind": "function",
+     "title": "Задача C — GROUP BY (реальная группировка) stock_value_by_category(products) → dict Суммарная стоимость товаров в наличии по категориям Ожидается: {\"fruit\": 245, \"dairy\": 250, \"bakery\": 45}",
+     "description_html": "",
+     "starter_code": "def stock_value_by_category(products):\n    # list[dict], dict, group by\n    pass\n",
+     "reference_solution": "def stock_value_by_category(products):\n    # list[dict], dict, group by\n    totals = {}\n    for p in products:\n        category = p.get(\"category\")\n        if p.get(\"in_stock\"):\n            totals[category] = totals.get(category, 0) + p.get(\"price\", 0)\n    return totals\n",
+     "solved_in_repo": true,
+     "test_source": "check(stock_value_by_category(products), {\"fruit\": 245, \"dairy\": 250, \"bakery\": 45}, \"stock_value_by_category\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "stock_value_by_category"
+     ],
+     "slot_index": 5
+    },
+    {
+     "id": "m03-d2/top_expensive",
+     "ordinal": 4,
+     "name": "top_expensive",
+     "names": [
+      "top_expensive"
+     ],
+     "kind": "function",
+     "title": "Задача D — FILTER + SORTED (снова, без dict) top_expensive(products) → list[str] Имена ТОП-3 самых дорогих товаров в наличии Ожидается: [\"cheese\", \"mango\", \"bread\"]",
+     "description_html": "",
+     "starter_code": "def top_expensive(products):\n    pass\n",
+     "reference_solution": "def top_expensive(products):\n    in_stock_product = [p for p in products if p.get(\"in_stock\")]\n    return [\n        p.get(\"name\")\n        for p in sorted(\n            in_stock_product, key=lambda x: x.get(\"price\", 0), reverse=True\n        )[:3]\n    ]\n",
+     "solved_in_repo": true,
+     "test_source": "check(top_expensive(products), [\"cheese\", \"mango\", \"bread\"], \"top_expensive\")",
+     "has_own_tests": true,
+     "expected_checks": 1,
+     "needs": [
+      "top_expensive"
+     ],
+     "slot_index": 7
+    },
+    {
+     "id": "m03-d2/cheapest_in_category",
+     "ordinal": 5,
+     "name": "cheapest_in_category",
+     "names": [
+      "cheapest_in_category"
+     ],
+     "kind": "function",
+     "title": "Задача E — КОМБО с защитой cheapest_in_category(products, category) → str | None Самый дешёвый товар в наличии в указанной категории. Если таких нет — вернуть None. Примеры: cheapest_in_category(products, \"fruit\")  → \"banana\" cheapest_in_category(products, \"dairy\")  → \"cheese\" cheapest_in_category(products, \"frozen\") → None",
+     "description_html": "",
+     "starter_code": "def cheapest_in_category(products, category):\n    pass\n",
+     "reference_solution": "def cheapest_in_category(products, category):\n    candidates = [\n        p for p in products if p.get(\"category\") == category and p.get(\"in_stock\")\n    ]\n    if not candidates:\n        return None\n\n    return min(candidates, key=lambda x: x.get(\"price\", 0))[\"name\"]\n",
+     "solved_in_repo": true,
+     "test_source": "check(cheapest_in_category(products, \"fruit\"), \"banana\", \"cheapest_in_category\")\ncheck(cheapest_in_category(products, \"dairy\"), \"cheese\", \"cheapest_in_category\")\ncheck(cheapest_in_category(products, \"frozen\"), None, \"cheapest_in_category\")",
+     "has_own_tests": true,
+     "expected_checks": 3,
+     "needs": [
+      "cheapest_in_category"
+     ],
+     "slot_index": 9
     }
    ]
   },
