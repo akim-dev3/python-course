@@ -41,6 +41,17 @@
 
 * { box-sizing: border-box; }
 
+/* Нативный светло-серый скроллбар слишком бросается в глаза на тёмном фоне
+   (особенно горизонтальный, под блоками кода) — притушили под общую тему. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) var(--surface);
+}
+*::-webkit-scrollbar { width: 9px; height: 9px; }
+*::-webkit-scrollbar-track { background: var(--surface); }
+*::-webkit-scrollbar-thumb { background: var(--line-2); border: 2px solid var(--surface); border-radius: 5px; }
+*::-webkit-scrollbar-thumb:hover { background: var(--faint); }
+
 html, body { height: 100%; }
 
 body {
@@ -442,18 +453,14 @@ h3 { font: 600 14px/1.3 var(--sans); margin: 0 0 10px; }
 .state--unsaved   { color: var(--warn); }
 
 /* ---------- страница задачи ----------
-   Условие и решение с результатом проверки должны помещаться на экран
-   целиком, без прокрутки страницы: .wrap на этой странице становится
-   колонкой высотой в весь видимый экран, .task-layout занимает в ней всё,
-   что осталось после .task-nav, а прокручиваются только внутренности
-   панелей (описание — целиком, решение — отдельно редактор и результаты). */
+   Панели ограничены по высоте (доля от экрана), а не растянуты насильно —
+   короткое решение не должно превращаться в огромный пустой прямоугольник.
+   Если контент внутри панели длиннее отведённого места — прокручивается
+   сам этот кусок (описание, редактор или результаты), а не вся страница.
+   Когда рельсы скрыты, страница вправе занять освободившуюся ширину —
+   иначе справа остаётся мёртвая чёрная полоса. */
 
-body.is-task-view .wrap {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - var(--bar));
-  padding: 18px 30px 14px;
-}
+body.is-task-view .wrap { max-width: 1640px; }
 
 .task-layout {
   display: grid;
@@ -462,40 +469,29 @@ body.is-task-view .wrap {
   gap: 1px;
   background: var(--line);
   border: 1px solid var(--line);
-  align-items: stretch;
+  align-items: start;
 }
-body.is-task-view .task-layout {
-  flex: 1 1 auto;
-  min-height: 0;
-}
-body.is-task-view .task-nav { flex: 0 0 auto; }
 
 @media (max-width: 1000px) {
   .task-layout { grid-template-columns: 1fr; }
-  /* На телефоне сжатая колонка в высоту экрана только мешает — там и так
-     привычна вертикальная прокрутка страницы. */
-  body.is-task-view .wrap { height: auto; padding: 20px 16px 70px; }
-  body.is-task-view .task-layout { display: block; }
-  .panel:not(.desc) .editor-wrap .CodeMirror { height: auto; }
-  .panel:not(.desc) .CodeMirror-scroll { min-height: 320px; height: auto; }
-  .panel:not(.desc) .results { max-height: none; }
 }
 
 .panel { background: var(--surface); padding: 18px; min-height: 100%; }
-.panel.desc { overflow-y: auto; }
+.panel.desc { max-height: 78vh; overflow-y: auto; }
 
 /* правая панель (решение) — внутренняя колонка: заголовок и кнопки
-   фиксированной высоты, редактор растягивается, результаты скроллятся
-   отдельно и не выталкивают редактор за пределы экрана */
+   натуральной высоты, редактор и результаты каждый со своим потолком
+   и своей прокруткой, чтобы длинное решение или длинный список проверок
+   не выталкивали друг друга за пределы экрана */
 .panel:not(.desc) {
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
+  max-height: 78vh;
 }
 .panel:not(.desc) .editor-wrap {
-  flex: 1 1 auto;
-  min-height: 80px;
+  flex: 0 1 auto;
+  min-height: 160px;
+  max-height: 46vh;
   display: flex;
   overflow: hidden;
 }
@@ -503,9 +499,19 @@ body.is-task-view .task-nav { flex: 0 0 auto; }
 .panel:not(.desc) .CodeMirror-scroll { min-height: 0; height: 100%; }
 .panel:not(.desc) .results {
   flex: 0 1 auto;
-  min-height: 0;
   overflow-y: auto;
-  max-height: 42%;
+  max-height: 30vh;
+}
+
+@media (max-width: 1000px) {
+  /* На телефоне и планшете потолки только мешают — там и так привычна
+     вертикальная прокрутка страницы целиком. */
+  .panel.desc { max-height: none; }
+  .panel:not(.desc) { max-height: none; }
+  .panel:not(.desc) .editor-wrap { max-height: none; overflow: visible; }
+  .panel:not(.desc) .editor-wrap .CodeMirror { height: auto; }
+  .panel:not(.desc) .CodeMirror-scroll { min-height: 320px; height: auto; }
+  .panel:not(.desc) .results { max-height: none; overflow: visible; }
 }
 .panel__title {
   font: 500 10px/1 var(--mono);
