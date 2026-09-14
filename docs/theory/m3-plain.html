@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Модуль 3 — Dict и агрегации на пальцах — Python-курс</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../pygments.css">
+<link rel="stylesheet" href="../theory.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html#/">Python-курс</a>
+  <nav class="tabs">
+    <a class="tab is-active" href="../index.html#/theory">Теория</a>
+    <a class="tab" href="../index.html#/">Практика</a>
+  </nav>
+  <span class="crumbs">Модуль 3 — Dict и агрегации на пальцах</span>
+  <a class="btn btn--ghost" href="../index.html#/theory">Вся теория</a>
+</header>
+<main class="wrap theory">
+<h1>Модуль 3 — Dict и агрегации на пальцах</h1>
+<p class="muted">Конспект обновлён 2026-09-14</p>
+<h2 id="_1">Зачем эта заметка</h2>
+<p>Формальный конспект Модуля 3 — это таблицы с названиями паттернов. Названия запоминаются, а выбор между ними — нет. Здесь про выбор.</p>
+<p>Весь модуль сводится к одному вопросу, который надо задавать перед каждой задачей:</p>
+<blockquote>
+<p><strong>Мне нужен один ответ на все данные — или свой ответ на каждую группу?</strong></p>
+</blockquote>
+<p>Один ответ на всё → никакого словаря не нужно. Ответ на каждую группу → нужен словарь. Почти все ошибки в этом модуле — это лишний словарь там, где хватило бы одной строки.</p>
+<hr />
+<h2 id="_2">Образ: коробка чеков</h2>
+<p>Представь коробку с чеками из магазина. На каждом: имя покупателя, город, сумма, оплачен или нет.</p>
+<p>Все задачи модуля — это вопросы к этой коробке. И они бывают ровно двух видов:</p>
+<p><strong>Вопросы про всю коробку целиком.</strong> «Сколько всего чеков?», «На какую сумму?», «Какие чеки больше тысячи?» — ты проходишь коробку один раз и получаешь <strong>одно</strong> число или <strong>один</strong> список. Словарь тут не нужен.</p>
+<p><strong>Вопросы про каждый город отдельно.</strong> «Сколько чеков в каждом городе?», «Сколько денег принёс каждый город?» — тебе нужно <strong>столько ответов, сколько городов</strong>. Заранее ты не знаешь ни сколько их, ни как они называются. Вот тут и нужен словарь: он растёт по мере того, как ты встречаешь новые города.</p>
+<p>Это и есть граница между «просто цикл» и «цикл со словарём».</p>
+<hr />
+<h2 id="_3">Пять паттернов, по одному примеру</h2>
+<h3 id="count">COUNT — сколько штук</h3>
+<p>Вопрос ко всей коробке → одно число.</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">users</span> <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;active&quot;</span><span class="p">))</span>
+</code></pre></div>
+
+<p>Читается буквально: «за каждого подходящего добавь единицу». Не <code>len([...])</code> — тот сначала строит список в памяти, а он нам не нужен.</p>
+<h3 id="sum">SUM — на какую сумму</h3>
+<p>То же самое, но добавляем не единицу, а поле.</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">sum</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;amount&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">orders</span> <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;paid&quot;</span><span class="p">))</span>
+</code></pre></div>
+
+<p><code>0</code> вторым аргументом <code>get</code> — не формальность. Если у чека нет поля <code>amount</code>, без него будет <code>None</code>, и сложение упадёт.</p>
+<h3 id="filter">FILTER — какие именно</h3>
+<p>Вопрос ко всей коробке → один список. <strong>Словарь не нужен.</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">[</span><span class="n">u</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">users</span> <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">80</span><span class="p">]</span>
+</code></pre></div>
+
+<p>Часто вместе с сортировкой, и тогда важно не перепутать, что возвращаешь: объекты или только имена.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">top</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">active</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">return</span> <span class="p">[</span><span class="n">u</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">top</span><span class="p">]</span>        <span class="c1"># список ИМЁН, а не словарей</span>
+</code></pre></div>
+
+<h3 id="group-by">GROUP BY — по каждой группе</h3>
+<p>А вот здесь словарь обязателен: ответов столько, сколько групп.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">counts</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">users</span><span class="p">:</span>
+    <span class="n">city</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;city&quot;</span><span class="p">)</span>
+    <span class="n">counts</span><span class="p">[</span><span class="n">city</span><span class="p">]</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">city</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+</code></pre></div>
+
+<p>Ключевая строка — <code>counts.get(city, 0) + 1</code>. Она означает: «возьми то, что уже накоплено для этого города, а если города ещё не встречали — начни с нуля». Без <code>get</code> с умолчанием первый же новый город даст <code>KeyError</code>.</p>
+<p>Если в группу надо складывать не число, а <strong>список объектов</strong>, форма другая:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">groups</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+    <span class="n">groups</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+</code></pre></div>
+
+<p><code>setdefault(key, [])</code> — «дай список для этого ключа, а если ключа нет, заведи пустой». Это тот же приём, что <code>get(key, 0)</code>, только для списков.</p>
+<h3 id="avg">AVG — среднее по группе</h3>
+<p>Среднее нельзя накопить одной переменной: нужны и сумма, и количество. Поэтому <strong>всегда два словаря</strong>.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">totals</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">athletes</span><span class="p">:</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sport&quot;</span><span class="p">)</span>
+    <span class="n">totals</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">totals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">counts</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">totals</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="n">counts</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">totals</span><span class="p">}</span>
+</code></pre></div>
+
+<p>Почему нельзя обойтись одним: чтобы усреднить, надо разделить накопленное на число слагаемых, а число слагаемых само нужно накапливать. Это самое частое место, где спотыкаются.</p>
+<hr />
+<h2 id="_4">Работа с готовым словарём</h2>
+<p>Когда словарь уже построен, обычно нужны две вещи.</p>
+<p><strong>Кто максимальный.</strong> Возвращает <strong>ключ</strong>, а не значение:</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">max</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>        <span class="c1"># &quot;Moscow&quot;</span>
+</code></pre></div>
+
+<p>Читается так: «пройди по ключам, для сравнения бери <code>d.get(ключ)</code>, верни сам ключ». Если написать просто <code>max(d)</code> — получишь ключ, наибольший по алфавиту, а не по значению. Это тихая ошибка: код работает, ответ неверный.</p>
+<p><strong>Топ-N.</strong> Сортировать надо <strong>пары</strong>, а не ключи:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">top</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
+<span class="k">return</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">top</span><span class="p">]</span>
+</code></pre></div>
+
+<p><code>d.items()</code> даёт пары <code>(ключ, значение)</code>, поэтому <code>x[1]</code> — это значение. Забыть <code>.items()</code> — записанная слабая точка: <code>sorted(d)</code> отсортирует ключи по алфавиту и молча выдаст не тот ответ.</p>
+<hr />
+<h2 id="_5">Вложенность: цикл в цикле</h2>
+<p>Когда внутри каждого объекта лежит список других объектов (у заказа — товары, у студента — курсы), нужен двойной цикл:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;paid&quot;</span><span class="p">:</span>        <span class="c1"># фильтр по ВНЕШНЕМУ</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[]):</span>  <span class="c1"># работа с ВНУТРЕННИМ</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Два места, где легко ошибиться:</p>
+<ol>
+<li><strong>Фильтр не на том уровне.</strong> «Сумма товаров в оплаченных заказах» — оплачен <em>заказ</em>, значит проверка на внешнем цикле. Если поставить её внутрь, будешь проверять <code>paid</code> у товара, которого там нет.</li>
+<li><strong><code>get("items", [])</code> без умолчания.</strong> Если у заказа нет поля <code>items</code>, вернётся <code>None</code>, и внутренний <code>for</code> упадёт. Пустой список по умолчанию просто пропускает такой заказ.</li>
+</ol>
+<hr />
+<h2 id="_6">Как выбрать за пять секунд</h2>
+<table>
+<thead>
+<tr>
+<th>Что спрашивают</th>
+<th>Нужен ли словарь</th>
+<th>Что вернётся</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>сколько всего</td>
+<td>нет</td>
+<td>число</td>
+</tr>
+<tr>
+<td>на какую сумму</td>
+<td>нет</td>
+<td>число</td>
+</tr>
+<tr>
+<td>какие именно / отсортируй</td>
+<td>нет</td>
+<td>список</td>
+</tr>
+<tr>
+<td>сколько в каждом… / по каждому…</td>
+<td><strong>да</strong></td>
+<td>словарь</td>
+</tr>
+<tr>
+<td>среднее по каждому…</td>
+<td><strong>да, два</strong></td>
+<td>словарь</td>
+</tr>
+<tr>
+<td>кто самый / топ-N</td>
+<td>сначала построй словарь</td>
+<td>ключ или список ключей</td>
+</tr>
+</tbody>
+</table>
+<p>Слова-подсказки в условии: <strong>«в каждом», «по каждому», «для каждого»</strong> — это всегда группировка. Их отсутствие обычно значит, что словарь не нужен.</p>
+<h2 id="_7">Частые ошибки</h2>
+<ul>
+<li><strong>Словарь там, где ключ уникален.</strong> Если у каждого объекта свой неповторимый ключ, группировать нечего — нужен <code>FILTER + SORTED</code>, а не <code>GROUP BY</code>.</li>
+<li><strong><code>sorted(d)</code> вместо <code>sorted(d.items())</code></strong> — сортировка по алфавиту вместо сортировки по значению.</li>
+<li><strong>Один словарь для среднего</strong> вместо двух.</li>
+<li><strong><code>get</code> без умолчания</strong> — <code>None</code> вместо нуля, падение на сложении.</li>
+<li><strong>Возврат не того типа</strong> — список словарей там, где просили список имён.</li>
+<li><strong>Нет защиты перед <code>max</code>/<code>min</code></strong> — на пустом списке они падают:</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="k">if</span> <span class="ow">not</span> <span class="n">candidates</span><span class="p">:</span>
+    <span class="k">return</span> <span class="kc">None</span>
+<span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+<h2 id="_8">Вопросы для самопроверки</h2>
+<ol>
+<li>Как по формулировке задачи понять, нужен словарь или нет?</li>
+<li>Почему для среднего по группам нужны именно два словаря?</li>
+<li>Что вернёт <code>max(d)</code> и чем это отличается от <code>max(d, key=d.get)</code>?</li>
+<li>Зачем <code>.items()</code> при сортировке словаря?</li>
+<li>В двойном цикле — на каком уровне ставить фильтр «только оплаченные» и почему?</li>
+</ol>
+<div class="theory-footer"><div class="panel__title">Задачи по этой теме</div><a href="../index.html#/l/m03-d1">Дриллы dict — 20 задач</a> · <a href="../index.html#/l/m03-d2">Закрепление слабых точек</a> · <a href="../index.html#/l/m03-p1">P1: COUNT и SUM</a> · <a href="../index.html#/l/m03-p2">P2: FILTER и SORTED</a> · <a href="../index.html#/l/m03-p3">P3: GROUP BY</a> · <a href="../index.html#/l/m03-p4">P4: AVG, TOP N и MAX</a> · <a href="../index.html#/l/m03-p5">P5: вложенные структуры</a></div>
+</main>
+
+</body>
+</html>

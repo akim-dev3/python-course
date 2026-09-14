@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generated_at": "2026-09-14T06:47:45+00:00",
+ "generated_at": "2026-09-14T06:54:26+00:00",
  "runtime": {
   "pyodide_version": "314.0.6",
   "index_url": "https://cdn.jsdelivr.net/pyodide/v314.0.6/full/",
@@ -26,7 +26,9 @@
     "diag"
    ],
    "theory": [
+    "m1-plain",
     "m1-basics",
+    "m2-plain",
     "m2-collections"
    ]
   },
@@ -44,6 +46,7 @@
     "m03-p5"
    ],
    "theory": [
+    "m3-plain",
     "m3-dict",
     "m3-pitfalls",
     "ref-dict",
@@ -63,8 +66,8 @@
     "m04-p3"
    ],
    "theory": [
-    "m4-algo",
     "m4-algo-plain",
+    "m4-algo",
     "ref-algo"
    ]
   },
@@ -100,10 +103,32 @@
  ],
  "theory": [
   {
+   "id": "m1-plain",
+   "title": "Модуль 1 — База Python на пальцах",
+   "href": "theory/m1-plain.html",
+   "kind": "plain",
+   "modules": [
+    "diag"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  },
+  {
    "id": "m1-basics",
    "title": "Модуль 1 — База Python",
    "href": "theory/m1-basics.html",
    "kind": "note",
+   "modules": [
+    "diag"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  },
+  {
+   "id": "m2-plain",
+   "title": "Модуль 2 — Коллекции на пальцах",
+   "href": "theory/m2-plain.html",
+   "kind": "plain",
    "modules": [
     "diag"
    ],
@@ -117,6 +142,17 @@
    "kind": "note",
    "modules": [
     "diag"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  },
+  {
+   "id": "m3-plain",
+   "title": "Модуль 3 — Dict и агрегации на пальцах",
+   "href": "theory/m3-plain.html",
+   "kind": "plain",
+   "modules": [
+    "m03"
    ],
    "images": 0,
    "has_mermaid": false
@@ -144,6 +180,17 @@
    "has_mermaid": false
   },
   {
+   "id": "m4-algo-plain",
+   "title": "Модуль 4 — Алгоритмы на пальцах",
+   "href": "theory/m4-algo-plain.html",
+   "kind": "plain",
+   "modules": [
+    "m04"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  },
+  {
    "id": "m4-algo",
    "title": "Модуль 4 — Алгоритмическое мышление",
    "href": "theory/m4-algo.html",
@@ -155,21 +202,10 @@
    "has_mermaid": false
   },
   {
-   "id": "m4-algo-plain",
-   "title": "Модуль 4 — Алгоритмы на пальцах",
-   "href": "theory/m4-algo-plain.html",
-   "kind": "note",
-   "modules": [
-    "m04"
-   ],
-   "images": 0,
-   "has_mermaid": false
-  },
-  {
    "id": "m5-two-pointers",
    "title": "Модуль 5 — Two Pointers и Sliding Window на пальцах",
    "href": "theory/m5-two-pointers.html",
-   "kind": "note",
+   "kind": "plain",
    "modules": [
     "m05"
    ],
@@ -180,7 +216,7 @@
    "id": "m6-data-structures",
    "title": "Модуль 6 — Структуры данных на пальцах",
    "href": "theory/m6-data-structures.html",
-   "kind": "note",
+   "kind": "plain",
    "modules": [
     "m06"
    ],

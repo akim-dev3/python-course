@@ -26,19 +26,31 @@ ATTACH = VAULT / "attachments"
 
 # Что публикуем. Навигатор НЕ публикуется: он состоит из вики-ссылок на личные
 # заметки и структуру хранилища.
+# Порядок важен: разбор «на пальцах» идёт первым, формальный конспект —
+# следом как справочник. На сайте они в этом же порядке и показываются.
 NOTES = [
+    ("Python — Модуль 1 База Python (на пальцах).md", "m1-plain",
+     "Модуль 1 — База Python на пальцах", ["diag"]),
     ("Python — Модуль 1 База Python.md", "m1-basics",
      "Модуль 1 — База Python", ["diag"]),
+
+    ("Python — Модуль 2 Коллекции (на пальцах).md", "m2-plain",
+     "Модуль 2 — Коллекции на пальцах", ["diag"]),
     ("Python — Модуль 2 Коллекции.md", "m2-collections",
      "Модуль 2 — Коллекции", ["diag"]),
+
+    ("Python — Модуль 3 Dict и агрегации (на пальцах).md", "m3-plain",
+     "Модуль 3 — Dict и агрегации на пальцах", ["m03"]),
     ("Python — Модуль 3 Dict и агрегации.md", "m3-dict",
      "Модуль 3 — Dict и агрегации", ["m03"]),
     ("Python — слабые точки dict и агрегация.md", "m3-pitfalls",
      "Частые ошибки в dict-паттернах", ["m03"]),
-    ("Python — Модуль 4 Алгоритмическое мышление.md", "m4-algo",
-     "Модуль 4 — Алгоритмическое мышление", ["m04"]),
+
     ("Python — Модуль 4 Алгоритмы (на пальцах).md", "m4-algo-plain",
      "Модуль 4 — Алгоритмы на пальцах", ["m04"]),
+    ("Python — Модуль 4 Алгоритмическое мышление.md", "m4-algo",
+     "Модуль 4 — Алгоритмическое мышление", ["m04"]),
+
     ("Python — Модуль 5 Two Pointers и Sliding Window (на пальцах).md",
      "m5-two-pointers", "Модуль 5 — Two Pointers и Sliding Window на пальцах", ["m05"]),
     ("Python — Модуль 6 Структуры данных (на пальцах).md", "m6-data-structures",
@@ -82,8 +94,12 @@ PAGE = """<!doctype html>
 <body>
 <header class="topbar">
   <a class="brand" href="../index.html#/">Python-курс</a>
-  <span class="crumbs">Теория › {title}</span>
-  <a class="btn btn--ghost" href="../index.html#/">К задачам</a>
+  <nav class="tabs">
+    <a class="tab is-active" href="../index.html#/theory">Теория</a>
+    <a class="tab" href="../index.html#/">Практика</a>
+  </nav>
+  <span class="crumbs">{title}</span>
+  <a class="btn btn--ghost" href="../index.html#/theory">Вся теория</a>
 </header>
 <main class="wrap theory">
 <h1>{title}</h1>
@@ -214,8 +230,10 @@ def render_note(path, slug, title, modules, out_dir, lessons_by_module):
     meta = f'<p class="muted">Конспект обновлён {html.escape(updated)}</p>' if updated else ""
     write_page(out_dir / f"{slug}.html", title, meta, body,
                modules, lessons_by_module, bool(mermaid_blocks))
+    # «на пальцах» — объяснение с примерами, читать первым; остальное — справочник
+    kind = "plain" if "(на пальцах)" in path.name else "note"
     return {"id": slug, "title": title, "href": f"theory/{slug}.html",
-            "kind": "note", "modules": modules, "images": len(images),
+            "kind": kind, "modules": modules, "images": len(images),
             "has_mermaid": bool(mermaid_blocks)}
 
 

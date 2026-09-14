@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Модуль 1 — База Python на пальцах — Python-курс</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../pygments.css">
+<link rel="stylesheet" href="../theory.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html#/">Python-курс</a>
+  <nav class="tabs">
+    <a class="tab is-active" href="../index.html#/theory">Теория</a>
+    <a class="tab" href="../index.html#/">Практика</a>
+  </nav>
+  <span class="crumbs">Модуль 1 — База Python на пальцах</span>
+  <a class="btn btn--ghost" href="../index.html#/theory">Вся теория</a>
+</header>
+<main class="wrap theory">
+<h1>Модуль 1 — База Python на пальцах</h1>
+<p class="muted">Конспект обновлён 2026-09-14</p>
+<h2 id="_1">Зачем эта заметка</h2>
+<p>Формальный конспект Модуля 1 перечисляет синтаксис. Синтаксис быстро вспоминается, а вот несколько вещей действительно сбивают даже тех, кто «всё это знает». Здесь только они.</p>
+<hr />
+<h2 id="_2">Переменная — это ярлык, а не коробка</h2>
+<p>Привычный образ «переменная это коробка, в которую кладут значение» ломается ровно в одном месте — и оно потом больно стреляет.</p>
+<p>В Python переменная это <strong>ярлык, наклеенный на объект</strong>. Присваивание не копирует объект, а переклеивает ярлык.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">a</span>           <span class="c1"># НЕ копия: второй ярлык на тот же список</span>
+<span class="n">b</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>        <span class="c1"># [1, 2, 3, 4] — изменился и a</span>
+</code></pre></div>
+
+<p>Для чисел и строк это незаметно, потому что их <strong>нельзя изменить</strong> — можно только создать новое значение и переклеить ярлык. А списки и словари изменяемы, и там разница видна сразу.</p>
+<p>Если нужна настоящая копия:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>      <span class="c1"># или a[:] для списка</span>
+</code></pre></div>
+
+<p>Отсюда же вытекает главная ловушка функций — про неё ниже.</p>
+<hr />
+<h2 id="_3">Условия: что считается «ложью»</h2>
+<p>В <code>if</code> можно писать не только сравнения. Питон сам приводит значение к «да/нет», и правило простое: <strong>пусто и ноль — это ложь, всё остальное — правда.</strong></p>
+<p>Ложь: <code>0</code>, <code>""</code>, <code>[]</code>, <code>{}</code>, <code>()</code>, <code>None</code>, <code>False</code>.
+Правда: любое непустое число, строка, список, словарь.</p>
+<p>Поэтому вместо</p>
+<div class="codehilite"><pre><span></span><code><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+</code></pre></div>
+
+<p>пишут просто</p>
+<div class="codehilite"><pre><span></span><code><span class="k">if</span> <span class="n">items</span><span class="p">:</span>
+</code></pre></div>
+
+<p>Но здесь есть тонкость, из-за которой возникают тихие баги: <code>0</code> и <code>None</code> оба «ложь», хотя означают разное. Если поле может быть нулём по-настоящему, проверять надо явно:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">if</span> <span class="n">score</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>      <span class="c1"># «значения нет»</span>
+<span class="k">if</span> <span class="n">score</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>         <span class="c1"># «значение есть, и оно ноль»</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">score</span><span class="p">:</span>          <span class="c1"># это ОБА случая сразу — часто не то, что нужно</span>
+</code></pre></div>
+
+<p><strong><code>is</code> против <code>==</code>.</strong> <code>==</code> спрашивает «одинаковые ли значения», <code>is</code> — «это буквально один и тот же объект». Для <code>None</code> всегда пишут <code>is None</code>, потому что <code>None</code> в программе существует в единственном экземпляре.</p>
+<hr />
+<h2 id="_4">Циклы: перебираешь элементы, а не индексы</h2>
+<p>Самая частая привычка из других языков — гонять счётчик и лазить по индексам:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)):</span>     <span class="c1"># так делать не надо</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">words</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</code></pre></div>
+
+<p>В Python перебирают сам список:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Индекс нужен редко. Если он действительно нужен вместе со значением — есть <code>enumerate</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">words</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">word</span><span class="p">)</span>
+</code></pre></div>
+
+<p>А если надо идти по двум спискам параллельно — <code>zip</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">scores</span><span class="p">):</span>
+    <span class="o">...</span>
+</code></pre></div>
+
+<p><strong><code>break</code> и <code>continue</code>.</strong> <code>break</code> выходит из цикла совсем, <code>continue</code> пропускает текущий шаг и идёт к следующему. Путаница между ними даёт результат, который выглядит почти правильным, — самый неприятный вид ошибки.</p>
+<p><strong>Опасность изменять список во время перебора.</strong> Если удалять элементы из того же списка, по которому идёшь, часть элементов будет пропущена — итератор сдвигается. Правильно — собрать новый список:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">items</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">items</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">надо_удалить</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_5">Функции: две настоящие ловушки</h2>
+<p>Синтаксис функции тривиален. Ловушек ровно две, но обе злые.</p>
+<h3 id="return"><code>return</code> внутри цикла обрывает всю функцию</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">has_even</span><span class="p">(</span><span class="n">nums</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nums</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>     <span class="c1"># выходим из ФУНКЦИИ, не из цикла</span>
+    <span class="k">return</span> <span class="kc">False</span>            <span class="c1"># сюда дойдём, только если ни одного не нашли</span>
+</code></pre></div>
+
+<p>Это не баг, а приём: как только ответ найден, дальше искать незачем. Но если по ошибке поставить <code>return</code> не там, функция вернётся после первого же элемента.</p>
+<p>Особенно важно, где стоит финальный <code>return</code>. Внутри цикла на том же уровне, что и <code>if</code>, — функция всегда завершится на первом элементе и остальные не проверит.</p>
+<h3 id="_6">Изменяемый аргумент по умолчанию</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="p">[]):</span>     <span class="c1"># ТАК НЕЛЬЗЯ</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">target</span>
+</code></pre></div>
+
+<p>Список в умолчании создаётся <strong>один раз при определении функции</strong>, а не при каждом вызове. Поэтому он накапливает значения между вызовами:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>   <span class="c1"># [1]</span>
+<span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>   <span class="c1"># [1, 2] — сюрприз</span>
+</code></pre></div>
+
+<p>Правильно:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">target</span>
+</code></pre></div>
+
+<h3 id="return-none">Функция без <code>return</code> возвращает None</h3>
+<p>Если забыть <code>return</code>, функция вернёт <code>None</code> — и упадёт не здесь, а там, где результатом попробуют воспользоваться. Отладить это неприятно, потому что ошибка вылезает далеко от причины.</p>
+<hr />
+<h2 id="_7">Строки: неизменяемы</h2>
+<p>Строку нельзя поменять на месте — любая операция создаёт новую.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span>
+<span class="n">s</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>          <span class="c1"># вернуло &quot;HELLO&quot;, но s не изменилась</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>      <span class="c1"># вот теперь изменилась</span>
+</code></pre></div>
+
+<p>Забытое присваивание — очень частая ошибка: код работает, ничего не падает, результат прежний.</p>
+<p>Полезный минимум:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">/</span> <span class="n">s</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>        <span class="c1"># регистр</span>
+<span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>                    <span class="c1"># убрать пробелы по краям</span>
+<span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>                    <span class="c1"># разбить по пробелам → список слов</span>
+<span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>              <span class="c1"># склеить список в строку</span>
+<span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>                      <span class="c1"># развернуть</span>
+<span class="s2">&quot;abc&quot;</span> <span class="ow">in</span> <span class="n">s</span>                   <span class="c1"># есть ли подстрока</span>
+<span class="n">s</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span>                  <span class="c1"># только буквы и цифры?</span>
+<span class="sa">f</span><span class="s2">&quot;Привет, </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">!&quot;</span>           <span class="c1"># подстановка значений</span>
+</code></pre></div>
+
+<p><code>split()</code> без аргументов удобнее, чем <code>split(" ")</code>: он схлопывает несколько пробелов подряд и игнорирует пробелы по краям.</p>
+<h2 id="_8">Частые ошибки</h2>
+<ul>
+<li><code>b = a</code> для списка вместо <code>b = a.copy()</code> — меняешь один, «сам собой» меняется второй</li>
+<li><code>if not x</code> там, где нужно <code>if x is None</code> — ноль ошибочно считается отсутствием</li>
+<li><code>for i in range(len(...))</code> вместо перебора элементов</li>
+<li>удаление из списка прямо во время цикла по нему</li>
+<li><code>s.upper()</code> без присваивания результата</li>
+<li>изменяемый аргумент по умолчанию (<code>=[]</code>, <code>={}</code>)</li>
+<li>забытый <code>return</code> → <code>None</code> и падение в другом месте</li>
+</ul>
+<h2 id="_9">Вопросы для самопроверки</h2>
+<ol>
+<li>Почему после <code>b = a</code> и <code>b.append(4)</code> меняется и <code>a</code>?</li>
+<li>Чем <code>if not score</code> отличается от <code>if score is None</code> и когда это важно?</li>
+<li>Что делает <code>return</code> внутри цикла и почему важно, на каком уровне стоит финальный <code>return</code>?</li>
+<li>Почему <code>def f(x, acc=[])</code> — ошибка, и как правильно?</li>
+<li>Что вернёт <code>s.upper()</code> и что произойдёт с самой <code>s</code>?</li>
+</ol>
+<div class="theory-footer"><div class="panel__title">Задачи по этой теме</div><a href="../index.html#/l/diag">Диагностика после паузы</a></div>
+</main>
+
+</body>
+</html>

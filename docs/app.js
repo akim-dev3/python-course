@@ -1,12 +1,12 @@
 // Приложение курса: карта → урок → задача.
 // Hash-роутер, потому что сайт живёт на подпути GitHub Pages и сервера нет.
 
-import { Runtime } from "./runtime.js?v=88e88941";
-import { store } from "./storage.js?v=88e88941";
-import { createEditor } from "./editor.js?v=88e88941";
-import { buildFile, extractSolutions, downloadText, basename } from "./download.js?v=88e88941";
-import { makeZip, downloadBlob } from "./zip.js?v=88e88941";
-import * as fs from "./fsaccess.js?v=88e88941";
+import { Runtime } from "./runtime.js?v=b5e6ab36";
+import { store } from "./storage.js?v=b5e6ab36";
+import { createEditor } from "./editor.js?v=b5e6ab36";
+import { buildFile, extractSolutions, downloadText, basename } from "./download.js?v=b5e6ab36";
+import { makeZip, downloadBlob } from "./zip.js?v=b5e6ab36";
+import * as fs from "./fsaccess.js?v=b5e6ab36";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s).replace(/[&<>"']/g,
@@ -34,25 +34,40 @@ function theoryLinks(ids) {
 function theoryCards(ids) {
   const items = theoryOf(ids);
   if (!items.length) return "";
-  const notes = items.filter((t) => t.kind !== "reference");
-  const refs = items.filter((t) => t.kind === "reference");
+  // Разбор «на пальцах» — первым и крупно, остальное складываем под спойлер:
+  // иначе четыре карточки подряд выглядят как «читать всё это».
+  const plain = items.filter((t) => t.kind === "plain");
+  const rest = items.filter((t) => t.kind !== "plain");
 
-  const card = (t) => `<button class="theory-card" data-theory="${t.id}">
+  const KIND = {
+    plain: "объяснение с примерами",
+    note: "подробный конспект",
+    reference: "шпаргалка с кодом",
+  };
+
+  const card = (t, main = false) => `<button class="theory-card${main ? " is-main" : ""}"
+      data-theory="${t.id}">
       <span class="theory-card__icon">${t.kind === "reference" ? "⌘" : "▤"}</span>
       <span class="theory-card__body">
         <span class="theory-card__title">${esc(t.title)}</span>
-        <span class="theory-card__kind">${
-          t.kind === "reference" ? "шпаргалка с кодом" : "конспект"
-        }${t.images ? ` · ${t.images} схем` : ""}</span>
+        <span class="theory-card__kind">${KIND[t.kind] || "конспект"}${
+          t.images ? ` · ${t.images} схем` : ""}</span>
       </span>
       <span class="theory-card__go">Читать →</span>
     </button>`;
+
+  const head = plain.length ? plain : rest.slice(0, 1);
+  const tail = plain.length ? rest : rest.slice(1);
 
   return `<section class="step">
       <div class="step__num">1</div>
       <div class="step__body">
         <div class="step__title">Сначала теория</div>
-        <div class="theory-cards">${[...notes, ...refs].map(card).join("")}</div>
+        <div class="theory-cards">${head.map((t) => card(t, true)).join("")}</div>
+        ${tail.length ? `<details class="theory-more">
+          <summary>Ещё материалы по теме: ${tail.length}</summary>
+          <div class="theory-cards">${tail.map((t) => card(t)).join("")}</div>
+        </details>` : ""}
       </div>
     </section>`;
 }
@@ -61,7 +76,9 @@ function theoryCards(ids) {
 function theoryButton(ids) {
   const items = theoryOf(ids);
   if (!items.length) return "";
-  const main = items.find((t) => t.kind !== "reference") || items[0];
+  const main = items.find((t) => t.kind === "plain")
+            || items.find((t) => t.kind !== "reference")
+            || items[0];
   return `<button class="btn btn--theory" data-theory="${main.id}"
      title="${esc(main.title)}">▤ Теория</button>`;
 }
@@ -256,8 +273,67 @@ function setCrumbs(parts) {
     .join(" › ");
 }
 
+/** Теория — самостоятельный раздел, а не приложение к задаче. */
+function viewTheoryIndex() {
+  setActiveTab("theory");
+  setCrumbs([{ text: "Теория" }]);
+
+  const KIND = {
+    plain: "объяснение с примерами",
+    note: "подробный конспект",
+    reference: "шпаргалка с кодом",
+  };
+
+  const blocks = CONTENT.modules.map((m) => {
+    const items = theoryOf(m.theory);
+    if (!items.length) return "";
+    const lessonsCount = m.lessons.length;
+
+    const cards = items.map((t) => `
+      <a class="theory-card${t.kind === "plain" ? " is-main" : ""}" href="${t.href}">
+        <span class="theory-card__icon">${t.kind === "reference" ? "⌘" : "▤"}</span>
+        <span class="theory-card__body">
+          <span class="theory-card__title">${esc(t.title)}</span>
+          <span class="theory-card__kind">${KIND[t.kind] || "конспект"}${
+            t.images ? ` · ${t.images} схем` : ""}</span>
+        </span>
+        <span class="theory-card__go">Читать →</span>
+      </a>`).join("");
+
+    return `<section class="card module">
+      <div class="module__head" style="cursor:default">
+        <h2 class="module__title">${esc(m.title)}</h2>
+        <span class="module__sub">${esc(m.subtitle)}</span>
+      </div>
+      <div class="theory-cards" style="margin-top:14px">${cards}</div>
+      <div class="theory-topractice">
+        <button class="btn btn--ghost" data-href="#/">
+          Перейти к задачам этого модуля (${lessonsCount}) →</button>
+      </div>
+    </section>`;
+  }).join("");
+
+  render(`<div class="hero">
+      <div class="hero__main">
+        <h1>Теория</h1>
+        <p class="muted">Конспекты по модулям. «На пальцах» — с примерами и схемами,
+          остальные — как справочник.</p>
+      </div>
+      <div class="hero__stats">
+        <div class="stat"><b>${CONTENT.theory.length}</b><span>материалов</span></div>
+      </div>
+    </div>
+    <div class="modules">${blocks}</div>`);
+}
+
+function setActiveTab(which) {
+  $("#tab-theory")?.classList.toggle("is-active", which === "theory");
+  $("#tab-practice")?.classList.toggle("is-active", which === "practice");
+}
+
 function viewMap() {
-  setCrumbs([{ text: "Карта курса" }]);
+  setActiveTab("practice");
+  setCrumbs([{ text: "Практика" }]);
 
   const collapsed = new Set(store.getUI("collapsed", []));
 
@@ -300,8 +376,9 @@ function viewMap() {
 
   render(`<div class="hero">
       <div class="hero__main">
-        <h1>Курс Python</h1>
-        <p class="muted">Код исполняется прямо в браузере, ничего ставить не нужно.</p>
+        <h1>Практика</h1>
+        <p class="muted">Код исполняется прямо в браузере, ничего ставить не нужно.
+          Теория — в <a href="#/theory">соседнем разделе</a>.</p>
       </div>
       <div class="hero__stats">
         <div class="stat"><b>${totalDone}</b><span>решено</span></div>
@@ -905,7 +982,9 @@ function route() {
   currentRun = null;           // Ctrl+Enter действует только на странице задачи
   window.scrollTo(0, 0);
 
+  if (parts[0] === "theory") return viewTheoryIndex();
   if (parts[0] !== "l") return viewMap();
+  setActiveTab("practice");
 
   const lesson = byLesson.get(parts[1]);
   if (!lesson) return viewMap();

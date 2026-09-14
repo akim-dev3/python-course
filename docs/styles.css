@@ -69,6 +69,27 @@ code, pre, .mono { font-family: var(--mono); }
   white-space: nowrap;
 }
 
+/* два равноправных раздела: читать и решать */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--mantle);
+  border: 1px solid var(--surface1);
+  border-radius: 10px;
+  padding: 3px;
+}
+.tab {
+  border: 0;
+  background: transparent;
+  color: var(--subtext0);
+  font: 600 13px var(--sans);
+  padding: 7px 16px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.tab:hover { color: var(--text); }
+.tab.is-active { background: var(--surface1); color: var(--lavender); }
+
 .crumbs {
   flex: 1;
   min-width: 0;
@@ -637,7 +658,24 @@ pre.example {
   font: inherit;
   transition: transform .12s, border-color .12s;
 }
-.theory-card:hover { transform: translateX(2px); border-color: var(--mauve); }
+.theory-card:hover { transform: translateX(2px); border-color: var(--mauve); text-decoration: none; }
+a.theory-card { text-decoration: none; }
+/* второстепенные материалы бледнее — видно, что читать первым */
+.theory-card:not(.is-main) { border-left-color: var(--surface2); opacity: .82; }
+.theory-card:not(.is-main) .theory-card__icon { color: var(--overlay1); }
+
+.theory-more { margin-top: 10px; }
+.theory-more summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--overlay1);
+  padding: 6px 2px;
+  user-select: none;
+}
+.theory-more summary:hover { color: var(--subtext0); }
+.theory-more .theory-cards { margin-top: 8px; }
+
+.theory-topractice { margin-top: 14px; }
 .theory-card__icon { color: var(--mauve); font-size: 15px; }
 .theory-card__body { flex: 1; min-width: 0; }
 .theory-card__title { display: block; font-size: 14px; font-weight: 600; }

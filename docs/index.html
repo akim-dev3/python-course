@@ -14,6 +14,10 @@
 
 <header class="topbar">
   <span class="brand" data-href="#/" style="cursor:pointer">Python-курс</span>
+  <nav class="tabs">
+    <button class="tab" data-href="#/theory" id="tab-theory">Теория</button>
+    <button class="tab" data-href="#/" id="tab-practice">Практика</button>
+  </nav>
   <span class="crumbs" id="crumbs"></span>
   <span class="chip" id="chip" data-state="idle">
     <span class="chip__dot"></span><span id="chip-label">Python: не загружен</span>
@@ -40,7 +44,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.21/addon/edit/closebrackets.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.21/addon/selection/active-line.min.js"></script>
 
-<script type="module" src="./app.js?v=88e88941" id="app-entry"></script>
+<script type="module" src="./app.js?v=b5e6ab36" id="app-entry"></script>
 <script>
   // Модули кэшируются браузером по отдельности. Сразу после обновления сайта
   // может собраться смесь старых и новых файлов — тогда импорт падает и

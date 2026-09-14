@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Модуль 2 — Коллекции на пальцах — Python-курс</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../pygments.css">
+<link rel="stylesheet" href="../theory.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html#/">Python-курс</a>
+  <nav class="tabs">
+    <a class="tab is-active" href="../index.html#/theory">Теория</a>
+    <a class="tab" href="../index.html#/">Практика</a>
+  </nav>
+  <span class="crumbs">Модуль 2 — Коллекции на пальцах</span>
+  <a class="btn btn--ghost" href="../index.html#/theory">Вся теория</a>
+</header>
+<main class="wrap theory">
+<h1>Модуль 2 — Коллекции на пальцах</h1>
+<p class="muted">Конспект обновлён 2026-09-14</p>
+<h2 id="_1">Зачем эта заметка</h2>
+<p>Формальный конспект перечисляет методы списка. Методы гуглятся за секунду. Что не гуглится — это <strong>какую коллекцию брать</strong> и почему выбор влияет не на стиль, а на скорость работы в тысячи раз.</p>
+<hr />
+<h2 id="_2">Три коллекции — три разных вопроса</h2>
+<table>
+<thead>
+<tr>
+<th>Коллекция</th>
+<th>Отвечает на вопрос</th>
+<th>Порядок</th>
+<th>Дубликаты</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>«дай мне элемент номер N»</td>
+<td>важен</td>
+<td>можно</td>
+</tr>
+<tr>
+<td><code>set</code></td>
+<td>«а такое вообще было?»</td>
+<td>не важен</td>
+<td>схлопываются</td>
+</tr>
+<tr>
+<td><code>tuple</code></td>
+<td>«это одна неделимая запись»</td>
+<td>важен</td>
+<td>можно</td>
+</tr>
+</tbody>
+</table>
+<p>Выбор делается по вопросу, который ты будешь задавать чаще всего.</p>
+<hr />
+<h2 id="_3">Список — упорядоченная лента</h2>
+<p>Список хранит элементы подряд, поэтому доступ по номеру мгновенный, а вот <strong>поиск по значению — перебор</strong>.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">lst</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>          <span class="c1"># мгновенно</span>
+<span class="n">x</span> <span class="ow">in</span> <span class="n">lst</span>        <span class="c1"># перебирает ВСЕ элементы, пока не найдёт</span>
+<span class="n">lst</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>       <span class="c1"># с конца — мгновенно</span>
+<span class="n">lst</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>      <span class="c1"># с начала — сдвигает весь список, дорого</span>
+</code></pre></div>
+
+<p>Последняя строка — ловушка, которая всплывёт ещё раз в Модуле 6, когда будешь делать очередь.</p>
+<p><strong>Срезы.</strong> <code>lst[начало:конец]</code>, конец не включается.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">lst</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>      <span class="c1"># первые три</span>
+<span class="n">lst</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span>     <span class="c1"># последние три</span>
+<span class="n">lst</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>    <span class="c1"># копия задом наперёд</span>
+<span class="n">lst</span><span class="p">[:]</span>       <span class="c1"># полная копия — вот так копируют список</span>
+</code></pre></div>
+
+<p><strong>Сортировка — два разных инструмента, и их путают:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">lst</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>            <span class="c1"># меняет сам список, возвращает None</span>
+<span class="n">new</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span>     <span class="c1"># НЕ трогает исходный, возвращает новый</span>
+</code></pre></div>
+
+<p>Классическая ошибка: <code>lst = lst.sort()</code> — список превращается в <code>None</code>, потому что <code>sort()</code> ничего не возвращает.</p>
+<hr />
+<h2 id="_4">Множество — мгновенная проверка «было или нет»</h2>
+<p>Множество не хранит порядок и не хранит дубликаты. Взамен даёт то, ради чего его и берут: <strong>проверка принадлежности не зависит от размера</strong>.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">x</span> <span class="ow">in</span> <span class="n">some_list</span>    <span class="c1"># чем длиннее список, тем дольше</span>
+<span class="n">x</span> <span class="ow">in</span> <span class="n">some_set</span>     <span class="c1"># одинаково быстро при любом размере</span>
+</code></pre></div>
+
+<p>Разница не «чуть быстрее». На списке из 100 000 элементов проверка может перебрать все 100 000; множество ответит за одно действие. Именно на этом строится половина оптимизаций в Модуле 4.</p>
+<p>Отсюда типовой приём «видели ли мы это раньше»:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span>          <span class="c1"># первый повтор</span>
+    <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</code></pre></div>
+
+<p>И операции над множествами вместо вложенных циклов:</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">set</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>     <span class="c1"># что есть в обоих</span>
+<span class="nb">set</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>     <span class="c1"># всё вместе, без повторов</span>
+<span class="nb">set</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>     <span class="c1"># что есть в a, но нет в b</span>
+</code></pre></div>
+
+<p><strong>Чего множество не умеет:</strong> хранить порядок и хранить изменяемые элементы. <code>set</code> из списков собрать нельзя — только из чисел, строк, кортежей.</p>
+<p>Убрать дубликаты <strong>с сохранением порядка</strong> одним <code>set(...)</code> не получится — порядок потеряется. Нужен приём с двумя структурами:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">seen</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(),</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Здесь <code>set</code> работает как быстрый «список того, что уже видели», а порядок держит обычный список.</p>
+<hr />
+<h2 id="_5">Кортеж — запись, а не коллекция</h2>
+<p>Кортеж выглядит как список, который нельзя менять, но смысл у него другой. Список — это «много однотипных штук». Кортеж — это <strong>одна вещь из нескольких частей</strong>: координата <code>(x, y)</code>, пара <code>(имя, счёт)</code>, строка таблицы.</p>
+<p>Практическая польза в двух местах.</p>
+<p><strong>Распаковка</strong> — читается лучше, чем обращение по индексу:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+    <span class="o">...</span>
+<span class="n">first</span><span class="p">,</span> <span class="o">*</span><span class="n">rest</span> <span class="o">=</span> <span class="n">items</span>       <span class="c1"># первый отдельно, остальные списком</span>
+</code></pre></div>
+
+<p><strong>Кортеж можно положить в множество или сделать ключом словаря</strong>, а список — нельзя, потому что список изменяем.</p>
+<hr />
+<h2 id="comprehension">Comprehension — цикл, свёрнутый в строку</h2>
+<p>Это не «красивее», а стандартный способ записи для трёх типовых действий.</p>
+<div class="codehilite"><pre><span></span><code><span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nums</span><span class="p">]</span>                 <span class="c1"># преобразовать каждый</span>
+<span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nums</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>            <span class="c1"># отобрать</span>
+<span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nums</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>        <span class="c1"># отобрать и преобразовать</span>
+</code></pre></div>
+
+<p>Порядок частей всегда один: <strong>что вернуть → откуда взять → при каком условии</strong>.</p>
+<p>Работает и для других типов:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nums</span><span class="p">}</span>                     <span class="c1"># множество</span>
+<span class="p">{</span><span class="n">u</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]:</span> <span class="n">u</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">users</span><span class="p">}</span>  <span class="c1"># словарь</span>
+<span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nums</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>         <span class="c1"># генератор: считает, не строя список</span>
+</code></pre></div>
+
+<p>Последняя строка важна: круглые скобки вместо квадратных дают <strong>генератор</strong> — он не создаёт список в памяти, а выдаёт значения по одному. Для <code>sum</code>, <code>max</code>, <code>any</code>, <code>all</code> это то, что нужно.</p>
+<p><strong>Когда не надо.</strong> Если внутрь просятся два вложенных цикла и условие — обычный <code>for</code> будет понятнее. Comprehension хорош, пока помещается в одну строку и читается слева направо.</p>
+<h2 id="_6">Частые ошибки</h2>
+<ul>
+<li><code>lst = lst.sort()</code> → список становится <code>None</code></li>
+<li><code>x in list</code> в цикле там, где нужен <code>set</code> — превращает O(n) в O(n²)</li>
+<li><code>set(items)</code> для удаления дубликатов, когда порядок важен</li>
+<li>попытка положить список в <code>set</code> или сделать его ключом словаря</li>
+<li><code>b = a</code> вместо <code>b = a[:]</code> — второй ярлык на тот же список</li>
+<li><code>pop(0)</code> в цикле — незаметно дорогая операция</li>
+</ul>
+<h2 id="_7">Вопросы для самопроверки</h2>
+<ol>
+<li>Почему <code>x in set</code> быстрее <code>x in list</code> и когда эта разница решает?</li>
+<li>Чем <code>lst.sort()</code> отличается от <code>sorted(lst)</code>?</li>
+<li>Как убрать дубликаты, сохранив порядок, и почему одного <code>set</code> мало?</li>
+<li>Почему список нельзя сделать ключом словаря, а кортеж можно?</li>
+<li>Чем отличается <code>[x for x in nums]</code> от <code>(x for x in nums)</code> и когда нужен второй?</li>
+</ol>
+<div class="theory-footer"><div class="panel__title">Задачи по этой теме</div><a href="../index.html#/l/diag">Диагностика после паузы</a></div>
+</main>
+
+</body>
+</html>
