@@ -21,6 +21,7 @@
 
 import argparse
 import ast
+import hashlib
 import html
 import json
 import re
@@ -507,6 +508,34 @@ def lint(payload, docs_dir):
 
 # ---------------------------------------------------------------------------
 
+VERSION_RE = re.compile(r'(\bfrom\s+|\bimport\s*\(\s*|\bsrc=)(["\'])(\./[^"\']+?\.(?:js|mjs))(\?v=[0-9a-f]+)?\2')
+
+
+def stamp_versions(docs_dir):
+    """Проставить версию во все относительные импорты модулей.
+
+    Браузер кэширует каждый .js отдельно, поэтому сразу после обновления сайта
+    может собраться смесь старых и новых файлов — и страница падает на
+    «does not provide an export named …». Версия в адресе делает обновление
+    атомарным: меняется хоть один модуль — меняются все ссылки.
+    """
+    js_files = sorted(docs_dir.glob("*.js"))
+    payload = b""
+    for path in js_files:
+        text = path.read_text(encoding="utf-8", newline="")
+        payload += VERSION_RE.sub(r"\1\2\3\2", text).encode()
+    version = hashlib.sha256(payload).hexdigest()[:8]
+
+    changed = 0
+    for path in js_files + [docs_dir / "index.html"]:
+        text = path.read_text(encoding="utf-8", newline="")
+        new = VERSION_RE.sub(rf"\1\2\3?v={version}\2", text)
+        if new != text:
+            path.write_text(new, encoding="utf-8", newline="")
+            changed += 1
+    return version, changed
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--verify", action="store_true",
@@ -591,6 +620,9 @@ def main():
                    encoding="utf-8", newline="")
     print(f"\nЗаписано: {out.relative_to(ROOT)} "
           f"({out.stat().st_size // 1024} КБ, {total} задач)")
+
+    version, changed = stamp_versions(DOCS)
+    print(f"Версия модулей: {version} (обновлено файлов: {changed})")
     return 0
 
 

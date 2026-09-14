@@ -1,12 +1,12 @@
 // Приложение курса: карта → урок → задача.
 // Hash-роутер, потому что сайт живёт на подпути GitHub Pages и сервера нет.
 
-import { Runtime } from "./runtime.js";
-import { store } from "./storage.js";
-import { createEditor } from "./editor.js";
-import { buildFile, extractSolutions, downloadText, basename } from "./download.js";
-import { makeZip, downloadBlob } from "./zip.js";
-import * as fs from "./fsaccess.js";
+import { Runtime } from "./runtime.js?v=88e88941";
+import { store } from "./storage.js?v=88e88941";
+import { createEditor } from "./editor.js?v=88e88941";
+import { buildFile, extractSolutions, downloadText, basename } from "./download.js?v=88e88941";
+import { makeZip, downloadBlob } from "./zip.js?v=88e88941";
+import * as fs from "./fsaccess.js?v=88e88941";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s).replace(/[&<>"']/g,
@@ -17,16 +17,108 @@ let runtime = null;
 const byLesson = new Map();
 const byTheory = new Map();
 
-function theoryLinks(ids, { compact = false } = {}) {
-  const items = (ids || []).map((id) => byTheory.get(id)).filter(Boolean);
+const theoryOf = (ids) => (ids || []).map((id) => byTheory.get(id)).filter(Boolean);
+
+/** Мелкие чипы — для карты курса, где важна компактность. */
+function theoryLinks(ids) {
+  const items = theoryOf(ids);
   if (!items.length) return "";
   const links = items.map((t) =>
-    `<a class="theory-link" href="${t.href}" target="_blank" rel="noopener">
+    `<button class="theory-link" data-theory="${t.id}">
        <span class="theory-link__icon">${t.kind === "reference" ? "⌘" : "▤"}</span>
-       ${esc(t.title)}</a>`).join("");
-  return compact
-    ? `<div class="theory-row">${links}</div>`
-    : `<div class="theory-row"><span class="theory-row__label">Теория</span>${links}</div>`;
+       ${esc(t.title)}</button>`).join("");
+  return `<div class="theory-row"><span class="theory-row__label">Теория</span>${links}</div>`;
+}
+
+/** Крупные карточки — на странице урока теория идёт ПЕРЕД задачами. */
+function theoryCards(ids) {
+  const items = theoryOf(ids);
+  if (!items.length) return "";
+  const notes = items.filter((t) => t.kind !== "reference");
+  const refs = items.filter((t) => t.kind === "reference");
+
+  const card = (t) => `<button class="theory-card" data-theory="${t.id}">
+      <span class="theory-card__icon">${t.kind === "reference" ? "⌘" : "▤"}</span>
+      <span class="theory-card__body">
+        <span class="theory-card__title">${esc(t.title)}</span>
+        <span class="theory-card__kind">${
+          t.kind === "reference" ? "шпаргалка с кодом" : "конспект"
+        }${t.images ? ` · ${t.images} схем` : ""}</span>
+      </span>
+      <span class="theory-card__go">Читать →</span>
+    </button>`;
+
+  return `<section class="step">
+      <div class="step__num">1</div>
+      <div class="step__body">
+        <div class="step__title">Сначала теория</div>
+        <div class="theory-cards">${[...notes, ...refs].map(card).join("")}</div>
+      </div>
+    </section>`;
+}
+
+/** Кнопка «Теория» прямо в шапке задачи — читать, не уходя со страницы. */
+function theoryButton(ids) {
+  const items = theoryOf(ids);
+  if (!items.length) return "";
+  const main = items.find((t) => t.kind !== "reference") || items[0];
+  return `<button class="btn btn--theory" data-theory="${main.id}"
+     title="${esc(main.title)}">▤ Теория</button>`;
+}
+
+/**
+ * Конспект открывается панелью поверх задачи, а не в новой вкладке:
+ * так не теряется место, где ты остановился, и можно читать вперемешку
+ * с решением. Статическая страница загружается и встраивается как есть.
+ */
+async function openTheory(id) {
+  const meta = byTheory.get(id);
+  if (!meta) return;
+  if ($(".reader")) $(".reader").remove();
+
+  const panel = document.createElement("div");
+  panel.className = "reader";
+  panel.innerHTML = `<div class="reader__bar">
+      <span class="reader__title">${esc(meta.title)}</span>
+      <a class="btn btn--ghost" href="${meta.href}" target="_blank" rel="noopener"
+         title="Открыть отдельной страницей">В новой вкладке</a>
+      <button class="btn btn--ghost" id="reader-close">Закрыть <kbd>Esc</kbd></button>
+    </div>
+    <div class="reader__body theory"><div class="empty">Загружаю конспект…</div></div>`;
+  document.body.appendChild(panel);
+  document.body.classList.add("has-reader");
+
+  const close = () => {
+    panel.remove();
+    document.body.classList.remove("has-reader");
+  };
+  $("#reader-close", panel).onclick = close;
+
+  try {
+    const html = await (await fetch(meta.href, { cache: "no-cache" })).text();
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const content = doc.querySelector("main.theory");
+    $(".reader__body", panel).innerHTML = content
+      ? content.innerHTML
+      : '<div class="banner banner--error">Не удалось разобрать страницу конспекта.</div>';
+
+    // Картинки в конспекте лежат рядом с ним, а мы встроили его на другую
+    // страницу — пути надо переписать, иначе будут битые.
+    const base = meta.href.slice(0, meta.href.lastIndexOf("/") + 1);
+    for (const img of panel.querySelectorAll("img[src]")) {
+      const src = img.getAttribute("src");
+      if (!/^(https?:|\/)/.test(src)) img.setAttribute("src", base + src);
+    }
+
+    if (panel.querySelector(".mermaid")) {
+      const m = (await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs")).default;
+      m.initialize({ startOnLoad: false, theme: "dark" });
+      await m.run({ nodes: panel.querySelectorAll(".mermaid") });
+    }
+  } catch (e) {
+    $(".reader__body", panel).innerHTML =
+      `<div class="banner banner--error">Конспект не загрузился: ${esc(e.message)}</div>`;
+  }
 }
 
 // ---------------------------------------------------------------- утилиты
@@ -66,8 +158,16 @@ function blockers(lesson, task) {
 function taskState(task) {
   const s = store.getStatus(task.id);
   if (s.state === "solved") return store.isUnsaved(task.id) ? "unsaved" : "solved";
+
+  // Код совпал с проверенным решением из репозитория — задача решена,
+  // откуда бы этот код ни взялся. Прежнее правило («решено в репозитории И
+  // в браузере кода нет») ломалось, как только решения подтягивались с диска:
+  // код появлялся, и весь прогресс переставал считаться.
+  if (task.reference_solution &&
+      strip(effectiveCode(task)) === strip(task.reference_solution)) {
+    return "solved";
+  }
   if (s.state === "attempted") return "attempted";
-  if (task.solved_in_repo && !store.hasCode(task.id)) return "solved";
   return "fresh";
 }
 
@@ -82,6 +182,39 @@ function lessonProgress(lesson) {
   const done = lesson.tasks.filter((t) => ["solved", "unsaved"].includes(taskState(t))).length;
   return { done, total: lesson.tasks.length };
 }
+
+const isDone = (task) => ["solved", "unsaved"].includes(taskState(task));
+
+/** Все задачи курса подряд, в порядке модулей и уроков. */
+function allTasks() {
+  const out = [];
+  for (const mod of CONTENT.modules) {
+    for (const lid of mod.lessons) {
+      const lesson = byLesson.get(lid);
+      if (lesson) for (const t of lesson.tasks) out.push({ lesson, task: t });
+    }
+  }
+  return out;
+}
+
+/**
+ * Следующая нерешённая задача — то, ради чего сюда заходят.
+ * Ищем начиная с текущей позиции и с заворотом, чтобы кнопка «дальше»
+ * не упиралась в конец урока, когда впереди ещё есть незакрытое.
+ */
+function nextUnsolved(after = null) {
+  const list = allTasks();
+  const from = after
+    ? list.findIndex((x) => x.task.id === after.id) + 1
+    : 0;
+  for (let i = 0; i < list.length; i++) {
+    const item = list[(from + i) % list.length];
+    if (!isDone(item.task)) return item;
+  }
+  return null;
+}
+
+const taskHref = ({ lesson, task }) => `#/l/${lesson.id}/${task.name}`;
 
 // ---------------------------------------------------------------- рантайм
 
@@ -126,51 +259,83 @@ function setCrumbs(parts) {
 function viewMap() {
   setCrumbs([{ text: "Карта курса" }]);
 
+  const collapsed = new Set(store.getUI("collapsed", []));
+
   const modules = CONTENT.modules.map((m) => {
     const lessons = m.lessons.map((id) => byLesson.get(id)).filter(Boolean);
     const done = lessons.reduce((s, l) => s + lessonProgress(l).done, 0);
     const total = lessons.reduce((s, l) => s + lessonProgress(l).total, 0);
     const pct = total ? Math.round((done / total) * 100) : 0;
+    const isCollapsed = collapsed.has(m.id);
 
     const rows = lessons.map((l) => {
       const p = lessonProgress(l);
-      return `<div class="lesson-row" data-href="#/l/${l.id}">
+      const full = p.done === p.total;
+      return `<div class="lesson-row${full ? " is-done" : ""}" data-href="#/l/${l.id}">
         <span class="lesson-row__title">${esc(l.title)}</span>
         <span class="lesson-row__count">${p.done}/${p.total}</span>
       </div>`;
     }).join("");
 
-    return `<section class="card module">
-      <div class="module__head">
+    return `<section class="card module${isCollapsed ? " is-collapsed" : ""}">
+      <div class="module__head" data-toggle="${m.id}">
+        <span class="module__caret">${isCollapsed ? "▸" : "▾"}</span>
         <h2 class="module__title">${esc(m.title)}</h2>
         <span class="module__sub">${esc(m.subtitle)}</span>
+        <span class="module__count">${done}/${total}</span>
       </div>
       <div class="bar"><div class="bar__fill" style="width:${pct}%"></div></div>
-      <div class="muted">${done} из ${total} задач</div>
-      ${theoryLinks(m.theory)}
-      <div class="lessons">${rows}</div>
+      <div class="module__body">
+        ${theoryLinks(m.theory)}
+        <div class="lessons">${rows}</div>
+      </div>
     </section>`;
   }).join("");
 
-  const totalDone = CONTENT.lessons.reduce((s, l) => s + lessonProgress(l).done, 0);
-  const totalAll = CONTENT.lessons.reduce((s, l) => s + lessonProgress(l).total, 0);
+  const tasks = CONTENT.lessons.flatMap((l) => l.tasks);
+  const totalAll = tasks.length;
+  const totalDone = tasks.filter(isDone).length;
+  const inProgress = tasks.filter((t) => taskState(t) === "attempted").length;
+  const next = nextUnsolved();
 
-  const unsaved = CONTENT.lessons
-    .flatMap((l) => l.tasks)
-    .filter((t) => store.isUnsaved(t.id)).length;
+  render(`<div class="hero">
+      <div class="hero__main">
+        <h1>Курс Python</h1>
+        <p class="muted">Код исполняется прямо в браузере, ничего ставить не нужно.</p>
+      </div>
+      <div class="hero__stats">
+        <div class="stat"><b>${totalDone}</b><span>решено</span></div>
+        <div class="stat"><b>${totalAll - totalDone}</b><span>осталось</span></div>
+        <div class="stat"><b>${inProgress}</b><span>в работе</span></div>
+      </div>
+    </div>
 
-  render(`<h1>Курс Python</h1>
-    <p class="muted">Решено ${totalDone} из ${totalAll} задач. Код исполняется прямо в браузере.</p>
-    ${unsaved ? `<div class="banner banner--warn" style="margin-top:14px">
-      Решено в браузере, но ещё не выгружено в файлы курса: <b>${unsaved}</b>.
-      Прогресс живёт в localStorage — чистка браузера его сотрёт.</div>` : ""}
-    <div class="modules" style="margin-top:20px">${modules}</div>
+    ${next ? `<div class="card continue" data-href="${taskHref(next)}">
+      <div>
+        <div class="continue__label">Продолжить с этого места</div>
+        <div class="continue__task">${esc(next.task.title)}</div>
+        <div class="continue__where">${esc(next.lesson.title)}</div>
+      </div>
+      <span class="continue__go">Открыть →</span>
+    </div>` : `<div class="banner banner--success">Все задачи курса решены.</div>`}
+
+    <div class="modules">${modules}</div>
     <div class="task-nav">
       <span></span>
       <button class="btn" id="dl-all">Скачать все файлы курса (.zip)</button>
     </div>`);
 
   $("#dl-all").onclick = downloadAll;
+
+  for (const head of document.querySelectorAll("[data-toggle]")) {
+    head.onclick = () => {
+      const id = head.dataset.toggle;
+      const set = new Set(store.getUI("collapsed", []));
+      set.has(id) ? set.delete(id) : set.add(id);
+      store.setUI("collapsed", [...set]);
+      viewMap();
+    };
+  }
 }
 
 function viewLesson(lesson) {
@@ -181,34 +346,51 @@ function viewLesson(lesson) {
     { text: lesson.title },
   ]);
 
-  const rows = lesson.tasks.map((t) => {
+  const onlyOpen = store.getUI("onlyOpen", false);
+  const shown = onlyOpen ? lesson.tasks.filter((t) => !isDone(t)) : lesson.tasks;
+
+  const rows = shown.map((t) => {
     const st = taskState(t);
-    return `<div class="task-row" data-href="#/l/${lesson.id}/${t.name}">
+    return `<div class="task-row task-row--${st}" data-href="#/l/${lesson.id}/${t.name}">
       <span class="task-row__num">${t.ordinal}</span>
       <span class="task-row__title">${esc(t.title)}</span>
       ${t.kind === "class" ? '<span class="task-row__kind">CLASS</span>' : ""}
       <span class="state state--${st}">${STATE_LABEL[st]}</span>
     </div>`;
-  }).join("");
+  }).join("") || '<div class="empty">В этом блоке всё решено.</div>';
 
   const p = lessonProgress(lesson);
 
   render(`<h1>${esc(lesson.title)}</h1>
     <p class="muted">${p.done} из ${p.total} задач · исходник
       <code>${esc(lesson.source_file)}</code></p>
-    ${theoryLinks(mod ? mod.theory : [])}
-    ${lesson.intro_html ? `<div class="card panel" style="margin:16px 0">
-        <div class="panel__title">Про этот блок</div>
-        <div class="desc">${lesson.intro_html}</div>
-      </div>` : ""}
-    <h2>Задачи</h2>
-    <div class="tasks">${rows}</div>
+
+    ${theoryCards(mod ? mod.theory : [])}
+
+    <section class="step">
+      <div class="step__num">2</div>
+      <div class="step__body">
+        <div class="tasks-head">
+          <div class="step__title">Потом задачи</div>
+          <label class="switch">
+            <input type="checkbox" id="only-open" ${onlyOpen ? "checked" : ""}>
+            <span>только нерешённые</span>
+          </label>
+        </div>
+        ${lesson.intro_html ? `<div class="lesson-intro desc">${lesson.intro_html}</div>` : ""}
+        <div class="tasks">${rows}</div>
+      </div>
+    </section>
     <div class="task-nav">
       <button class="btn" data-href="#/">← К карте курса</button>
       <button class="btn" id="dl-lesson">Скачать ${esc(basename(lesson.source_file))}</button>
     </div>`);
 
   $("#dl-lesson").onclick = () => downloadLesson(lesson);
+  $("#only-open").onchange = (e) => {
+    store.setUI("onlyOpen", e.target.checked);
+    viewLesson(lesson);
+  };
 }
 
 function viewTask(lesson, task) {
@@ -226,13 +408,15 @@ function viewTask(lesson, task) {
 
   render(`<div class="task-layout">
     <section class="card panel desc">
-      <div class="panel__title">Задача ${task.ordinal} из ${lesson.tasks.length}</div>
+      <div class="desc__head">
+        <span class="panel__title" style="margin:0">Задача ${task.ordinal} из ${lesson.tasks.length}</span>
+        ${theoryButton(mod ? mod.theory : [])}
+      </div>
       <h3>${esc(task.title)}</h3>
       ${task.description_html}
       ${task.has_own_tests ? "" :
         '<div class="note"><span class="note__label">Замечание</span> ' +
         'у этой задачи нет собственных проверок — она проверяется вместе со следующей.</div>'}
-      ${theoryLinks(mod ? mod.theory : [])}
     </section>
 
     <section class="card panel">
@@ -240,7 +424,7 @@ function viewTask(lesson, task) {
       <div id="blockers"></div>
       <div class="editor-wrap" id="editor"></div>
       <div class="editor-actions">
-        <button class="btn btn--primary" id="run">Проверить</button>
+        <button class="btn btn--primary" id="run">Проверить <kbd>Ctrl+↵</kbd></button>
         <button class="btn btn--ghost" id="reset">Сбросить к заготовке</button>
         ${task.reference_solution ?
           '<button class="btn btn--ghost" id="show-ref">Моё прежнее решение</button>' : ""}
@@ -289,9 +473,16 @@ function viewTask(lesson, task) {
   if (refBtn) refBtn.onclick = () => editor.setValue(task.reference_solution);
   $("#dl").onclick = () => downloadLesson(lesson);
 
+  // Ctrl+Enter — как в любом редакторе кода: запуск, не отрывая рук.
+  currentRun = () => runTask(lesson, task, editor);
+  editor.focus();
+
   if ("requestIdleCallback" in window) requestIdleCallback(() => runtime.preload());
   else setTimeout(() => runtime.preload(), 500);
 }
+
+// Что запускает Ctrl+Enter на текущей странице. null — если не на задаче.
+let currentRun = null;
 
 // ---------------------------------------------------------------- прогон
 
@@ -392,8 +583,15 @@ function renderReport(out, report, lesson, task, editor, blocks) {
     const inFile = strip(effectiveCode(task)) === strip(task.reference_solution || "");
     store.setStatus(task.id, { state: "solved", pass: passed, fail: 0, downloaded: inFile });
     scheduleWrite(lesson.id);
-    parts.unshift(`<div class="banner banner--success"><b>Задача решена</b> — ${passed}/${expected} проверок.${
-      inFile ? "" : " Не забудьте скачать файл, чтобы решение попало в курс."}</div>`);
+    const next = nextUnsolved(task);
+    const hint = fs.isConnected()
+      ? " Решение записано в файл курса."
+      : (inFile ? "" : " Скачайте файл или подключите папку курса, чтобы решение попало в файлы.");
+    parts.unshift(`<div class="banner banner--success solved-banner">
+      <div><b>Задача решена</b> — ${passed}/${expected} проверок.${hint}</div>
+      ${next ? `<button class="btn btn--primary" data-href="${taskHref(next)}">
+        Дальше: ${esc(next.task.name)} →</button>` : ""}
+    </div>`);
   } else if (allChecks) {
     store.setStatus(task.id, { state: "attempted", pass: passed, fail: allChecks - passed });
   }
@@ -616,6 +814,75 @@ function downloadAll() {
   toast(`Архив собран: ${files.length} файлов. Распакуйте поверх папки python_course/.`);
 }
 
+// ---------------------------------------------------------------- поиск
+
+/** Ctrl+K — прыжок к любой из 129 задач без кликанья по урокам. */
+function openSearch() {
+  if ($(".search")) return;
+  const items = allTasks();
+
+  const wrap = document.createElement("div");
+  wrap.className = "modal search";
+  wrap.innerHTML = `<div class="modal__box search__box">
+    <input id="q" class="search__input" placeholder="Название задачи или урока…"
+           autocomplete="off" spellcheck="false">
+    <div class="search__list" id="hits"></div>
+    <div class="search__hint">↑↓ — выбор · ↵ — открыть · Esc — закрыть</div>
+  </div>`;
+  document.body.appendChild(wrap);
+
+  const input = $("#q", wrap);
+  const list = $("#hits", wrap);
+  let filtered = [];
+  let active = 0;
+
+  function draw() {
+    const q = input.value.trim().toLowerCase();
+    filtered = (q
+      ? items.filter(({ lesson, task }) =>
+          task.name.toLowerCase().includes(q) ||
+          task.title.toLowerCase().includes(q) ||
+          lesson.title.toLowerCase().includes(q))
+      : items.filter(({ task }) => !isDone(task))
+    ).slice(0, 40);
+
+    if (active >= filtered.length) active = Math.max(0, filtered.length - 1);
+
+    list.innerHTML = filtered.length
+      ? filtered.map(({ lesson, task }, i) => {
+          const st = taskState(task);
+          return `<div class="search__hit${i === active ? " is-active" : ""}" data-i="${i}">
+            <span class="state state--${st}"></span>
+            <span class="search__name">${esc(task.name)}</span>
+            <span class="search__where">${esc(lesson.title)}</span>
+          </div>`;
+        }).join("")
+      : `<div class="empty">Ничего не нашлось</div>`;
+
+    for (const el of list.querySelectorAll(".search__hit")) {
+      el.onclick = () => go(Number(el.dataset.i));
+    }
+  }
+
+  function go(i) {
+    const item = filtered[i];
+    if (!item) return;
+    wrap.remove();
+    location.hash = taskHref(item);
+  }
+
+  input.oninput = () => { active = 0; draw(); };
+  input.onkeydown = (e) => {
+    if (e.key === "ArrowDown") { active = Math.min(active + 1, filtered.length - 1); draw(); e.preventDefault(); }
+    else if (e.key === "ArrowUp") { active = Math.max(active - 1, 0); draw(); e.preventDefault(); }
+    else if (e.key === "Enter") { go(active); e.preventDefault(); }
+  };
+  wrap.addEventListener("click", (e) => { if (e.target === wrap) wrap.remove(); });
+
+  draw();
+  input.focus();
+}
+
 let toastTimer = null;
 function toast(text) {
   let el = $("#toast");
@@ -635,6 +902,8 @@ function toast(text) {
 function route() {
   const hash = location.hash.replace(/^#/, "") || "/";
   const parts = hash.split("/").filter(Boolean);
+  currentRun = null;           // Ctrl+Enter действует только на странице задачи
+  window.scrollTo(0, 0);
 
   if (parts[0] !== "l") return viewMap();
 
@@ -649,8 +918,39 @@ function route() {
 
 // делегирование: любой элемент с data-href работает как ссылка
 document.addEventListener("click", (e) => {
+  const theory = e.target.closest("[data-theory]");
+  if (theory) {
+    e.stopPropagation();
+    openTheory(theory.dataset.theory);
+    return;
+  }
   const el = e.target.closest("[data-href]");
   if (el && !el.disabled) location.hash = el.dataset.href;
+});
+
+document.addEventListener("keydown", (e) => {
+  // Ctrl/Cmd+Enter — проверить. Работает и из редактора, поэтому вешаем
+  // на документ, а не на кнопку.
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && currentRun) {
+    e.preventDefault();
+    currentRun();
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+    e.preventDefault();
+    openSearch();
+    return;
+  }
+  if (e.key === "Escape") {
+    const reader = $(".reader");
+    if (reader) {
+      reader.remove();
+      document.body.classList.remove("has-reader");
+      return;
+    }
+    const modal = $(".modal");
+    if (modal) modal.remove();
+  }
 });
 
 document.addEventListener("storage-full", () => {
@@ -695,6 +995,7 @@ async function main() {
   };
 
   $("#folder").onclick = openFolderPanel;
+  $("#search").onclick = openSearch;
 
   window.addEventListener("hashchange", route);
   route();

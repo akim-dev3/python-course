@@ -6,6 +6,9 @@
 <title>Курс Python</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.21/codemirror.min.css">
 <link rel="stylesheet" href="./styles.css">
+<!-- конспект открывается панелью прямо здесь, поэтому его стили нужны и тут -->
+<link rel="stylesheet" href="./pygments.css">
+<link rel="stylesheet" href="./theory.css">
 </head>
 <body>
 
@@ -15,6 +18,8 @@
   <span class="chip" id="chip" data-state="idle">
     <span class="chip__dot"></span><span id="chip-label">Python: не загружен</span>
   </span>
+  <button class="btn btn--ghost" id="search" title="Найти задачу (Ctrl+K)">
+    Поиск <kbd>Ctrl+K</kbd></button>
   <span class="sync" id="fs-status" data-kind="">папка не подключена</span>
   <button class="btn btn--ghost" id="folder"
           title="Писать решения прямо в файлы курса на диске">Папка курса</button>
@@ -35,7 +40,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.21/addon/edit/closebrackets.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.21/addon/selection/active-line.min.js"></script>
 
-<script type="module" src="./app.js" id="app-entry"></script>
+<script type="module" src="./app.js?v=88e88941" id="app-entry"></script>
 <script>
   // Модули кэшируются браузером по отдельности. Сразу после обновления сайта
   // может собраться смесь старых и новых файлов — тогда импорт падает и
