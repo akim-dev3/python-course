@@ -502,21 +502,19 @@ body.is-task-view .wrap { max-width: 1640px; }
 }
 .panel:not(.desc) .editor-wrap .CodeMirror { height: 100%; }
 .panel:not(.desc) .CodeMirror-scroll { min-height: 0; height: 100%; }
-.panel:not(.desc) .results {
-  flex: 0 1 auto;
-  overflow-y: auto;
-  max-height: 26vh;
-}
+/* Результаты проверки — без своего потолка: список проверок или баннер
+   «Задача решена» показываются целиком, а не обрезаются в тесной рамке
+   с мелким скроллом внутри. Если это выйдет за экран — страница вырастет
+   и прокрутится сама, как и с левой панелью описания. */
+.panel:not(.desc) .results { flex: 0 0 auto; }
 
 @media (max-width: 1000px) {
   /* На телефоне и планшете потолки только мешают — там и так привычна
      вертикальная прокрутка страницы целиком. */
   .panel.desc { max-height: none; }
-  .panel:not(.desc) { max-height: none; }
   .panel:not(.desc) .editor-wrap { max-height: none; overflow: visible; }
   .panel:not(.desc) .editor-wrap .CodeMirror { height: auto; }
   .panel:not(.desc) .CodeMirror-scroll { min-height: 320px; height: auto; }
-  .panel:not(.desc) .results { max-height: none; overflow: visible; }
 }
 .panel__title {
   font: 500 10px/1 var(--mono);
