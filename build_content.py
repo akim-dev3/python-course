@@ -530,26 +530,29 @@ def lint(payload, docs_dir):
 
 # ---------------------------------------------------------------------------
 
-VERSION_RE = re.compile(r'(\bfrom\s+|\bimport\s*\(\s*|\bsrc=)(["\'])(\./[^"\']+?\.(?:js|mjs))(\?v=[0-9a-f]+)?\2')
+VERSION_RE = re.compile(
+    r'(\bfrom\s+|\bimport\s*\(\s*|\bsrc=|\bhref=)(["\'])(\./[^"\']+?\.(?:js|mjs|css))(\?v=[0-9a-f]+)?\2'
+)
 
 
 def stamp_versions(docs_dir):
-    """Проставить версию во все относительные импорты модулей.
+    """Проставить версию во все относительные импорты модулей и свои же .css.
 
-    Браузер кэширует каждый .js отдельно, поэтому сразу после обновления сайта
-    может собраться смесь старых и новых файлов — и страница падает на
-    «does not provide an export named …». Версия в адресе делает обновление
-    атомарным: меняется хоть один модуль — меняются все ссылки.
+    Браузер кэширует каждый файл отдельно, поэтому сразу после обновления
+    сайта может собраться смесь старых и новых — JS падает на «does not
+    provide an export named …», CSS тише: просто выглядит как раньше, пока
+    не нажать Ctrl+Shift+R. Версия в адресе делает обновление атомарным:
+    поменялся хоть один файл — меняются все ссылки на него.
     """
-    js_files = sorted(docs_dir.glob("*.js"))
+    versioned = sorted(docs_dir.glob("*.js")) + sorted(docs_dir.glob("*.css"))
     payload = b""
-    for path in js_files:
+    for path in versioned:
         text = path.read_text(encoding="utf-8", newline="")
         payload += VERSION_RE.sub(r"\1\2\3\2", text).encode()
     version = hashlib.sha256(payload).hexdigest()[:8]
 
     changed = 0
-    for path in js_files + [docs_dir / "index.html"]:
+    for path in versioned + [docs_dir / "index.html"]:
         text = path.read_text(encoding="utf-8", newline="")
         new = VERSION_RE.sub(rf"\1\2\3?v={version}\2", text)
         if new != text:
