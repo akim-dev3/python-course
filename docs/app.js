@@ -1,12 +1,12 @@
 // Приложение курса: карта → урок → задача.
 // Hash-роутер, потому что сайт живёт на подпути GitHub Pages и сервера нет.
 
-import { Runtime } from "./runtime.js?v=b53aeef6";
-import { store } from "./storage.js?v=b53aeef6";
-import { createEditor } from "./editor.js?v=b53aeef6";
-import { buildFile, extractSolutions, downloadText, basename } from "./download.js?v=b53aeef6";
-import { makeZip, downloadBlob } from "./zip.js?v=b53aeef6";
-import * as fs from "./fsaccess.js?v=b53aeef6";
+import { Runtime } from "./runtime.js?v=b5d1341a";
+import { store } from "./storage.js?v=b5d1341a";
+import { createEditor } from "./editor.js?v=b5d1341a";
+import { buildFile, extractSolutions, downloadText, basename } from "./download.js?v=b5d1341a";
+import { makeZip, downloadBlob } from "./zip.js?v=b5d1341a";
+import * as fs from "./fsaccess.js?v=b5d1341a";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s).replace(/[&<>"']/g,
@@ -331,6 +331,7 @@ function setCrumbs(parts) {
 
 /** Теория — самостоятельный раздел, а не приложение к задаче. */
 function viewTheoryIndex() {
+  document.body.classList.remove("is-task-view");
   setActiveTab("theory");
   setCrumbs([{ text: "Теория" }]);
 
@@ -441,6 +442,7 @@ function setActiveTab(which) {
 }
 
 function viewMap() {
+  document.body.classList.remove("is-task-view");
   setActiveTab("practice");
   setCrumbs([{ text: "Практика" }]);
 
@@ -525,6 +527,7 @@ function viewMap() {
 }
 
 function viewLesson(lesson) {
+  document.body.classList.remove("is-task-view");
   const mod = CONTENT.modules.find((m) => m.id === lesson.module);
   setCrumbs([
     { text: "Карта курса", href: "#/" },
@@ -580,6 +583,7 @@ function viewLesson(lesson) {
 }
 
 function viewTask(lesson, task) {
+  document.body.classList.add("is-task-view");
   const mod = CONTENT.modules.find((m) => m.id === lesson.module);
   setCrumbs([
     { text: "Карта курса", href: "#/" },
@@ -625,6 +629,12 @@ function viewTask(lesson, task) {
     <button class="btn" ${next ? `data-href="#/l/${lesson.id}/${next.name}"` : "disabled"}>Следующая →</button>
   </div>`);
 
+  // Тихая проверка при уходе из редактора (клик мимо, переход к описанию,
+  // Tab на другой элемент) — не на каждое нажатие клавиши, чтобы не дёргать
+  // поле во время набора. Решает старую нечестность: раньше решение из
+  // репозитория засчитывалось без единого прогона, а свежее правильное —
+  // только по кнопке «Проверить».
+  let lastCheckedCode = null;
   const editor = createEditor($("#editor"), {
     value: effectiveCode(task),
     onChange: (code) => {
@@ -632,7 +642,13 @@ function viewTask(lesson, task) {
       if (store.getStatus(task.id).state === "fresh") {
         store.setStatus(task.id, { state: "attempted" });
       }
-      scheduleAutoCheck(lesson, task, editor);
+    },
+    onBlur: () => {
+      const code = editor.getValue();
+      if (strip(code) === strip(task.starter_code)) return;
+      if (code === lastCheckedCode) return;
+      lastCheckedCode = code;
+      runTask(lesson, task, editor, { auto: true });
     },
   });
   editor.refresh();
@@ -671,37 +687,13 @@ let currentRun = null;
 
 // ---------------------------------------------------------------- прогон
 
-/**
- * Автопроверка без клика.
- *
- * Раньше задача засчитывалась решённой только по нажатию «Проверить» —
- * а старое решение из репозитория при этом доверялось без проверки, просто
- * по совпадению текста. Получалось нечестно: код, который никто не гонял,
- * считался верным, а свежее правильное решение — нет, пока не нажмёшь
- * кнопку. Теперь проверка идёт сама через паузу после того, как перестал
- * печатать, тем же прогоном, что и по кнопке — никакого второго стандарта.
- */
-let autoCheckTimer = null;
-let lastChecked = null;
-
-function scheduleAutoCheck(lesson, task, editor) {
-  clearTimeout(autoCheckTimer);
-  autoCheckTimer = setTimeout(() => {
-    const code = editor.getValue();
-    if (strip(code) === strip(task.starter_code)) return;   // нетронутая заготовка
-    if (code === lastChecked) return;                        // уже проверяли этот текст
-    runTask(lesson, task, editor, { auto: true });
-  }, 1400);
-}
-
 async function runTask(lesson, task, editor, { auto = false } = {}) {
   const btn = $("#run");
   const out = $("#results");
   const myCode = editor.getValue();
-  lastChecked = myCode;
 
-  // Автопроверка не должна выглядеть как ручной запуск: без спиннера,
-  // без блокировки кнопки — иначе поле дёргается на каждую паузу в наборе.
+  // Тихая проверка (по уходу из поля) не должна выглядеть как ручной
+  // запуск: без спиннера, без блокировки кнопки.
   if (!auto) {
     btn.disabled = true;
     out.innerHTML = '<div class="banner banner--info">Выполняется…</div>';
@@ -722,7 +714,7 @@ async function runTask(lesson, task, editor, { auto = false } = {}) {
     report = await runtime.run({ prelude: lesson.prelude, units, blocks });
   } catch (err) {
     // «Уже идёт прогон» в фоновом режиме — не ошибка, а просто наложение
-    // двух проверок подряд; следующая автопроверка перезапустится сама.
+    // двух проверок подряд (например, ручного запуска и ухода из поля).
     if (!(auto && /уже идёт прогон/.test(err.message))) {
       out.innerHTML = `<div class="banner banner--warn">${esc(err.message)}</div>`;
     }
@@ -1219,9 +1211,6 @@ function route() {
   const hash = location.hash.replace(/^#/, "") || "/";
   const parts = hash.split("/").filter(Boolean);
   currentRun = null;           // Ctrl+Enter действует только на странице задачи
-  // Иначе отложенная автопроверка со старой страницы дописала бы результат
-  // в #results уже ДРУГОЙ, только что открытой задачи.
-  clearTimeout(autoCheckTimer);
   window.scrollTo(0, 0);
 
   if (parts[0] === "theory") return viewTheoryIndex();
@@ -1296,6 +1285,12 @@ async function main() {
 
   $("#settings").onclick = openFolderPanel;
   $("#search").onclick = openSearch;
+
+  if (store.getUI("railHidden", false)) document.body.classList.add("rail-collapsed");
+  $("#rail-toggle").onclick = () => {
+    const hidden = document.body.classList.toggle("rail-collapsed");
+    store.setUI("railHidden", hidden);
+  };
 
   window.addEventListener("hashchange", route);
   route();

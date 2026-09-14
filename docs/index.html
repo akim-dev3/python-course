@@ -9,6 +9,7 @@
 <link rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.21/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.21/addon/hint/show-hint.min.css">
 <link rel="stylesheet" href="./styles.css">
 <!-- конспект открывается панелью прямо здесь, поэтому его стили нужны и тут -->
 <link rel="stylesheet" href="./pygments.css">
@@ -17,6 +18,7 @@
 <body>
 
 <header class="topbar">
+  <button class="btn btn--ghost rail-toggle" id="rail-toggle" title="Показать/скрыть список курса">☰</button>
   <span class="brand" data-href="#/">python-course</span>
   <nav class="tabs">
     <button class="tab" data-href="#/theory" id="tab-theory">теория</button>
@@ -47,8 +49,11 @@
 <!-- runmode подсвечивает готовые куски кода (данные урока, блок проверок),
      не создавая для них редактор -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.21/addon/runmode/runmode.min.js"></script>
+<!-- подсказки по ходу набора: список слов из PY_WORDS + идентификаторы буфера,
+     см. pythonHint() в editor.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.21/addon/hint/show-hint.min.js"></script>
 
-<script type="module" src="./app.js?v=b53aeef6" id="app-entry"></script>
+<script type="module" src="./app.js?v=b5d1341a" id="app-entry"></script>
 <script>
   // Модули кэшируются браузером по отдельности. Сразу после обновления сайта
   // может собраться смесь старых и новых файлов — тогда импорт падает и
