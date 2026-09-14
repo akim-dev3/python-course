@@ -1,12 +1,12 @@
 // Приложение курса: карта → урок → задача.
 // Hash-роутер, потому что сайт живёт на подпути GitHub Pages и сервера нет.
 
-import { Runtime } from "./runtime.js?v=b5e6ab36";
-import { store } from "./storage.js?v=b5e6ab36";
-import { createEditor } from "./editor.js?v=b5e6ab36";
-import { buildFile, extractSolutions, downloadText, basename } from "./download.js?v=b5e6ab36";
-import { makeZip, downloadBlob } from "./zip.js?v=b5e6ab36";
-import * as fs from "./fsaccess.js?v=b5e6ab36";
+import { Runtime } from "./runtime.js?v=fecb6288";
+import { store } from "./storage.js?v=fecb6288";
+import { createEditor } from "./editor.js?v=fecb6288";
+import { buildFile, extractSolutions, downloadText, basename } from "./download.js?v=fecb6288";
+import { makeZip, downloadBlob } from "./zip.js?v=fecb6288";
+import * as fs from "./fsaccess.js?v=fecb6288";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s).replace(/[&<>"']/g,
@@ -60,15 +60,13 @@ function theoryCards(ids) {
   const tail = plain.length ? rest : rest.slice(1);
 
   return `<section class="step">
-      <div class="step__num">1</div>
-      <div class="step__body">
-        <div class="step__title">Сначала теория</div>
-        <div class="theory-cards">${head.map((t) => card(t, true)).join("")}</div>
-        ${tail.length ? `<details class="theory-more">
-          <summary>Ещё материалы по теме: ${tail.length}</summary>
-          <div class="theory-cards">${tail.map((t) => card(t)).join("")}</div>
-        </details>` : ""}
-      </div>
+      <div class="step__title">Теория</div>
+      <div class="step__hint">Разбор с примерами — читать до задач.</div>
+      <div class="theory-cards">${head.map((t) => card(t, true)).join("")}</div>
+      ${tail.length ? `<details class="theory-more">
+        <summary>ещё материалы по теме: ${tail.length}</summary>
+        <div class="theory-cards">${tail.map((t) => card(t)).join("")}</div>
+      </details>` : ""}
     </section>`;
 }
 
@@ -142,9 +140,20 @@ async function openTheory(id) {
 
 const strip = (s) => (s || "").replace(/\r\n/g, "\n").trim();
 
-/** Код, который реально пойдёт в прогон: правки студента → его прошлое решение → заготовка. */
+/**
+ * Режим «решаю заново». Включается сбросом прогресса.
+ *
+ * Без него сброс отменял бы сам себя: решения лежат в файлах курса, и сайт
+ * подтянул бы их обратно при следующей загрузке. Поэтому сброс не стирает
+ * файлы (это была бы потеря работы), а переводит сайт на заготовки и
+ * перестаёт автоматически читать решения с диска, пока режим включён.
+ */
+const fromScratch = () => store.getUI("fromScratch", false);
+
+/** Код, который реально пойдёт в прогон: правки студента → прошлое решение → заготовка. */
 function effectiveCode(task) {
   if (store.hasCode(task.id)) return store.getCode(task.id);
+  if (fromScratch()) return task.starter_code;
   return task.reference_solution || task.starter_code;
 }
 
@@ -180,7 +189,7 @@ function taskState(task) {
   // откуда бы этот код ни взялся. Прежнее правило («решено в репозитории И
   // в браузере кода нет») ломалось, как только решения подтягивались с диска:
   // код появлялся, и весь прогресс переставал считаться.
-  if (task.reference_solution &&
+  if (!fromScratch() && task.reference_solution &&
       strip(effectiveCode(task)) === strip(task.reference_solution)) {
     return "solved";
   }
@@ -265,12 +274,14 @@ function initRuntime() {
 
 function render(html) {
   $("#view").innerHTML = html;
+  renderRail();
 }
 
 function setCrumbs(parts) {
-  $("#crumbs").innerHTML = parts
+  // На верхнем уровне крошки повторяли бы активную вкладку — прячем их.
+  $("#crumbs").innerHTML = parts.length < 2 ? "" : parts
     .map((p) => (p.href ? `<a href="${p.href}">${esc(p.text)}</a>` : esc(p.text)))
-    .join(" › ");
+    .join(" / ");
 }
 
 /** Теория — самостоятельный раздел, а не приложение к задаче. */
@@ -300,7 +311,7 @@ function viewTheoryIndex() {
         <span class="theory-card__go">Читать →</span>
       </a>`).join("");
 
-    return `<section class="card module">
+    return `<section class="module">
       <div class="module__head" style="cursor:default">
         <h2 class="module__title">${esc(m.title)}</h2>
         <span class="module__sub">${esc(m.subtitle)}</span>
@@ -313,17 +324,70 @@ function viewTheoryIndex() {
     </section>`;
   }).join("");
 
-  render(`<div class="hero">
-      <div class="hero__main">
+  render(`<div class="page-head">
+      <div>
         <h1>Теория</h1>
         <p class="muted">Конспекты по модулям. «На пальцах» — с примерами и схемами,
           остальные — как справочник.</p>
       </div>
-      <div class="hero__stats">
+      <div class="stats">
         <div class="stat"><b>${CONTENT.theory.length}</b><span>материалов</span></div>
       </div>
     </div>
     <div class="modules">${blocks}</div>`);
+}
+
+/**
+ * Боковая колонка — дерево курса. Она повторяет реальную структуру папок,
+ * потому что курс это и есть файлы: drills/06_data_structures/p1_stack.py.
+ */
+function renderRail() {
+  const rail = $("#rail");
+  if (!rail) return;
+
+  const hash = location.hash.replace(/^#/, "");
+  const open = new Set(store.getUI("railOpen", CONTENT.modules.map((m) => m.id)));
+
+  let html = `<div class="rail__label">курс</div>`;
+  for (const m of CONTENT.modules) {
+    const lessons = m.lessons.map((id) => byLesson.get(id)).filter(Boolean);
+    const done = lessons.reduce((s, l) => s + lessonProgress(l).done, 0);
+    const total = lessons.reduce((s, l) => s + lessonProgress(l).total, 0);
+    const isOpen = open.has(m.id);
+    const full = total && done === total;
+
+    html += `<div class="rail__mod${full ? " is-full" : ""}" data-rail-toggle="${m.id}">
+      <span class="rail__caret">${isOpen ? "▾" : "▸"}</span>
+      <span class="rail__name">${esc(m.title.replace(/^Модуль\s+/i, "м"))}</span>
+      <span class="rail__count">${done}/${total}</span>
+    </div>`;
+
+    if (!isOpen) continue;
+    for (const l of lessons) {
+      const active = hash.startsWith(`/l/${l.id}`);
+      html += `<a class="rail__item${active ? " is-active" : ""}"
+         data-href="#/l/${l.id}">${esc(l.title)}</a>`;
+    }
+  }
+
+  html += `<div class="rail__sep"></div>
+    <div class="rail__label">теория</div>`;
+  for (const t of CONTENT.theory.filter((x) => x.kind === "plain")) {
+    html += `<a class="rail__item" data-theory="${t.id}">${esc(t.title)}</a>`;
+  }
+  html += `<a class="rail__item" data-href="#/theory">все материалы →</a>`;
+
+  rail.innerHTML = html;
+
+  for (const el of rail.querySelectorAll("[data-rail-toggle]")) {
+    el.onclick = () => {
+      const id = el.dataset.railToggle;
+      const set = new Set(store.getUI("railOpen", CONTENT.modules.map((m) => m.id)));
+      set.has(id) ? set.delete(id) : set.add(id);
+      store.setUI("railOpen", [...set]);
+      renderRail();
+    };
+  }
 }
 
 function setActiveTab(which) {
@@ -353,7 +417,8 @@ function viewMap() {
       </div>`;
     }).join("");
 
-    return `<section class="card module${isCollapsed ? " is-collapsed" : ""}">
+    return `<section class="module${isCollapsed ? " is-collapsed" : ""}${
+      total && done === total ? " is-full" : ""}">
       <div class="module__head" data-toggle="${m.id}">
         <span class="module__caret">${isCollapsed ? "▸" : "▾"}</span>
         <h2 class="module__title">${esc(m.title)}</h2>
@@ -362,7 +427,6 @@ function viewMap() {
       </div>
       <div class="bar"><div class="bar__fill" style="width:${pct}%"></div></div>
       <div class="module__body">
-        ${theoryLinks(m.theory)}
         <div class="lessons">${rows}</div>
       </div>
     </section>`;
@@ -374,20 +438,20 @@ function viewMap() {
   const inProgress = tasks.filter((t) => taskState(t) === "attempted").length;
   const next = nextUnsolved();
 
-  render(`<div class="hero">
-      <div class="hero__main">
+  render(`<div class="page-head">
+      <div>
         <h1>Практика</h1>
         <p class="muted">Код исполняется прямо в браузере, ничего ставить не нужно.
           Теория — в <a href="#/theory">соседнем разделе</a>.</p>
       </div>
-      <div class="hero__stats">
+      <div class="stats">
         <div class="stat"><b>${totalDone}</b><span>решено</span></div>
         <div class="stat"><b>${totalAll - totalDone}</b><span>осталось</span></div>
         <div class="stat"><b>${inProgress}</b><span>в работе</span></div>
       </div>
     </div>
 
-    ${next ? `<div class="card continue" data-href="${taskHref(next)}">
+    ${next ? `<div class="continue" data-href="${taskHref(next)}">
       <div>
         <div class="continue__label">Продолжить с этого места</div>
         <div class="continue__task">${esc(next.task.title)}</div>
@@ -445,18 +509,18 @@ function viewLesson(lesson) {
     ${theoryCards(mod ? mod.theory : [])}
 
     <section class="step">
-      <div class="step__num">2</div>
-      <div class="step__body">
-        <div class="tasks-head">
-          <div class="step__title">Потом задачи</div>
-          <label class="switch">
-            <input type="checkbox" id="only-open" ${onlyOpen ? "checked" : ""}>
-            <span>только нерешённые</span>
-          </label>
+      <div class="tasks-head">
+        <div>
+          <div class="step__title">Задачи</div>
+          <div class="step__hint">${p.done} из ${p.total} решено</div>
         </div>
-        ${lesson.intro_html ? `<div class="lesson-intro desc">${lesson.intro_html}</div>` : ""}
-        <div class="tasks">${rows}</div>
+        <label class="switch">
+          <input type="checkbox" id="only-open" ${onlyOpen ? "checked" : ""}>
+          <span>только нерешённые</span>
+        </label>
       </div>
+      ${lesson.intro_html ? `<div class="lesson-intro desc">${lesson.intro_html}</div>` : ""}
+      <div class="tasks">${rows}</div>
     </section>
     <div class="task-nav">
       <button class="btn" data-href="#/">← К карте курса</button>
@@ -484,7 +548,7 @@ function viewTask(lesson, task) {
   const next = lesson.tasks[idx + 1];
 
   render(`<div class="task-layout">
-    <section class="card panel desc">
+    <section class="panel desc">
       <div class="desc__head">
         <span class="panel__title" style="margin:0">Задача ${task.ordinal} из ${lesson.tasks.length}</span>
         ${theoryButton(mod ? mod.theory : [])}
@@ -496,7 +560,7 @@ function viewTask(lesson, task) {
         'у этой задачи нет собственных проверок — она проверяется вместе со следующей.</div>'}
     </section>
 
-    <section class="card panel">
+    <section class="panel">
       <div class="panel__title">Ваше решение</div>
       <div id="blockers"></div>
       <div class="editor-wrap" id="editor"></div>
@@ -661,9 +725,12 @@ function renderReport(out, report, lesson, task, editor, blocks) {
     store.setStatus(task.id, { state: "solved", pass: passed, fail: 0, downloaded: inFile });
     scheduleWrite(lesson.id);
     const next = nextUnsolved(task);
+    // Про запись в файл ничего не утверждаем: она идёт следом и может не
+    // пройти (например, браузер ждёт подтверждения доступа к папке).
+    // Настоящий результат показывает индикатор в шапке.
     const hint = fs.isConnected()
-      ? " Решение записано в файл курса."
-      : (inFile ? "" : " Скачайте файл или подключите папку курса, чтобы решение попало в файлы.");
+      ? ""
+      : (inFile ? "" : " Чтобы решение попало в файлы курса, подключите папку или скачайте файл.");
     parts.unshift(`<div class="banner banner--success solved-banner">
       <div><b>Задача решена</b> — ${passed}/${expected} проверок.${hint}</div>
       ${next ? `<button class="btn btn--primary" data-href="${taskHref(next)}">
@@ -727,12 +794,38 @@ async function flushWrites() {
       await fs.writeFile(lesson.source_file, buildFile(lesson, codeMap));
       store.markDownloaded(lesson.tasks.map((t) => t.id));
     }
-    setFsStatus(`сохранено в файлы ${new Date().toLocaleTimeString().slice(0, 5)}`, "ok");
+    setFsStatus(`записано в файлы ${new Date().toLocaleTimeString().slice(0, 5)}`, "ok");
   } catch (e) {
     ids.forEach((id) => pendingWrites.add(id));
-    setFsStatus("не записалось", "error");
-    toast(`Не удалось записать в файлы: ${e.message}`);
+    // Разрешение на папку браузер отзывает между сеансами — это не ошибка,
+    // а ожидаемое состояние, и чинится одним кликом.
+    if (e.name === "NotAllowedError" || e.name === "SecurityError") {
+      needsGrant();
+    } else {
+      setFsStatus("не записалось", "error");
+      toast(`Не удалось записать в файлы: ${e.message}`);
+    }
   }
+}
+
+/** Показать, что нужен клик для подтверждения доступа, и дать его сделать. */
+function needsGrant() {
+  const el = $("#fs-status");
+  if (!el) return;
+  setFsStatus("подтвердить доступ к папке →", "pending");
+  el.classList.add("is-action");
+  el.onclick = async () => {
+    if (await fs.regrant()) {
+      el.classList.remove("is-action");
+      el.onclick = null;
+      setFsStatus(`папка: ${fs.folderName()}`, "ok");
+      await importFromDisk({ silent: true });
+      await flushWrites();
+      route();
+    } else {
+      setFsStatus("доступ не дан", "error");
+    }
+  };
 }
 
 function scheduleWrite(lessonId) {
@@ -748,7 +841,12 @@ function scheduleWrite(lessonId) {
  * Файл главнее там, где в нём есть настоящее решение; там, где на диске
  * всё ещё заготовка, сохраняется несохранённая работа из браузера.
  */
-async function importFromDisk({ silent = false } = {}) {
+async function importFromDisk({ silent = false, force = false } = {}) {
+  // В режиме «решаю заново» автоматический импорт отменил бы сброс.
+  // По явной кнопке (force) — импортируем и выходим из режима.
+  if (fromScratch() && !force) return 0;
+  if (force) store.setUI("fromScratch", false);
+
   let imported = 0, unreadable = [];
   for (const lesson of CONTENT.lessons) {
     let text;
@@ -790,7 +888,8 @@ async function openFolderPanel() {
   const state = fs.isConnected() ? "подключена" : "не подключена";
 
   wrap.innerHTML = `<div class="modal__box">
-    <div class="modal__title">Папка курса</div>
+    <div class="modal__title">Настройки</div>
+    <div class="panel__title" style="margin-bottom:10px">Папка курса</div>
     <p class="muted">Сайт может писать решения прямо в <code>.py</code>-файлы курса
       на диске. Тогда прогресс не зависит от браузера, а шаг «скачать и
       переложить» не нужен: решения сразу там, где их ждут <code>python</code> и
@@ -811,8 +910,15 @@ async function openFolderPanel() {
         ${fs.supported() ? "" : "disabled"}>Выбрать папку</button>
       <button class="btn" id="fs-import">Подтянуть решения из файлов</button>
       <button class="btn" id="fs-write">Записать всё сейчас</button>
+      <button class="btn btn--ghost" id="fs-forget">Отключить папку</button>
+    </div>
+
+    <div class="panel__title" style="margin:22px 0 10px">Прогресс</div>
+    <div class="editor-actions">
+      <button class="btn" id="pr-export">Сохранить в файл</button>
+      <button class="btn" id="pr-import">Восстановить из файла</button>
       <span class="spacer"></span>
-      <button class="btn btn--ghost" id="fs-forget">Отключить</button>
+      <button class="btn" id="pr-reset">Сбросить прогресс…</button>
       <button class="btn btn--ghost" id="fs-close">Закрыть</button>
     </div>
     <div id="fs-result"></div>
@@ -852,7 +958,7 @@ async function openFolderPanel() {
 
   $("#fs-import", wrap).onclick = async () => {
     if (!fs.isConnected()) return say("Сначала выберите папку.", "warn");
-    const n = await importFromDisk({ silent: true });
+    const n = await importFromDisk({ silent: true, force: true });
     say(`Подтянуто решений: ${n}.`, "success");
     route();
   };
@@ -869,6 +975,63 @@ async function openFolderPanel() {
     await fs.forget();
     setFsStatus("папка не подключена", "");
     say("Папка отключена. Решения остаются в браузере и в уже записанных файлах.", "info");
+  };
+
+  $("#pr-export", wrap).onclick = () =>
+    downloadText("pycourse-progress.json", store.exportJSON());
+
+  $("#pr-import", wrap).onclick = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/json,.json";
+    input.onchange = async () => {
+      const file = input.files[0];
+      if (!file) return;
+      try {
+        const n = store.importJSON(await file.text());
+        say(`Восстановлено решений: ${n}.`, "success");
+        route();
+      } catch (err) {
+        say(`Не удалось прочитать файл: ${esc(err.message)}`, "error");
+      }
+    };
+    input.click();
+  };
+
+  $("#pr-reset", wrap).onclick = () => confirmReset(say);
+}
+
+/**
+ * Сброс прогресса. Два шага намеренно: действие необратимое, а решения
+ * могли не уехать в файлы. Поэтому сначала показываем, что именно пропадёт,
+ * и предлагаем сохранить.
+ */
+function confirmReset(say) {
+  const tasks = allTasks();
+  const inBrowser = tasks.filter(({ task }) => store.hasCode(task.id)).length;
+  const unsaved = tasks.filter(({ task }) => store.isUnsaved(task.id)).length;
+
+  say(`<b>Сбросить прогресс?</b> Из браузера будут стёрты решения
+    <b>${inBrowser}</b> задач и все отметки.
+    ${unsaved ? `Из них <b>${unsaved}</b> ещё не выгружены в файлы курса —
+      после сброса их будет не вернуть.` : ""}
+    Файлы <code>.py</code> на диске <b>не трогаются</b>: если папка подключена,
+    решения подтянутся из них обратно.
+    <div class="editor-actions" style="margin-top:10px">
+      <button class="btn" id="reset-save">Сначала сохранить в файл</button>
+      <button class="btn btn--primary" id="reset-yes">Да, сбросить</button>
+    </div>`, "warn");
+
+  $("#reset-save").onclick = () =>
+    downloadText("pycourse-progress.json", store.exportJSON());
+
+  $("#reset-yes").onclick = () => {
+    store.reset();
+    store.setUI("fromScratch", true);
+    say(`Прогресс сброшен, задачи открыты с заготовок.
+      Файлы курса не тронуты — чтобы вернуть прежние решения, нажмите
+      «Подтянуть решения из файлов».`, "success");
+    route();
   };
 }
 
@@ -1052,28 +1215,7 @@ async function main() {
 
   initRuntime();
 
-  $("#export").onclick = () =>
-    downloadText("pycourse-progress.json", store.exportJSON());
-
-  $("#import").onclick = () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "application/json,.json";
-    input.onchange = async () => {
-      const file = input.files[0];
-      if (!file) return;
-      try {
-        const n = store.importJSON(await file.text());
-        toast(`Импортировано решений: ${n}`);
-        route();
-      } catch (err) {
-        toast(`Импорт не удался: ${err.message}`);
-      }
-    };
-    input.click();
-  };
-
-  $("#folder").onclick = openFolderPanel;
+  $("#settings").onclick = openFolderPanel;
   $("#search").onclick = openSearch;
 
   window.addEventListener("hashchange", route);
@@ -1089,8 +1231,8 @@ async function main() {
         await importFromDisk({ silent: true });
         route();
       } else if (state === "prompt") {
-        // Разрешение надо подтвердить кликом — сами не можем.
-        setFsStatus("подтвердите доступ к папке", "pending");
+        // Разрешение даётся только по клику пользователя — сами не можем.
+        needsGrant();
       } else {
         setFsStatus("папка не подключена", "");
       }

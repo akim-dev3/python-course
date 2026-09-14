@@ -1,120 +1,128 @@
-/* Страницы теории. Они статические, вне SPA — так картинки, Mermaid
-   и печать работают без единой строчки JS. */
+/* Страницы конспектов. Прозой набирает Plex Sans, всё техническое —
+   Plex Mono. Единственное место на сайте, где строка длинная и текст
+   набран для чтения, а не для сканирования. */
 
-.theory { max-width: 860px; }
-
-.theory h1 { font-size: 26px; margin-bottom: 6px; }
-.theory h2 {
-  font-size: 19px;
-  margin: 34px 0 12px;
-  padding-bottom: 7px;
-  border-bottom: 1px solid var(--surface1);
-  color: var(--lavender);
+.theory {
+  max-width: 74ch;
+  font-size: 15px;
+  line-height: 1.68;
 }
-.theory h3 { font-size: 16px; margin: 24px 0 8px; color: var(--subtext1); }
-.theory h4 { font-size: 14px; margin: 18px 0 6px; color: var(--subtext0); }
 
-.theory p { margin: 0 0 13px; }
-.theory ul, .theory ol { margin: 0 0 13px; padding-left: 24px; }
-.theory li { margin: 4px 0; }
-.theory li::marker { color: var(--overlay0); }
+/* отдельная страница конспекта живёт без боковой колонки */
+.wrap.theory { margin-left: 0; padding: 30px 32px 90px; }
 
-.theory strong { color: var(--text); }
-.theory em { color: var(--subtext1); }
+.theory h1 {
+  font: 600 27px/1.22 var(--sans);
+  letter-spacing: -.02em;
+  margin: 0 0 4px;
+}
+.theory h2 {
+  font: 600 18px/1.3 var(--sans);
+  margin: 40px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.theory h3 { font: 600 15px/1.35 var(--sans); margin: 26px 0 8px; color: var(--text); }
+.theory h4 { font: 500 13px var(--mono); margin: 20px 0 6px; color: var(--dim); }
 
-.theory > p > code,
+.theory p { margin: 0 0 14px; }
+.theory ul, .theory ol { margin: 0 0 14px; padding-left: 22px; }
+.theory li { margin: 5px 0; }
+.theory li::marker { color: var(--faint); }
+
+.theory strong { color: #fff; font-weight: 600; }
+.theory em { color: var(--dim); }
+.theory hr { border: 0; border-top: 1px solid var(--line); margin: 34px 0; }
+
+.theory a { color: var(--accent); }
+
+/* инлайновый код — акцентом, он здесь главный носитель смысла */
+.theory p > code,
 .theory li code,
 .theory td code,
 .theory h2 code,
 .theory h3 code {
-  background: var(--mantle);
-  padding: 1.5px 6px;
-  border-radius: 5px;
-  font-size: 13px;
-  color: var(--peach);
+  font: 400 13px var(--mono);
+  background: var(--sink);
+  padding: 1px 5px;
+  color: var(--accent);
 }
 
 .theory blockquote {
-  margin: 0 0 14px;
-  padding: 10px 16px;
-  border-left: 3px solid var(--mauve);
-  background: var(--mantle);
-  border-radius: 0 8px 8px 0;
-  color: var(--subtext0);
+  margin: 0 0 16px;
+  padding: 2px 0 2px 16px;
+  border-left: 2px solid var(--accent);
+  color: var(--dim);
 }
 .theory blockquote p:last-child { margin-bottom: 0; }
 
-.theory hr { border: 0; border-top: 1px solid var(--surface1); margin: 28px 0; }
-
-/* таблицы — их в конспектах много */
+/* таблицы — сетка из волосяных линий, без заливок-зебры */
 .theory table {
   width: 100%;
   border-collapse: collapse;
-  margin: 0 0 16px;
+  margin: 0 0 18px;
   font-size: 13.5px;
   display: block;
-  overflow-x: auto;      /* широкие таблицы скроллятся внутри себя,
-                            страница по горизонтали не едет */
+  overflow-x: auto;
 }
 .theory th, .theory td {
-  border: 1px solid var(--surface1);
-  padding: 7px 11px;
+  border: 1px solid var(--line);
+  padding: 8px 12px;
   text-align: left;
   vertical-align: top;
 }
-.theory th { background: var(--surface0); color: var(--subtext1); font-weight: 700; }
-.theory tr:nth-child(even) td { background: rgba(49, 50, 68, .35); }
+.theory th {
+  font: 500 11px var(--mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--faint);
+  background: var(--surface);
+}
 
-/* код */
 .theory pre,
 .theory .codehilite {
-  background: var(--crust);
-  border: 1px solid var(--surface1);
-  border-radius: 10px;
+  background: var(--sink);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--line-2);
   padding: 13px 15px;
   overflow-x: auto;
-  margin: 0 0 16px;
-  font-size: 13px;
-  line-height: 1.5;
+  margin: 0 0 18px;
+  font-size: 12.5px;
+  line-height: 1.6;
 }
 .theory .codehilite pre { border: 0; padding: 0; margin: 0; background: none; }
-.theory pre code { font-size: 13px; background: none; padding: 0; color: inherit; }
+.theory pre code { font-size: 12.5px; background: none; padding: 0; color: inherit; }
 
-/* картинки-диаграммы */
-.theory figure { margin: 0 0 18px; text-align: center; }
+.theory figure { margin: 0 0 20px; }
 .theory figure img {
   max-width: 100%;
   height: auto;
-  border-radius: 10px;
-  border: 1px solid var(--surface1);
-  background: var(--mantle);
+  border: 1px solid var(--line);
 }
 
 .theory .mermaid {
-  background: var(--mantle);
-  border: 1px solid var(--surface1);
-  border-radius: 10px;
-  padding: 16px;
+  background: var(--sink);
+  border: 1px solid var(--line);
+  padding: 18px;
   text-align: center;
   overflow-x: auto;
+  margin-bottom: 18px;
 }
 
 .theory-footer {
-  margin-top: 40px;
+  margin-top: 46px;
   padding-top: 18px;
-  border-top: 1px solid var(--surface1);
+  border-top: 1px solid var(--line);
   font-size: 13px;
 }
-.theory-footer .panel__title { margin-bottom: 8px; }
+.theory-footer .panel__title { margin-bottom: 9px; }
+.theory-footer a { margin-right: 4px; }
 
-/* оглавление, если генератор его вставил */
 .theory .toc {
-  background: var(--surface0);
-  border: 1px solid var(--surface1);
-  border-radius: 10px;
-  padding: 12px 18px;
-  margin-bottom: 22px;
-  font-size: 13.5px;
+  border: 1px solid var(--line);
+  padding: 14px 18px;
+  margin-bottom: 26px;
+  font-size: 13px;
 }
 .theory .toc ul { margin: 0; padding-left: 18px; }
 

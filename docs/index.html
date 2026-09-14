@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Курс Python</title>
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.21/codemirror.min.css">
 <link rel="stylesheet" href="./styles.css">
 <!-- конспект открывается панелью прямо здесь, поэтому его стили нужны и тут -->
@@ -13,27 +17,24 @@
 <body>
 
 <header class="topbar">
-  <span class="brand" data-href="#/" style="cursor:pointer">Python-курс</span>
+  <span class="brand" data-href="#/">python-course</span>
   <nav class="tabs">
-    <button class="tab" data-href="#/theory" id="tab-theory">Теория</button>
-    <button class="tab" data-href="#/" id="tab-practice">Практика</button>
+    <button class="tab" data-href="#/theory" id="tab-theory">теория</button>
+    <button class="tab" data-href="#/" id="tab-practice">практика</button>
   </nav>
   <span class="crumbs" id="crumbs"></span>
   <span class="chip" id="chip" data-state="idle">
-    <span class="chip__dot"></span><span id="chip-label">Python: не загружен</span>
+    <span class="chip__dot"></span><span id="chip-label">python не загружен</span>
   </span>
-  <button class="btn btn--ghost" id="search" title="Найти задачу (Ctrl+K)">
-    Поиск <kbd>Ctrl+K</kbd></button>
+  <button class="btn btn--ghost" id="search" title="Найти задачу">поиск<kbd>Ctrl+K</kbd></button>
   <span class="sync" id="fs-status" data-kind="">папка не подключена</span>
-  <button class="btn btn--ghost" id="folder"
-          title="Писать решения прямо в файлы курса на диске">Папка курса</button>
-  <button class="btn btn--ghost" id="export" title="Сохранить прогресс в файл">Экспорт</button>
-  <button class="btn btn--ghost" id="import" title="Восстановить прогресс из файла">Импорт</button>
+  <button class="btn btn--ghost" id="settings" title="Папка курса, прогресс, экспорт">настройки</button>
 </header>
 
-<main class="wrap" id="view">
-  <div class="empty">Загрузка…</div>
-</main>
+<div class="shell">
+  <aside class="rail" id="rail"></aside>
+  <main class="wrap" id="view"><div class="empty">загрузка…</div></main>
+</div>
 
 <!-- CodeMirror 5: работает обычными <script>, без бандлера.
      Весь контакт с ним заперт в editor.js — если библиотека отвалится,
@@ -44,7 +45,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.21/addon/edit/closebrackets.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.21/addon/selection/active-line.min.js"></script>
 
-<script type="module" src="./app.js?v=b5e6ab36" id="app-entry"></script>
+<script type="module" src="./app.js?v=fecb6288" id="app-entry"></script>
 <script>
   // Модули кэшируются браузером по отдельности. Сразу после обновления сайта
   // может собраться смесь старых и новых файлов — тогда импорт падает и

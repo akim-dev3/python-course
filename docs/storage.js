@@ -118,6 +118,13 @@ class Store {
     save(K_UI, this.ui);
   }
 
+  /** Стереть решения и отметки. Настройки интерфейса не трогаем. */
+  reset() {
+    this.code = {};
+    this.status = {};
+    this.flush();
+  }
+
   /** Снимок для синхронизации. */
   snapshot() {
     return { code: this.code, status: this.status };
