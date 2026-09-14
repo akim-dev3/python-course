@@ -14,6 +14,19 @@ const esc = (s) => String(s).replace(/[&<>"']/g,
 let CONTENT = null;
 let runtime = null;
 const byLesson = new Map();
+const byTheory = new Map();
+
+function theoryLinks(ids, { compact = false } = {}) {
+  const items = (ids || []).map((id) => byTheory.get(id)).filter(Boolean);
+  if (!items.length) return "";
+  const links = items.map((t) =>
+    `<a class="theory-link" href="${t.href}" target="_blank" rel="noopener">
+       <span class="theory-link__icon">${t.kind === "reference" ? "⌘" : "▤"}</span>
+       ${esc(t.title)}</a>`).join("");
+  return compact
+    ? `<div class="theory-row">${links}</div>`
+    : `<div class="theory-row"><span class="theory-row__label">Теория</span>${links}</div>`;
+}
 
 // ---------------------------------------------------------------- утилиты
 
@@ -133,6 +146,7 @@ function viewMap() {
       </div>
       <div class="bar"><div class="bar__fill" style="width:${pct}%"></div></div>
       <div class="muted">${done} из ${total} задач</div>
+      ${theoryLinks(m.theory)}
       <div class="lessons">${rows}</div>
     </section>`;
   }).join("");
@@ -181,6 +195,7 @@ function viewLesson(lesson) {
   render(`<h1>${esc(lesson.title)}</h1>
     <p class="muted">${p.done} из ${p.total} задач · исходник
       <code>${esc(lesson.source_file)}</code></p>
+    ${theoryLinks(mod ? mod.theory : [])}
     ${lesson.intro_html ? `<div class="card panel" style="margin:16px 0">
         <div class="panel__title">Про этот блок</div>
         <div class="desc">${lesson.intro_html}</div>
@@ -216,6 +231,7 @@ function viewTask(lesson, task) {
       ${task.has_own_tests ? "" :
         '<div class="note"><span class="note__label">Замечание</span> ' +
         'у этой задачи нет собственных проверок — она проверяется вместе со следующей.</div>'}
+      ${theoryLinks(mod ? mod.theory : [])}
     </section>
 
     <section class="card panel">
@@ -475,6 +491,7 @@ async function main() {
     return;
   }
   for (const l of CONTENT.lessons) byLesson.set(l.id, l);
+  for (const t of CONTENT.theory || []) byTheory.set(t.id, t);
 
   initRuntime();
 

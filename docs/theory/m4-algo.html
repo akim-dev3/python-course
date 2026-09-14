@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Модуль 4 — Алгоритмическое мышление — Python-курс</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../pygments.css">
+<link rel="stylesheet" href="../theory.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html#/">Python-курс</a>
+  <span class="crumbs">Теория › Модуль 4 — Алгоритмическое мышление</span>
+  <a class="btn btn--ghost" href="../index.html#/">К задачам</a>
+</header>
+<main class="wrap theory">
+<h1>Модуль 4 — Алгоритмическое мышление</h1>
+<p class="muted">Конспект обновлён 2026-06-09</p>
+<h2 id="_1">Суть</h2>
+<p>Три фундаментальных инструмента: оценка эффективности (Big O), рекурсия и бинарный поиск. Это база перед паттернами two pointers и sliding window (Модуль 5).</p>
+<hr />
+<h2 id="big-o">Big O — сложность алгоритмов</h2>
+<h3 id="_2">Таблица</h3>
+<table>
+<thead>
+<tr>
+<th>Сложность</th>
+<th>Имя</th>
+<th>Пример</th>
+<th>На 1 000 000 элементов</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O(1)</td>
+<td>Константа</td>
+<td><code>dict["key"]</code>, <code>lst[0]</code></td>
+<td>1 операция</td>
+</tr>
+<tr>
+<td>O(log n)</td>
+<td>Логарифм</td>
+<td>Бинарный поиск</td>
+<td>~20 операций</td>
+</tr>
+<tr>
+<td>O(n)</td>
+<td>Линейная</td>
+<td>Один цикл, фильтр</td>
+<td>1 000 000 операций</td>
+</tr>
+<tr>
+<td>O(n log n)</td>
+<td>Линейно-лог</td>
+<td><code>sorted()</code></td>
+<td>~20 000 000 операций</td>
+</tr>
+<tr>
+<td>O(n²)</td>
+<td>Квадратичная</td>
+<td>Цикл внутри цикла</td>
+<td>10¹² операций</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">Правила чтения кода</h3>
+<ul>
+<li>Один цикл по n → O(n)</li>
+<li>Два последовательных цикла по n → O(n + n) = O(n) (константы отбрасываем)</li>
+<li>Два вложенных цикла по тем же данным → O(n²)</li>
+<li>Цикл по n × цикл по m → O(n·m)</li>
+<li>Делим диапазон пополам → O(log n)</li>
+<li><code>dict["key"]</code>, <code>lst[i]</code> → O(1)</li>
+<li><code>"x" in list</code> → O(n), <code>"x" in set</code> → O(1)</li>
+<li><code>sorted(lst)</code> → O(n log n)</li>
+<li><code>lst.append()</code> → O(1), <code>lst.insert(0, x)</code> → O(n) (сдвиг всех)</li>
+</ul>
+<h3 id="_4">Пространственная сложность</h3>
+<p>Отдельно от временной. Сколько <em>памяти</em> алгоритм использует сверх входа.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># O(1) памяти — переменные не растут с n</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sum_list</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">:</span>
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">x</span>
+    <span class="k">return</span> <span class="n">total</span>
+
+<span class="c1"># O(n) памяти — новая структура размера n</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">doubled</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">]</span>
+
+<span class="c1"># O(n) памяти — рекурсия копит стек вызовов</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">factorial_rec</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">n</span> <span class="o">*</span> <span class="n">factorial_rec</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Когда выбираешь между set и сортировкой — учитывай оба измерения. set даёт O(1) lookup, но O(n) памяти.</p>
+<h3 id="list-set">Ключевая оптимизация: list → set</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># МЕДЛЕННО O(n²): вложенный цикл</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">lst</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">lst</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+<span class="c1"># БЫСТРО O(n): set — O(1) lookup</span>
+<span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="c1"># Или одной строкой:</span>
+<span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">lst</span><span class="p">))</span>
+</code></pre></div>
+
+<h3 id="find_pair_sum-on-set">find_pair_sum — O(n) через set</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">find_pair_sum</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">target</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>   <span class="c1"># O(1)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">target</span> <span class="o">-</span> <span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_5">Рекурсия</h2>
+<h3 id="_6">Шаблон</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">func</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="o">&lt;</span><span class="n">базовый</span> <span class="n">случай</span><span class="o">&gt;</span><span class="p">:</span>        <span class="c1"># СТОП</span>
+        <span class="k">return</span> <span class="o">&lt;</span><span class="n">значение</span><span class="o">&gt;</span>
+    <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">&lt;</span><span class="n">меньший</span> <span class="n">n</span><span class="o">&gt;</span><span class="p">)</span>    <span class="c1"># шаг ближе к базе</span>
+</code></pre></div>
+
+<h3 id="_7">Базовые случаи по типу задачи</h3>
+<table>
+<thead>
+<tr>
+<th>Тип</th>
+<th>Базовый случай</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Числа (факториал, степень)</td>
+<td><code>if n &lt;= 0: return 1</code></td>
+</tr>
+<tr>
+<td>Списки</td>
+<td><code>if not lst: return []</code></td>
+</tr>
+<tr>
+<td>Строки</td>
+<td><code>if not s: return ""</code></td>
+</tr>
+<tr>
+<td>Вложенные структуры</td>
+<td><code>if not children: return 0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">Примеры</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">factorial</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">n</span> <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">sum_digits</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>              <span class="c1"># sum_digits(123) = 6</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">n</span> <span class="o">%</span> <span class="mi">10</span><span class="p">)</span> <span class="o">+</span> <span class="n">sum_digits</span><span class="p">(</span><span class="n">n</span> <span class="o">//</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">reverse_string</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">s</span>
+    <span class="k">return</span> <span class="n">reverse_string</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">+</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">flatten</span><span class="p">(</span><span class="n">nested</span><span class="p">):</span>            <span class="c1"># любая глубина</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">nested</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">flatten</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">count_nested</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>   <span class="c1"># поиск в дереве</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">count</span> <span class="o">+=</span> <span class="n">count_nested</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;children&quot;</span><span class="p">,</span> <span class="p">[]),</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">count</span>
+</code></pre></div>
+
+<h3 id="_9">Когда использовать рекурсию</h3>
+<ul>
+<li>Вложенные структуры неизвестной глубины (JSON, org chart)</li>
+<li>Математические последовательности (факториал, Фибоначчи)</li>
+<li>Простой проход по списку → цикл проще</li>
+</ul>
+<h3 id="vs">Рекурсия vs итерация</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Рекурсивно — короче, но O(n) памяти на стек вызовов</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">factorial</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">n</span> <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Итеративно — O(1) памяти, без риска RecursionError</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">factorial</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">*=</span> <span class="n">i</span>
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div>
+
+<p>Python имеет лимит глубины рекурсии (~1000). Для больших n или глубоких структур — итеративный вариант предпочтительнее.</p>
+<h3 id="_10">Мемоизация — спасение от экспоненциальной сложности</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Наивная Фибоначчи — O(2ⁿ), считает одно и то же много раз</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fib</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">n</span>
+    <span class="k">return</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># fib(35) — несколько секунд</span>
+
+<span class="c1"># Ручная мемоизация через dict — O(n)</span>
+<span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fib</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">cache</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cache</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">n</span>
+    <span class="n">cache</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cache</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+
+<span class="c1"># Автоматическая через functools — O(n), одна строка</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">lru_cache</span>
+
+<span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fib</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">n</span>
+    <span class="k">return</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># fib(100) — мгновенно</span>
+</code></pre></div>
+
+<p><code>@lru_cache</code> запоминает результат для каждого набора аргументов. Применимо к чистым функциям (без побочных эффектов).</p>
+<hr />
+<h2 id="_11">Бинарный поиск</h2>
+<h3 id="_12">Алгоритм (выучить)</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">binary_search</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="n">left</span> <span class="o">&lt;=</span> <span class="n">right</span><span class="p">:</span>
+        <span class="n">mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">left</span> <span class="o">+</span> <span class="n">right</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="n">lst</span><span class="p">[</span><span class="n">mid</span><span class="p">]</span> <span class="o">==</span> <span class="n">target</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">mid</span>
+        <span class="k">elif</span> <span class="n">lst</span><span class="p">[</span><span class="n">mid</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">target</span><span class="p">:</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">+</span> <span class="mi">1</span>      <span class="c1"># target правее</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">-</span> <span class="mi">1</span>     <span class="c1"># target левее</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+</code></pre></div>
+
+<p><strong>Условие:</strong> работает ТОЛЬКО на отсортированном списке.</p>
+<h3 id="_13">Вариации</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Поиск в списке словарей</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">binary_search_by_field</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sort_field</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="n">left</span> <span class="o">&lt;=</span> <span class="n">right</span><span class="p">:</span>
+        <span class="n">mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">left</span> <span class="o">+</span> <span class="n">right</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">mid_val</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">mid</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sort_field</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mid_val</span> <span class="o">==</span> <span class="n">target</span><span class="p">:</span>   <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">mid</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">mid_val</span> <span class="o">&lt;</span> <span class="n">target</span><span class="p">:</span>  <span class="n">left</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>                   <span class="n">right</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+<span class="c1"># Позиция вставки</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_insert_position</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span><span class="p">:</span>
+        <span class="n">mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">left</span> <span class="o">+</span> <span class="n">right</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="n">lst</span><span class="p">[</span><span class="n">mid</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">value</span><span class="p">:</span>  <span class="n">left</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>                 <span class="n">right</span> <span class="o">=</span> <span class="n">mid</span>
+    <span class="k">return</span> <span class="n">left</span>
+</code></pre></div>
+
+<h3 id="_14">Сравнение</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">lst</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">30</span><span class="p">]</span>
+<span class="c1"># Ищем 21:</span>
+<span class="c1"># Линейный: 9 шагов</span>
+<span class="c1"># Бинарный: 2 шага (12 → 21)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_15">Слабые точки</h2>
+<table>
+<thead>
+<tr>
+<th>Ошибка</th>
+<th>Правило</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Забыть базовый случай</td>
+<td>RecursionError — всегда нужна точка остановки</td>
+</tr>
+<tr>
+<td>Бинарный поиск на неотсортированном</td>
+<td>Неверный результат без ошибки</td>
+</tr>
+<tr>
+<td><code>"x" in list</code> в горячем цикле</td>
+<td>Заменять на set — O(1) vs O(n)</td>
+</tr>
+<tr>
+<td>Два цикла подряд — думать O(n²)</td>
+<td>Два последовательных цикла = O(n), не O(n²)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="theory-footer"><div class="panel__title">Задачи по этой теме</div><a href="../index.html#/l/m04-p1">P1: сложность алгоритмов (Big O)</a> · <a href="../index.html#/l/m04-p2">P2: рекурсия</a> · <a href="../index.html#/l/m04-p3">P3: линейный и бинарный поиск</a></div>
+</main>
+
+</body>
+</html>

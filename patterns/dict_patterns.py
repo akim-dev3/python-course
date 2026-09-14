@@ -113,6 +113,7 @@ for order in nested_data:
     for item in order.get("items", []):
         # item — внутренний объект
         # order.get("status") — фильтр по внешнему
+        pass
 
 # SUM по вложенным (только paid):
 total = 0

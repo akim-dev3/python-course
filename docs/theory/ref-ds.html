@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Шпаргалка — структуры данных — Python-курс</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../pygments.css">
+<link rel="stylesheet" href="../theory.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html#/">Python-курс</a>
+  <span class="crumbs">Теория › Шпаргалка — структуры данных</span>
+  <a class="btn btn--ghost" href="../index.html#/">К задачам</a>
+</header>
+<main class="wrap theory">
+<h1>Шпаргалка — структуры данных</h1>
+
+<p class="muted">Файл курса <code>drills/06_data_structures/ds_reference.py</code> — открывается и запускается локально.</p><div class="codehilite"><pre><span></span><span class="c1"># ============================================================</span>
+<span class="c1"># МОДУЛЬ 6 — ШПАРГАЛКА: структуры данных</span>
+<span class="c1">#</span>
+<span class="c1"># Не задачи, только справка перед p1..p4. Синтаксис + когда</span>
+<span class="c1"># какую структуру брать.</span>
+<span class="c1"># ============================================================</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># STACK (стек) — LIFO: Last In, First Out</span>
+<span class="c1"># ============================================================</span>
+<span class="c1"># В Python — обычный list. push = append, pop = pop (с конца, O(1)).</span>
+<span class="c1"># Когда брать: нужно &quot;откатиться назад&quot; / проверить парность/вложенность /</span>
+<span class="c1"># запомнить историю действий (undo).</span>
+
+<span class="n">stack</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>      <span class="c1"># push</span>
+<span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">top</span> <span class="o">=</span> <span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>       <span class="c1"># peek, не удаляя — top == 2</span>
+<span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>            <span class="c1"># pop -&gt; 2, stack теперь [1]</span>
+
+<span class="c1"># Частый шаблон — балансировка скобок:</span>
+<span class="n">pairs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;)&quot;</span><span class="p">:</span> <span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="s2">&quot;]&quot;</span><span class="p">:</span> <span class="s2">&quot;[&quot;</span><span class="p">,</span> <span class="s2">&quot;}&quot;</span><span class="p">:</span> <span class="s2">&quot;{&quot;</span><span class="p">}</span>
+<span class="c1"># при встрече открывающей — push, при закрывающей — pop и сравнить с pairs[...]</span>
+
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># QUEUE (очередь) — FIFO: First In, First Out</span>
+<span class="c1"># ============================================================</span>
+<span class="c1"># НЕ используем list.pop(0) — это O(n) (весь список сдвигается).</span>
+<span class="c1"># Правильно — collections.deque: append/appendleft/pop/popleft — все O(1).</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">deque</span>
+
+<span class="n">q</span> <span class="o">=</span> <span class="n">deque</span><span class="p">()</span>
+<span class="n">q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>          <span class="c1"># enqueue (справа)</span>
+<span class="n">q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">first</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>   <span class="c1"># dequeue (слева) -&gt; 1</span>
+
+<span class="c1"># Когда брать: обработка &quot;в порядке поступления&quot; — очереди задач,</span>
+<span class="c1"># уровневый обход (level order), скользящее окно с быстрым удалением слева.</span>
+
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># LINKED LIST (связный список) — свой класс, без готовой структуры в Python</span>
+<span class="c1"># ============================================================</span>
+<span class="c1"># Node хранит значение + ссылку на следующий узел. Список — цепочка Node.</span>
+<span class="c1"># Когда брать в реальности: редко (list в Python и так хорош), но это</span>
+<span class="c1"># классика собеседований — проверяет понимание ссылок/указателей.</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Node</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LinkedList</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">push_front</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">head</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">node</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">head</span>
+        <span class="k">while</span> <span class="n">current</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">next</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="c1"># Обход — всегда один и тот же шаблон:</span>
+<span class="c1"># current = head</span>
+<span class="c1"># while current:</span>
+<span class="c1">#     ... что-то с current.value ...</span>
+<span class="c1">#     current = current.next</span>
+
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># HASH TABLE &quot;под капотом&quot; — как устроен dict/set</span>
+<span class="c1"># ============================================================</span>
+<span class="c1"># dict хранит пары (key, value) в массиве корзин (buckets).</span>
+<span class="c1"># 1. hash(key) даёт число</span>
+<span class="c1"># 2. число % размер_массива даёт индекс корзины</span>
+<span class="c1"># 3. коллизия (два ключа попали в одну корзину) — CPython цепляет</span>
+<span class="c1">#    следующую свободную корзину (open addressing), не список поверх корзины</span>
+<span class="c1">#</span>
+<span class="c1"># Следствие: доступ/вставка/удаление — O(1) в среднем (амортизированно),</span>
+<span class="c1"># но O(n) в худшем случае (много коллизий) — на практике почти не встречается.</span>
+<span class="c1"># Ключ должен быть hashable (immutable: int, str, tuple — но не list/dict).</span>
+
+<span class="c1"># Практическое применение хэширования помимо обычного dict — &quot;видели ли мы это&quot;:</span>
+<span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+<span class="c1"># if x in seen: ...   -&gt; O(1), а не O(n) как в list</span>
+
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># Когда что брать — шпаргалка одной строкой</span>
+<span class="c1"># ============================================================</span>
+<span class="c1"># Stack       — &quot;последний пришёл, первый вышел&quot;, вложенность, undo</span>
+<span class="c1"># Queue       — &quot;первый пришёл, первый вышел&quot;, обработка по порядку</span>
+<span class="c1"># LinkedList  — редко в реальном коде, но нужно понимать ссылки</span>
+<span class="c1"># Hash (dict/set) — быстрый поиск &quot;было / не было&quot;, группировка, счётчики</span>
+</pre></div>
+
+<div class="theory-footer"><div class="panel__title">Задачи по этой теме</div><a href="../index.html#/l/m06-p1">P1: Stack (стек)</a> · <a href="../index.html#/l/m06-p2">P2: Queue (очередь)</a> · <a href="../index.html#/l/m06-p3">P3: Linked List (связный список)</a> · <a href="../index.html#/l/m06-p4">P4: Hashing (хэш-таблицы)</a></div>
+</main>
+
+</body>
+</html>

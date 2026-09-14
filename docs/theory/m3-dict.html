@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Модуль 3 — Dict и агрегации — Python-курс</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../pygments.css">
+<link rel="stylesheet" href="../theory.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html#/">Python-курс</a>
+  <span class="crumbs">Теория › Модуль 3 — Dict и агрегации</span>
+  <a class="btn btn--ghost" href="../index.html#/">К задачам</a>
+</header>
+<main class="wrap theory">
+<h1>Модуль 3 — Dict и агрегации</h1>
+<p class="muted">Конспект обновлён 2026-06-09</p>
+<h2 id="_1">Суть</h2>
+<p>Dict-паттерны агрегации и работа с вложенными структурами <code>list[dict]</code>. Закрыт к 08.06 (drills/03_patterns p1–p5).</p>
+<hr />
+<h2 id="_2">Детали</h2>
+<h3 id="dict">Dict — базовые операции</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Alice&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">}</span>
+
+<span class="c1"># Чтение</span>
+<span class="n">d</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>                <span class="c1"># &quot;Alice&quot; — KeyError если нет</span>
+<span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">)</span>             <span class="c1"># 25 — None если нет</span>
+<span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;city&quot;</span><span class="p">,</span> <span class="s2">&quot;—&quot;</span><span class="p">)</span>       <span class="c1"># &quot;—&quot; — дефолт если нет</span>
+<span class="s2">&quot;city&quot;</span> <span class="ow">in</span> <span class="n">d</span>              <span class="c1"># False — проверка ключа O(1)</span>
+
+<span class="c1"># Запись</span>
+<span class="n">d</span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Moscow&quot;</span>     <span class="c1"># добавить / изменить</span>
+<span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span> <span class="s2">&quot;country&quot;</span><span class="p">:</span> <span class="s2">&quot;RU&quot;</span><span class="p">})</span>    <span class="c1"># массовое обновление</span>
+<span class="n">d</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>                  <span class="c1"># ставит если нет, иначе не трогает</span>
+
+<span class="c1"># Удаление</span>
+<span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">]</span>                             <span class="c1"># KeyError если нет</span>
+<span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;city&quot;</span><span class="p">)</span>                             <span class="c1"># удалить и вернуть</span>
+<span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;city&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>                       <span class="c1"># безопасно с дефолтом</span>
+<span class="n">d</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>                                 <span class="c1"># очистить</span>
+
+<span class="c1"># Итерация</span>
+<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>                <span class="c1"># по ключам</span>
+<span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>         <span class="c1"># по значениям</span>
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>       <span class="c1"># по парам</span>
+
+<span class="c1"># Просмотр</span>
+<span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>                     <span class="c1"># dict_keys([&#39;name&#39;, &#39;age&#39;])</span>
+<span class="n">d</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>                   <span class="c1"># dict_values([&#39;Alice&#39;, 25])</span>
+<span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>                    <span class="c1"># dict_items([(&#39;name&#39;, &#39;Alice&#39;), (&#39;age&#39;, 25)])</span>
+
+<span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>                       <span class="c1"># количество пар</span>
+</code></pre></div>
+
+<h3 id="dict-comprehension">Dict Comprehension</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># {ключ: значение for ... if ...}</span>
+<span class="n">squares</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)}</span>
+<span class="c1"># {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}</span>
+
+<span class="c1"># Инверсия</span>
+<span class="n">inverted</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+<span class="c1"># Фильтрация</span>
+<span class="n">adults</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span><span class="p">:</span> <span class="n">a</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">users</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">a</span> <span class="o">&gt;=</span> <span class="mi">18</span><span class="p">}</span>
+
+<span class="c1"># Из двух списков</span>
+<span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
+</code></pre></div>
+
+<h3 id="max-min-key-on">max / min с key — O(n) поиск экстремума</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Самый старший пользователь</span>
+<span class="n">oldest</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="n">u</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">])</span>
+
+<span class="c1"># Игрок с max score</span>
+<span class="n">winner</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">players</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">])</span>
+
+<span class="c1"># Ключ dict с максимальным значением</span>
+<span class="n">top_key</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>              <span class="c1"># O(n) — быстрее sorted</span>
+
+<span class="c1"># Несколько значений по ключу</span>
+<span class="nb">sorted</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="p">(</span><span class="n">u</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">u</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]))</span>  <span class="c1"># сначала age, потом name</span>
+</code></pre></div>
+
+<h3 id="collections">Готовые инструменты из collections</h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">defaultdict</span>
+
+<span class="c1"># Counter — паттерн COUNT в одной строке</span>
+<span class="n">counts</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">users</span><span class="p">)</span>
+<span class="c1"># Counter({&quot;Moscow&quot;: 3, &quot;SPb&quot;: 2})</span>
+<span class="n">counts</span><span class="o">.</span><span class="n">most_common</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>                    <span class="c1"># топ-3</span>
+
+<span class="c1"># defaultdict — паттерн GROUP BY без get(key, 0)</span>
+<span class="n">groups</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">users</span><span class="p">:</span>
+    <span class="n">groups</span><span class="p">[</span><span class="n">u</span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">u</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+
+<span class="n">totals</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">orders</span><span class="p">:</span>
+    <span class="n">totals</span><span class="p">[</span><span class="n">o</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">]]</span> <span class="o">+=</span> <span class="n">o</span><span class="p">[</span><span class="s2">&quot;amount&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+<p>Counter заменяет ручной <code>d.get(k, 0) + 1</code>. defaultdict убирает <code>if key not in d</code> и <code>d.get(k, [])</code>. Используй, когда логика — чистый подсчёт или группировка.</p>
+<hr />
+<h3 id="1-count">ПАТТЕРН 1: COUNT</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Количество элементов, удовлетворяющих условию</span>
+<span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">условие</span><span class="p">)</span>
+
+<span class="c1"># Пример: сколько premium-пользователей</span>
+<span class="n">count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">players</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;premium&quot;</span><span class="p">))</span>
+</code></pre></div>
+
+<h3 id="2-sum">ПАТТЕРН 2: SUM</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Сумма поля с условием</span>
+<span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">условие</span><span class="p">)</span>
+
+<span class="c1"># Пример: суммарные монеты у premium-игроков</span>
+<span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;coins&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">players</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;premium&quot;</span><span class="p">))</span>
+</code></pre></div>
+
+<h3 id="3-filter-dict">ПАТТЕРН 3: FILTER (без dict!)</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Правило: если нет группировки — dict НЕ нужен</span>
+<span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">условие</span><span class="p">]</span>
+
+<span class="c1"># FILTER + SORTED → list[str]</span>
+<span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">условие</span><span class="p">]</span>
+<span class="k">return</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+</code></pre></div>
+
+<h3 id="4-group-by">ПАТТЕРН 4: GROUP BY</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Когда один ключ встречается несколько раз → нужен dict</span>
+<span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;field&quot;</span><span class="p">)</span>
+    <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">value</span>
+
+<span class="c1"># Пример: сколько заказов у каждого пользователя</span>
+<span class="n">orders_per_user</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">orders</span><span class="p">:</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">)</span>
+    <span class="n">orders_per_user</span><span class="p">[</span><span class="n">user</span><span class="p">]</span> <span class="o">=</span> <span class="n">orders_per_user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+</code></pre></div>
+
+<h3 id="5-avg-dict">ПАТТЕРН 5: AVG (всегда два dict)</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">totals</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">counts</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;field&quot;</span><span class="p">)</span>
+    <span class="n">totals</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">totals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">counts</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">totals</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="n">counts</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">totals</span><span class="p">}</span>
+</code></pre></div>
+
+<h3 id="6-top-n">ПАТТЕРН 6: TOP N</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Из dict → топ N ключей по значению</span>
+<span class="n">top</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span><span class="n">N</span><span class="p">]</span>
+<span class="k">return</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">top</span><span class="p">]</span>
+
+<span class="c1"># MAX в dict</span>
+<span class="n">winner</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>   <span class="c1"># O(n) — быстрее sorted</span>
+</code></pre></div>
+
+<h3 id="_3">Ключевое правило</h3>
+<div class="codehilite"><pre><span></span><code>Есть группировка (один ключ встречается несколько раз) → dict
+Нет группировки → FILTER + SORTED без dict
+</code></pre></div>
+
+<hr />
+<h3 id="_4">ВЛОЖЕННЫЕ СТРУКТУРЫ</h3>
+<h4 id="_5">Структура данных</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">orders</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;customer&quot;</span><span class="p">:</span> <span class="s2">&quot;Alice&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;paid&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>                             <span class="c1"># вложенный список</span>
+            <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;Laptop&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">1200</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;Mouse&quot;</span><span class="p">,</span>  <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>   <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+        <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="o">...</span>
+<span class="p">]</span>
+</code></pre></div>
+
+<h4 id="items">Доступ к items</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[])</span>    <span class="c1"># ВСЕГДА через get — защита от KeyError</span>
+</code></pre></div>
+
+<h4 id="any-all">ПАТТЕРН: any() / all() — условие на уровне заказа</h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># any() — ХОТЯ БЫ ОДИН товар дороже 1000</span>
+<span class="n">result</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">order</span> <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">orders</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;price&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1000</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+<span class="p">]</span>
+
+<span class="c1"># all() — ВСЕ товары дешевле 1000</span>
+<span class="n">cheap</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">order</span> <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">orders</span>
+    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;price&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">1000</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+<span class="p">]</span>
+
+<span class="c1"># ❌ ОШИБКА — теряем контекст заказа</span>
+<span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">orders</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">order</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;price&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">]</span>
+</code></pre></div>
+
+<blockquote>
+<p><strong>Слабая точка:</strong> <code>any()</code> / <code>all()</code> работают на уровне <code>order</code>, не <code>item</code>. Генератор внутри — это проверка условия для каждого item.</p>
+</blockquote>
+<p><strong>Особенности на пустых данных:</strong>
+- <code>any([])</code> → <code>False</code> (нет элементов, удовлетворяющих условию)
+- <code>all([])</code> → <code>True</code> (никто не нарушает условие — пустой набор всегда «все»)</p>
+<h4 id="_6">ПАТТЕРН: агрегация по вложенным данным</h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Сумма по одному заказу</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">order_total</span><span class="p">(</span><span class="n">order</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;price&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qty&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+
+<span class="c1"># Выручка по всем оплаченным</span>
+<span class="n">revenue</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">order_total</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">orders</span> <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;paid&quot;</span><span class="p">)</span>
+
+<span class="c1"># Разворачивание (все товары по всем заказам)</span>
+<span class="n">all_items</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">orders</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[])]</span>
+</code></pre></div>
+
+<h4 id="build_report">ПАТТЕРН: build_report</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_report</span><span class="p">(</span><span class="n">orders</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">orders</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="n">paid</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">orders</span> <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;paid&quot;</span><span class="p">]</span>
+    <span class="n">totals</span> <span class="o">=</span> <span class="p">[</span><span class="n">order_total</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">paid</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;total_orders&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">orders</span><span class="p">),</span>
+        <span class="s2">&quot;paid_orders&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">paid</span><span class="p">),</span>
+        <span class="s2">&quot;revenue&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">totals</span><span class="p">),</span>
+        <span class="s2">&quot;avg_order&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">totals</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">totals</span><span class="p">)</span> <span class="k">if</span> <span class="n">totals</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;big_orders&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">orders</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;price&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1000</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="p">],</span>
+    <span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_7">Слабые точки</h2>
+<table>
+<thead>
+<tr>
+<th>Ошибка</th>
+<th>Правило</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sorted(d)</code> вместо <code>sorted(d.items())</code></td>
+<td>Итерация по dict — только через <code>.items()</code></td>
+</tr>
+<tr>
+<td>Создаю dict без GROUP BY</td>
+<td>Если нет группировки — dict не нужен</td>
+</tr>
+<tr>
+<td><code>any()</code> на уровне item вместо order</td>
+<td>Уровень возврата = уровень итерации</td>
+</tr>
+<tr>
+<td>Не защищаю <code>order.get("items", [])</code></td>
+<td>Всегда <code>.get("items", [])</code></td>
+</tr>
+<tr>
+<td>Возвращаю объект вместо поля</td>
+<td>Читать тип ответа до написания кода</td>
+</tr>
+<tr>
+<td>Забываю <code>qty</code> в расчёте суммы</td>
+<td><code>price * item.get("qty", 1)</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<div class="theory-footer"><div class="panel__title">Задачи по этой теме</div><a href="../index.html#/l/m03-p1">P1: COUNT и SUM</a> · <a href="../index.html#/l/m03-p2">P2: FILTER и SORTED</a> · <a href="../index.html#/l/m03-p3">P3: GROUP BY</a> · <a href="../index.html#/l/m03-p4">P4: AVG, TOP N и MAX</a> · <a href="../index.html#/l/m03-p5">P5: вложенные структуры</a></div>
+</main>
+
+</body>
+</html>

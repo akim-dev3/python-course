@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Модуль 4 — Алгоритмы на пальцах — Python-курс</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../pygments.css">
+<link rel="stylesheet" href="../theory.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html#/">Python-курс</a>
+  <span class="crumbs">Теория › Модуль 4 — Алгоритмы на пальцах</span>
+  <a class="btn btn--ghost" href="../index.html#/">К задачам</a>
+</header>
+<main class="wrap theory">
+<h1>Модуль 4 — Алгоритмы на пальцах</h1>
+<p class="muted">Конспект обновлён 2026-06-18</p>
+<h2 id="_1">Зачем эта заметка</h2>
+<p>Обычный конспект Модуля 4 не зашёл — теория повисла в воздухе. Эта заметка — то же самое, но с другой стороны: сначала <strong>зачем оно нужно</strong> на примерах из жизни, потом образ, потом код. Когда станет понятно — пойдёшь в формальный <a href="m4-algo.html">Python — Модуль 4 Алгоритмическое мышление</a> как в справочник.</p>
+<p><strong>Правило:</strong> не двигайся дальше следующего раздела, пока в текущем не сможешь объяснить материал «на пальцах» вслух.</p>
+<hr />
+<h2 id="_2">Зачем это вообще нужно</h2>
+<p>У тебя есть программа, которая работает. Вопрос: будет ли она работать <strong>через год</strong>, когда данных станет в 1000 раз больше?</p>
+<ul>
+<li>Сайт магазина. 100 товаров — быстро. 1 000 000 товаров — за 30 минут открывается. Почему?</li>
+<li>Анализ данных. На 1000 строк — секунда. На миллион — час. Где зашили косяк?</li>
+</ul>
+<p>Ответ почти всегда один: код был написан <strong>без понимания, как он растёт с увеличением данных</strong>. Программист, который этого не понимает — пишет код, который ломается при росте нагрузки.</p>
+<p>Модуль 4 — про <strong>три инструмента</strong>, которые дают это понимание:</p>
+<ol>
+<li><strong>Big O</strong> — язык, чтобы сказать «эта функция при 1М данных работает в 10000 раз быстрее, чем та»</li>
+<li><strong>Рекурсия</strong> — способ написать функцию, которая обходит вложенные структуры неизвестной глубины (каталог папок, дерево комментариев, JSON с подкатегориями)</li>
+<li><strong>Бинарный поиск</strong> — способ найти элемент в большом отсортированном списке не за 1 000 000 шагов, а за 20</li>
+</ol>
+<p>Это не математика ради математики. Это <strong>инструменты практики</strong>, без которых на собеседовании сразу отказывают, а в работе пишешь медленные программы.</p>
+<hr />
+<h1 id="1-big-o">ЧАСТЬ 1 — Big O</h1>
+<h2 id="_3">Образ: поиск ключей в квартире</h2>
+<p>Ты потерял ключи. Сколько времени займёт поиск?</p>
+<p><strong>Сценарий A.</strong> Ты помнишь, что они на столе. Подходишь — берёшь. <strong>1 действие.</strong>
+Сколько бы ни было вещей в квартире — это всегда 1 действие. Это <strong>O(1)</strong> — «константа».</p>
+<p><strong>Сценарий B.</strong> Ты не помнишь где. Идёшь по комнатам и осматриваешь <strong>каждый предмет</strong>. Если предметов 100 — до 100 проверок. Если 10 000 — до 10 000. Время растёт <strong>прямо</strong> с количеством предметов. Это <strong>O(n)</strong> — «линейно».</p>
+<p><strong>Сценарий C.</strong> Ты решил не просто искать ключи, а сравнить <strong>каждый предмет с каждым</strong> на похожесть. 100 предметов → 100 × 100 = 10 000 сравнений. 10 000 предметов → 100 000 000 сравнений. Это <strong>O(n²)</strong> — «квадратично». Очень плохо при росте.</p>
+<p><strong>Сценарий D.</strong> У тебя отсортированный картотека: каждый раз делишь стопку пополам. 1 000 000 карточек → 20 делений (потому что 2²⁰ ≈ 1М). Это <strong>O(log n)</strong> — «логарифмически». Очень хорошо.</p>
+<h2 id="_4">Главное, что нужно понять</h2>
+<p>Big O — это <strong>не точное число операций</strong>. Это <strong>скорость роста</strong> числа операций при увеличении данных.</p>
+<table>
+<thead>
+<tr>
+<th>Запись</th>
+<th>Что значит на пальцах</th>
+<th>На 1 000 000 элементов</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O(1)</td>
+<td>Работает мгновенно, не зависит от размера</td>
+<td>1 шаг</td>
+</tr>
+<tr>
+<td>O(log n)</td>
+<td>Очень быстро, рост почти незаметный</td>
+<td>~20 шагов</td>
+</tr>
+<tr>
+<td>O(n)</td>
+<td>Терпимо. Идём по каждому элементу</td>
+<td>1 000 000 шагов</td>
+</tr>
+<tr>
+<td>O(n log n)</td>
+<td>Норма для сортировки</td>
+<td>~20 000 000 шагов</td>
+</tr>
+<tr>
+<td>O(n²)</td>
+<td>Боль. На больших данных — катастрофа</td>
+<td>1 000 000 000 000 шагов</td>
+</tr>
+</tbody>
+</table>
+<h2 id="big-o">Как читать код на Big O — три правила</h2>
+<p><strong>Правило 1.</strong> Один цикл по списку из n элементов → O(n).</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">:</span>        <span class="c1"># пробежали n раз</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Правило 2.</strong> Цикл внутри цикла по тем же данным → O(n²).</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">:</span>        <span class="c1"># n раз</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">:</span>    <span class="c1"># внутри ещё n раз</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>  <span class="c1"># итого n × n = n²</span>
+</code></pre></div>
+
+<p><strong>Правило 3.</strong> Два цикла <strong>подряд</strong> (не вложенных) → всё равно O(n).</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">:</span>        <span class="c1"># n шагов</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">:</span>        <span class="c1"># ещё n шагов</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="c1"># Итого 2n. Но 2 — это константа, отбрасываем. O(n).</span>
+</code></pre></div>
+
+<p><strong>Слабая точка:</strong> «два цикла подряд» интуитивно кажется как «много», но на самом деле это всё ещё O(n), а не O(n²). Вложенность важна, а не количество циклов.</p>
+<h2 id="set">Почему <code>set</code> — это магия</h2>
+<div class="codehilite"><pre><span></span><code><span class="s2">&quot;яблоко&quot;</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;яблоко&quot;</span><span class="p">,</span> <span class="s2">&quot;груша&quot;</span><span class="p">,</span> <span class="s2">&quot;слива&quot;</span><span class="p">]</span>  <span class="c1"># O(n) — идём по списку</span>
+<span class="s2">&quot;яблоко&quot;</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;яблоко&quot;</span><span class="p">,</span> <span class="s2">&quot;груша&quot;</span><span class="p">,</span> <span class="s2">&quot;слива&quot;</span><span class="p">}</span>  <span class="c1"># O(1) — мгновенно</span>
+</code></pre></div>
+
+<p>Set устроен изнутри как хэш-таблица. Когда ты говоришь <code>x in set</code>, Python не идёт по элементам — он <strong>сразу прыгает в нужную ячейку памяти</strong>. Это всегда одно и то же количество операций, неважно сколько элементов в set: 10 или 10 миллионов.</p>
+<p><strong>Главный практический вывод модуля:</strong></p>
+<blockquote>
+<p>Если в твоём коде есть <code>for ... in list</code> и внутри другой <code>for ... in list</code> — почти всегда можно ускорить, превратив один из списков в <code>set</code>.</p>
+</blockquote>
+<h3 id="_5">Конкретный пример «было/стало»</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># БЫЛО — O(n²): для каждого элемента ищем дубликат по всему списку</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">has_duplicate</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">lst</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">lst</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+<span class="c1"># На 100 000 элементов — несколько минут.</span>
+
+<span class="c1"># СТАЛО — O(n): идём один раз и запоминаем виденные в set</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">has_duplicate</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>    <span class="c1"># O(1) — мгновенная проверка</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">False</span>
+<span class="c1"># На 100 000 элементов — миллисекунды.</span>
+</code></pre></div>
+
+<h2 id="big-o_1">Проверка понимания Big O — на пальцах</h2>
+<p>Прежде чем идти дальше — ответь устно или на бумаге:</p>
+<ol>
+<li>У тебя список из 1 000 000 чисел. Один цикл по нему — сколько шагов?</li>
+<li>У тебя два вложенных цикла по этому списку — сколько шагов?</li>
+<li>Что быстрее на 100 000 элементов: <code>5 in list</code> или <code>5 in set</code>? Во сколько раз?</li>
+<li>Если ты добавил в код <strong>ещё один</strong> цикл (не вложенный, а отдельный) — сложность изменилась с O(n) на O(2n)? На что отбрасываются константы?</li>
+<li>Когда стоит превратить list в set?</li>
+</ol>
+<p>Если на все 5 ответил уверенно — двигайся в Часть 2. Если нет — перечитай эту часть, у тебя пробел в самой базе.</p>
+<hr />
+<h1 id="2">ЧАСТЬ 2 — Рекурсия</h1>
+<h2 id="_6">Главное недоразумение, которое мешает понять</h2>
+<p>Когда говорят «функция вызывает саму себя» — кажется, что одна и та же функция как-то заглядывает внутрь себя. Это неправильная картинка.</p>
+<p><strong>Правильная картинка:</strong> каждый раз, когда ты пишешь имя функции со скобками — Python запускает <strong>новую отдельную копию</strong> этой функции. С нуля. Со своими переменными. С собственным значением <code>n</code>.</p>
+<p>Если функция в своём теле пишет своё имя со скобками — Python запускает ещё одну копию. И ещё. И ещё. Это и есть рекурсия. <strong>Не одна функция, заглядывающая в себя — а много копий одной и той же функции, стоящих друг за другом.</strong></p>
+<p>Запомни эту фразу — она ключевая ко всему остальному:</p>
+<blockquote>
+<p>Каждый вызов = новая копия со своим <code>n</code>. Старая копия в это время <strong>стоит на паузе</strong> на той строке, где запустила новую.</p>
+</blockquote>
+<hr />
+<h2 id="_7">Базовый пример — самый важный в этом разделе</h2>
+<p>Посмотри на код. Разбери его сам, потом сверься с разбором ниже.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">rec_func</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">rec_func</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+<span class="n">rec_func</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Что выведет?</strong> Не угадывай — попробуй проследить.</p>
+<p>. . .</p>
+<p><strong>Ответ:</strong> <code>1 2 3 3 2 1</code></p>
+<p>Почему так — сейчас разберём по шагам.</p>
+<hr />
+<h2 id="_8">Разбор по копиям</h2>
+<p>Запускаем <code>rec_func(1)</code>. Python создаёт <strong>копию №1</strong> функции, в её локальной переменной <code>n = 1</code>.</p>
+<div class="codehilite"><pre><span></span><code>КОПИЯ №1 (n=1):
+    if 1 &lt; 4:        ← да
+        print(1)     ← в консоль выводится &quot;1&quot;
+        rec_func(2)  ← запуск новой копии! Копия №1 ставится на паузу
+                       прямо на этой строке.
+        print(1)     ← НЕ выполняется пока. Дойдём сюда, когда копия №2 завершится.
+</code></pre></div>
+
+<p>Python запустил <code>rec_func(2)</code>. Создаётся <strong>копия №2</strong>, у неё свой <code>n = 2</code>. Копия №1 ждёт.</p>
+<div class="codehilite"><pre><span></span><code>КОПИЯ №2 (n=2):
+    if 2 &lt; 4:        ← да
+        print(2)     ← в консоль выводится &quot;2&quot;
+        rec_func(3)  ← запуск ещё одной копии! Копия №2 ставится на паузу.
+        print(2)     ← подождёт.
+</code></pre></div>
+
+<p>Создаётся <strong>копия №3</strong>, у неё <code>n = 3</code>. Копии №1 и №2 ждут.</p>
+<div class="codehilite"><pre><span></span><code>КОПИЯ №3 (n=3):
+    if 3 &lt; 4:        ← да
+        print(3)     ← в консоль выводится &quot;3&quot;
+        rec_func(4)  ← запуск ещё одной копии! Копия №3 ставится на паузу.
+        print(3)     ← подождёт.
+</code></pre></div>
+
+<p>Создаётся <strong>копия №4</strong>, у неё <code>n = 4</code>.</p>
+<div class="codehilite"><pre><span></span><code>КОПИЯ №4 (n=4):
+    if 4 &lt; 4:        ← НЕТ. В if не заходим.
+                     ← тело функции закончилось. Копия №4 завершается.
+</code></pre></div>
+
+<p><strong>Копия №4 ничего не вывела и закрылась.</strong> Это и есть тот самый «момент остановки» — <strong>базовый случай</strong>. Без него копии создавались бы бесконечно (<code>rec_func(5)</code>, <code>rec_func(6)</code>, ...). А <code>if n &lt; 4</code> поставил предел.</p>
+<p>Теперь начинается <strong>подъём</strong>. Копия №3 ждала на строке <code>rec_func(4)</code>. Эта копия завершилась — значит копия №3 «просыпается» и идёт дальше:</p>
+<div class="codehilite"><pre><span></span><code>КОПИЯ №3 продолжает с того места, где остановилась:
+        print(3)     ← в консоль выводится &quot;3&quot;
+                     ← тело закончилось. Копия №3 завершается.
+</code></pre></div>
+
+<p>Копия №2 ждала на <code>rec_func(3)</code>. Просыпается:</p>
+<div class="codehilite"><pre><span></span><code>КОПИЯ №2 продолжает:
+        print(2)     ← в консоль выводится &quot;2&quot;
+                     ← тело закончилось. Копия №2 завершается.
+</code></pre></div>
+
+<p>Копия №1 ждала на <code>rec_func(2)</code>. Просыпается:</p>
+<div class="codehilite"><pre><span></span><code>КОПИЯ №1 продолжает:
+        print(1)     ← в консоль выводится &quot;1&quot;
+                     ← тело закончилось. Копия №1 завершается.
+</code></pre></div>
+
+<p><strong>Программа закончена.</strong> В консоли по порядку появилось: <code>1 2 3 3 2 1</code>.</p>
+<hr />
+<h2 id="_9">Главные выводы из этого примера</h2>
+<p><strong>1. Спуск и подъём.</strong> В функции с рекурсивным вызовом посередине код делится на две части:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">rec_func</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>           <span class="c1"># ← СПУСК: выполняется ДО создания новой копии</span>
+        <span class="n">rec_func</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>           <span class="c1"># ← ПОДЪЁМ: выполняется ПОСЛЕ возврата из копии</span>
+</code></pre></div>
+
+<p>Спуск идёт <strong>сверху вниз</strong> по копиям: №1 → №2 → №3. Подъём идёт <strong>снизу вверх</strong>: №3 → №2 → №1. Поэтому вывод симметричный: на спуске <code>1 2 3</code>, на подъёме <code>3 2 1</code>.</p>
+<p>Если уберёшь <code>print</code> до вызова — увидишь только подъём: <code>3 2 1</code>.
+Если уберёшь <code>print</code> после вызова — увидишь только спуск: <code>1 2 3</code>.</p>
+<p><strong>2. У каждой копии — своя локальная <code>n</code>.</strong> Когда копия №1 на подъёме делает <code>print(n)</code> — она печатает <strong>свою</strong> <code>n = 1</code>, а не последнюю. Старые копии никуда не делись, они просто стояли на паузе.</p>
+<p><strong>3. Условие в <code>if</code> — это тормоз.</strong> Без него копии плодились бы вечно и Python бы упал. Это «дно», в которое упирается рекурсия.</p>
+<hr />
+<h2 id="_10">Терминология (теперь, когда уже понятно)</h2>
+<p>То, что мы только что сделали, формально называется так:</p>
+<ul>
+<li><strong>Базовый случай (база)</strong> — условие, при котором функция <strong>НЕ запускает новую копию себя</strong>. В нашем примере это «<code>n &lt; 4</code> ложно» — тогда в if не заходим и копия просто закрывается.</li>
+<li><strong>Рекурсивный шаг</strong> — место, где функция вызывает саму себя с <strong>другим</strong> аргументом (обычно ближе к базе). В нашем примере: <code>rec_func(n + 1)</code> — каждая копия передаёт следующей <code>n</code> больше на единицу.</li>
+</ul>
+<p><strong>Правило:</strong> в каждой рекурсивной функции должны быть обе вещи. База — иначе бесконечные копии. Шаг к базе — иначе ты до базы никогда не дойдёшь.</p>
+<hr />
+<h2 id="no1">Усложнение №1 — функция возвращает значение</h2>
+<p>До сих пор копии просто печатали в консоль. А если копия должна <strong>вернуть число</strong>?</p>
+<p>Пример: посчитать сумму чисел от 1 до n.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summa</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>               <span class="c1"># БАЗА: сумма от 1 до 0 это просто 0</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">n</span> <span class="o">+</span> <span class="n">summa</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># ШАГ: n + сумма от 1 до n-1</span>
+</code></pre></div>
+
+<p>Разбор <code>summa(3)</code>:</p>
+<div class="codehilite"><pre><span></span><code>КОПИЯ №1 (n=3):
+    return 3 + summa(2)
+    ↑ чтобы вернуть результат, нужно дождаться, что вернёт копия №2.
+      Копия №1 стоит на паузе.
+
+    КОПИЯ №2 (n=2):
+        return 2 + summa(1)
+        ↑ ждём копию №3.
+
+        КОПИЯ №3 (n=1):
+            return 1 + summa(0)
+            ↑ ждём копию №4.
+
+            КОПИЯ №4 (n=0):
+                return 0                ← БАЗА. Возвращает 0 в копию №3.
+
+        КОПИЯ №3 получает 0:
+            return 1 + 0 = 1            ← возвращает 1 в копию №2.
+
+    КОПИЯ №2 получает 1:
+        return 2 + 1 = 3                ← возвращает 3 в копию №1.
+
+КОПИЯ №1 получает 3:
+    return 3 + 3 = 6                    ← это окончательный ответ.
+</code></pre></div>
+
+<p><strong>Главное в этом примере:</strong> строчка <code>return n + summa(n - 1)</code> означает «верни сумму этого <code>n</code> и того, что вернёт меньшая копия». Ты доверяешь, что копия <code>summa(n-1)</code> правильно посчитает свою часть. <strong>Тебе не нужно думать «а как именно она это сделает»</strong> — она такая же функция, ты её и пишешь. Ты просто веришь.</p>
+<p>Это и называется «акт веры» в рекурсии. Когда внутри функции ты пишешь вызов самой себя — относись к нему как к чёрному ящику, который вернёт правильный ответ для меньшей задачи. Без этой веры рекурсию не написать — мозг будет пытаться развернуть все вызовы у себя в голове и сломается.</p>
+<hr />
+<h2 id="no2">Усложнение №2 — данные сами вложенные</h2>
+<p>Иногда рекурсия — единственный удобный способ, потому что <strong>данные сами по себе рекурсивны</strong>. Каждый узел дерева содержит такие же узлы.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">employees</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;CEO&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;children&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;CTO&quot;</span><span class="p">,</span> <span class="s2">&quot;children&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dev1&quot;</span><span class="p">,</span> <span class="s2">&quot;children&quot;</span><span class="p">:</span> <span class="p">[]},</span>
+            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dev2&quot;</span><span class="p">,</span> <span class="s2">&quot;children&quot;</span><span class="p">:</span> <span class="p">[]},</span>
+        <span class="p">]},</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;CFO&quot;</span><span class="p">,</span> <span class="s2">&quot;children&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Acc1&quot;</span><span class="p">,</span> <span class="s2">&quot;children&quot;</span><span class="p">:</span> <span class="p">[]},</span>
+        <span class="p">]},</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Сколько уровней? 3. А могло бы быть 10 или 100. Циклом ты не знаешь сколько <code>for</code> вкладывать. Рекурсия — знает:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">count</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="mi">1</span>                       <span class="c1"># сам этот человек</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;children&quot;</span><span class="p">]:</span>
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">count</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>       <span class="c1"># доверяем: count посчитает поддерево</span>
+    <span class="k">return</span> <span class="n">total</span>
+
+<span class="n">count</span><span class="p">(</span><span class="n">employees</span><span class="p">)</span>  <span class="c1"># 6</span>
+</code></pre></div>
+
+<p>База здесь спрятана: если <code>children</code> пустой — цикл <code>for</code> просто не выполнится, и функция вернёт 1 (только сам узел). Никакой новой копии не создаётся — рекурсия останавливается естественно.</p>
+<hr />
+<h2 id="_11">Главные две ловушки</h2>
+<h3 id="no1_1">Ловушка №1 — забыть базу</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">factorial</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">n</span> <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>   <span class="c1"># нет условия выхода</span>
+</code></pre></div>
+
+<p>Копии создаются бесконечно. Через ~1000 копий Python обрывает программу: <code>RecursionError: maximum recursion depth exceeded</code>.</p>
+<p><strong>Лечение:</strong> <strong>первой строкой</strong> функции всегда пиши <code>if &lt;база&gt;: return &lt;готовый ответ&gt;</code>. Только потом — рекурсивный вызов.</p>
+<h3 id="no2_1">Ловушка №2 — шаг не приближает к базе</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">bad</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">bad</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>       <span class="c1"># вызов с тем же n — копии плодятся с одинаковым n</span>
+</code></pre></div>
+
+<p>База есть, но мы к ней никогда не придём — <code>n</code> не меняется.</p>
+<p><strong>Лечение:</strong> в рекурсивном вызове аргумент должен быть <strong>ближе к базе</strong>, чем у текущей копии. Чаще всего: <code>n - 1</code>, <code>n // 10</code>, <code>s[1:]</code>, <code>node["children"]</code>.</p>
+<hr />
+<h2 id="_12">Проверка понимания</h2>
+<p>Закрой страницу. Ответь устно или на бумаге:</p>
+<ol>
+<li>Что такое «новая копия функции», и почему важно думать о вызовах именно так?</li>
+<li>В примере <code>rec_func</code> — почему вывод <strong><code>1 2 3 3 2 1</code></strong>, а не <code>1 2 3</code> или <code>3 2 1</code>?</li>
+<li>Если в <code>rec_func</code> оставить <strong>только</strong> <code>print(n)</code> ПОСЛЕ рекурсивного вызова — что выведет программа? Почему?</li>
+<li>Что обязательно должно быть в рекурсивной функции, чтобы она не зациклилась?</li>
+<li>Что такое «акт веры» при написании <code>return n + summa(n - 1)</code>?</li>
+<li>Почему обход дерева сотрудников рекурсивно естественнее, чем циклом?</li>
+</ol>
+<p>Если хоть на один не ответил уверенно — перечитай раздел с того места, где запнулся. Это база, без неё дальше не имеет смысла.</p>
+<hr />
+<h1 id="3">ЧАСТЬ 3 — Бинарный поиск</h1>
+<h2 id="_13">Образ: игра «угадай число»</h2>
+<p>Я загадал число от 1 до 100. Ты угадываешь, я говорю «больше» или «меньше».</p>
+<p><strong>Глупая стратегия:</strong> называть 1, 2, 3, 4... В худшем случае — 100 попыток.</p>
+<p><strong>Умная стратегия:</strong> называть всегда <strong>середину</strong> оставшегося диапазона.
+- Назвал 50. «Больше» → теперь ищу в 51-100
+- Назвал 75. «Меньше» → теперь ищу в 51-74
+- Назвал 62. «Больше» → теперь ищу в 63-74
+- ...</p>
+<p>Каждый раз диапазон <strong>сокращается вдвое</strong>. Из 100 чисел дойдёшь до ответа за <strong>7 попыток</strong> (потому что 2⁷ = 128 ≥ 100). Из 1 000 000 — за 20.</p>
+<p>Это и есть бинарный поиск.</p>
+<h2 id="_14">Главное условие, без которого не работает</h2>
+<p><strong>Список должен быть отсортирован.</strong></p>
+<p>Если список не отсортирован — стратегия «делить пополам» не работает, потому что нельзя сказать «искомое — слева или справа от середины».</p>
+<h2 id="_15">Алгоритм пошагово</h2>
+<p>Есть отсортированный список и нужно найти <code>target</code>.</p>
+<div class="codehilite"><pre><span></span><code>1. Установи две границы: left = 0, right = последний индекс
+2. Пока left &lt;= right:
+   - Найди середину: mid = (left + right) // 2
+   - Если lst[mid] == target — нашли, вернуть mid
+   - Если lst[mid] &lt; target — искомое правее, сдвинь left = mid + 1
+   - Если lst[mid] &gt; target — искомое левее, сдвинь right = mid - 1
+3. Если вышли из цикла — нет такого элемента, вернуть -1
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">binary_search</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="n">left</span> <span class="o">&lt;=</span> <span class="n">right</span><span class="p">:</span>
+        <span class="n">mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">left</span> <span class="o">+</span> <span class="n">right</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="n">lst</span><span class="p">[</span><span class="n">mid</span><span class="p">]</span> <span class="o">==</span> <span class="n">target</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">mid</span>
+        <span class="k">elif</span> <span class="n">lst</span><span class="p">[</span><span class="n">mid</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">target</span><span class="p">:</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">+</span> <span class="mi">1</span>       <span class="c1"># target правее середины</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">-</span> <span class="mi">1</span>      <span class="c1"># target левее середины</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+</code></pre></div>
+
+<h2 id="_16">Прогон на примере</h2>
+<p><code>binary_search([1, 3, 5, 7, 9, 12, 15, 18, 21, 24, 27, 30], 21)</code></p>
+<table>
+<thead>
+<tr>
+<th>Шаг</th>
+<th>left</th>
+<th>right</th>
+<th>mid</th>
+<th>lst[mid]</th>
+<th>Действие</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>11</td>
+<td>5</td>
+<td>12</td>
+<td>12 &lt; 21 → ищем правее, left = 6</td>
+</tr>
+<tr>
+<td>2</td>
+<td>6</td>
+<td>11</td>
+<td>8</td>
+<td>21</td>
+<td>равно! → return 8</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Два шага вместо 12.</strong> На массиве из миллиона — было бы 20 шагов вместо миллиона.</p>
+<h2 id="_17">Когда применять — узнать признаки</h2>
+<p>Бинарный поиск можно применить <strong>только когда</strong>:
+1. Данные отсортированы (по ключу, по которому ищешь)
+2. Есть прямой доступ к элементу по индексу (то есть это <code>list</code>, а не linked list или dict)</p>
+<p>В Python это обычно отсортированный <code>list</code> чисел, строк, или список словарей, отсортированных по одному полю.</p>
+<h2 id="_18">Проверка понимания бинарного поиска</h2>
+<ol>
+<li>Почему обязательно нужен отсортированный список?</li>
+<li>Что вернёт <code>binary_search([1, 3, 5, 7], 4)</code>?</li>
+<li>Сколько шагов в худшем случае на массиве из 1024 элементов? А из 1 000 000?</li>
+<li>Что делать, если <code>left &gt; right</code>?</li>
+<li>Что значит строка <code>mid = (left + right) // 2</code>?</li>
+</ol>
+<hr />
+<h1 id="_19">Связка трёх тем</h1>
+<p>Эти три инструмента работают вместе:</p>
+<ul>
+<li><strong>Big O</strong> — даёт язык, чтобы сказать «бинарный поиск это O(log n), а линейный — O(n)»</li>
+<li><strong>Бинарный поиск</strong> — конкретный пример того, как алгоритм работает за O(log n)</li>
+<li><strong>Рекурсия</strong> — структурный приём, который часто даёт O(n) обход вложенных данных</li>
+</ul>
+<p>Понял рекурсию — поймёшь, почему <code>flatten</code>/<code>count_nested</code> работают именно так. Понял Big O — поймёшь, зачем <code>set</code> лучше <code>list</code> для поиска. Понял бинарный поиск — понял, почему отсортированные данные настолько ценнее.</p>
+<hr />
+<h1 id="_20">Что делать дальше</h1>
+<ol>
+<li>Прочитай эту заметку <strong>целиком</strong> один раз</li>
+<li>Закрой и ответь себе на все вопросы из «Проверки понимания» в каждой части — устно или на бумаге</li>
+<li>Где запнулся — перечитай <strong>только этот раздел</strong></li>
+<li>Открой <code>python_course/drills/04_algo/</code>:
+   - <code>algo_reference.py</code> — посмотри, это просто конспект кодом
+   - <code>p1_complexity.py</code> — задачи на Big O
+   - <code>p2_recursion.py</code> — задачи на рекурсию
+   - <code>p3_search.py</code> — задачи на бинарный поиск</li>
+<li>Решай <strong>по одной задаче за раз</strong>, не подсматривая в ответы</li>
+<li>Если задача не идёт — возвращайся в эту заметку к соответствующей части</li>
+<li>Когда все дриллы решены — открой формальный <a href="m4-algo.html">Python — Модуль 4 Алгоритмическое мышление</a> и теперь он будет читаться как справочник, а не как абракадабра</li>
+</ol>
+<hr />
+<div class="theory-footer"><div class="panel__title">Задачи по этой теме</div><a href="../index.html#/l/m04-p1">P1: сложность алгоритмов (Big O)</a> · <a href="../index.html#/l/m04-p2">P2: рекурсия</a> · <a href="../index.html#/l/m04-p3">P3: линейный и бинарный поиск</a></div>
+</main>
+
+</body>
+</html>

@@ -473,21 +473,30 @@ def parse_check_file(path, lesson):
 # Линтер приватности
 # ---------------------------------------------------------------------------
 
+# «Слабые точки» намеренно НЕ в списке: так называется легитимный раздел
+# учебных конспектов про типичные ошибки в dict-паттернах. Личное — это
+# таблица провалов студента с датами, а она живёт в CLAUDE.md и в .gitignore.
 LINT_PATTERNS = {
     "путь в личное хранилище": r"Brain[_/]|Второй мозг|Ежедневн|Синтез —|Проекты/|Области/",
-    "личные маркеры": r"выгоран|дневник|\bELO\b|тревог|прокраст|слаб(ая|ые|ых) точ",
-    "контакты": r"akimowilj|@outlook|@gmail",
+    "личные маркеры": r"выгоран|дневник|\bELO\b|тревожн|прокрастин",
+    "контакты": r"akimowilj|@outlook|@gmail|skrem",
     "дата-провала": r"\b[0-3][0-9]\.[01][0-9]\.20[0-9]{2}\b",
 }
 
 
-def lint(payload):
-    blob = json.dumps(payload, ensure_ascii=False)
+def lint(payload, docs_dir):
+    """Проверяем и content.json, и страницы теории — они публикуются отдельно."""
+    sources = [("content.json", json.dumps(payload, ensure_ascii=False))]
+    for page in sorted((docs_dir / "theory").glob("*.html")):
+        sources.append((page.name, page.read_text(encoding="utf-8")))
+
     hits = []
-    for label, pat in LINT_PATTERNS.items():
-        for m in re.finditer(pat, blob, re.IGNORECASE):
-            ctx = blob[max(0, m.start() - 60): m.end() + 60].replace("\\n", " ")
-            hits.append(f"  [{label}] …{ctx}…")
+    for where, blob in sources:
+        for label, pat in LINT_PATTERNS.items():
+            for m in re.finditer(pat, blob, re.IGNORECASE):
+                ctx = blob[max(0, m.start() - 70): m.end() + 70]
+                ctx = re.sub(r"\s+", " ", ctx.replace("\\n", " "))
+                hits.append(f"  [{label}] {where}: …{ctx}…")
     return hits
 
 
@@ -512,17 +521,31 @@ def main():
         total += len(lesson["tasks"])
         solved += sum(t["solved_in_repo"] for t in lesson["tasks"])
 
+    # Теория собирается после уроков: страницам нужен список задач модуля,
+    # чтобы поставить в футер ссылки «задачи по этой теме».
+    try:
+        import build_theory
+        theory = build_theory.build(DOCS, lessons)
+    except ImportError as e:
+        print(f"ВНИМАНИЕ: теория не собрана ({e}). pip install markdown")
+        theory = []
+
+    by_module = {}
+    for t in theory:
+        for mid in t["modules"]:
+            by_module.setdefault(mid, []).append(t["id"])
+
     modules = []
     for m in MODULES:
         ids = [l["id"] for l in lessons if l["module"] == m["id"]]
-        modules.append({**m, "lessons": ids, "theory": []})
+        modules.append({**m, "lessons": ids, "theory": by_module.get(m["id"], [])})
 
     payload = {
         "schema": 1,
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "runtime": RUNTIME,
         "modules": modules,
-        "theory": [],
+        "theory": theory,
         "lessons": lessons,
     }
 
@@ -545,7 +568,7 @@ def main():
               f"{total} задач, {solved} решено")
 
     if args.lint:
-        hits = lint(payload)
+        hits = lint(payload, DOCS)
         print("\nЛинтер приватности:", "чисто" if not hits else f"{len(hits)} срабатываний")
         for h in hits[:20]:
             print(h)

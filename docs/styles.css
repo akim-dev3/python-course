@@ -171,6 +171,41 @@ h2 { font-size: 17px; margin: 28px 0 12px; }
 
 .lessons { display: grid; gap: 8px; margin-top: 14px; }
 
+/* ссылки на теорию */
+
+.theory-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.theory-row__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--overlay1);
+}
+.theory-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--mantle);
+  border: 1px solid var(--surface1);
+  color: var(--subtext1);
+  text-decoration: none;
+}
+.theory-link:hover {
+  border-color: var(--mauve);
+  color: var(--lavender);
+  text-decoration: none;
+}
+.theory-link__icon { color: var(--mauve); font-size: 11px; }
+
 .lesson-row {
   display: flex;
   align-items: center;

@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generated_at": "2026-09-13T19:58:23+00:00",
+ "generated_at": "2026-09-14T05:44:16+00:00",
  "runtime": {
   "pyodide_version": "314.0.6",
   "index_url": "https://cdn.jsdelivr.net/pyodide/v314.0.6/full/",
@@ -25,7 +25,10 @@
    "lessons": [
     "diag"
    ],
-   "theory": []
+   "theory": [
+    "m1-basics",
+    "m2-collections"
+   ]
   },
   {
    "id": "m03",
@@ -38,7 +41,11 @@
     "m03-p4",
     "m03-p5"
    ],
-   "theory": []
+   "theory": [
+    "m3-dict",
+    "m3-pitfalls",
+    "ref-dict"
+   ]
   },
   {
    "id": "m04",
@@ -49,7 +56,11 @@
     "m04-p2",
     "m04-p3"
    ],
-   "theory": []
+   "theory": [
+    "m4-algo",
+    "m4-algo-plain",
+    "ref-algo"
+   ]
   },
   {
    "id": "m05",
@@ -61,7 +72,9 @@
     "m05-p2",
     "m05-p3"
    ],
-   "theory": []
+   "theory": [
+    "m5-two-pointers"
+   ]
   },
   {
    "id": "m06",
@@ -73,10 +86,123 @@
     "m06-p3",
     "m06-p4"
    ],
-   "theory": []
+   "theory": [
+    "ref-ds"
+   ]
   }
  ],
- "theory": [],
+ "theory": [
+  {
+   "id": "m1-basics",
+   "title": "Модуль 1 — База Python",
+   "href": "theory/m1-basics.html",
+   "kind": "note",
+   "modules": [
+    "diag"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  },
+  {
+   "id": "m2-collections",
+   "title": "Модуль 2 — Коллекции",
+   "href": "theory/m2-collections.html",
+   "kind": "note",
+   "modules": [
+    "diag"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  },
+  {
+   "id": "m3-dict",
+   "title": "Модуль 3 — Dict и агрегации",
+   "href": "theory/m3-dict.html",
+   "kind": "note",
+   "modules": [
+    "m03"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  },
+  {
+   "id": "m3-pitfalls",
+   "title": "Частые ошибки в dict-паттернах",
+   "href": "theory/m3-pitfalls.html",
+   "kind": "note",
+   "modules": [
+    "m03"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  },
+  {
+   "id": "m4-algo",
+   "title": "Модуль 4 — Алгоритмическое мышление",
+   "href": "theory/m4-algo.html",
+   "kind": "note",
+   "modules": [
+    "m04"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  },
+  {
+   "id": "m4-algo-plain",
+   "title": "Модуль 4 — Алгоритмы на пальцах",
+   "href": "theory/m4-algo-plain.html",
+   "kind": "note",
+   "modules": [
+    "m04"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  },
+  {
+   "id": "m5-two-pointers",
+   "title": "Модуль 5 — Two Pointers и Sliding Window на пальцах",
+   "href": "theory/m5-two-pointers.html",
+   "kind": "note",
+   "modules": [
+    "m05"
+   ],
+   "images": 6,
+   "has_mermaid": true
+  },
+  {
+   "id": "ref-dict",
+   "title": "Шпаргалка — dict-паттерны",
+   "href": "theory/ref-dict.html",
+   "kind": "reference",
+   "modules": [
+    "m03"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  },
+  {
+   "id": "ref-algo",
+   "title": "Шпаргалка — Big O, рекурсия, бинарный поиск",
+   "href": "theory/ref-algo.html",
+   "kind": "reference",
+   "modules": [
+    "m04"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  },
+  {
+   "id": "ref-ds",
+   "title": "Шпаргалка — структуры данных",
+   "href": "theory/ref-ds.html",
+   "kind": "reference",
+   "modules": [
+    "m06"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  }
+ ],
  "lessons": [
   {
    "id": "diag",

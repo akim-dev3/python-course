@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Модуль 1 — База Python — Python-курс</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../pygments.css">
+<link rel="stylesheet" href="../theory.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html#/">Python-курс</a>
+  <span class="crumbs">Теория › Модуль 1 — База Python</span>
+  <a class="btn btn--ghost" href="../index.html#/">К задачам</a>
+</header>
+<main class="wrap theory">
+<h1>Модуль 1 — База Python</h1>
+<p class="muted">Конспект обновлён 2026-06-09</p>
+<h2 id="_1">Суть</h2>
+<p>Базовые конструкции Python: переменные, условия, циклы, функции. Полностью закрыто к 23.05.</p>
+<hr />
+<h2 id="_2">Детали</h2>
+<h3 id="_3">Переменные и типы данных</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">x</span> <span class="o">=</span> <span class="mi">42</span>          <span class="c1"># int</span>
+<span class="n">price</span> <span class="o">=</span> <span class="mf">3.14</span>    <span class="c1"># float</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Alice&quot;</span>  <span class="c1"># str</span>
+<span class="n">active</span> <span class="o">=</span> <span class="kc">True</span>   <span class="c1"># bool</span>
+<span class="n">empty</span> <span class="o">=</span> <span class="kc">None</span>    <span class="c1"># NoneType</span>
+
+<span class="c1"># Проверка типа</span>
+<span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>         <span class="c1"># &lt;class &#39;int&#39;&gt;</span>
+<span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>  <span class="c1"># True</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Тип</th>
+<th>Пример</th>
+<th>Mutable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int</code></td>
+<td><code>42</code>, <code>-7</code></td>
+<td>нет</td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>3.14</code>, <code>-0.5</code></td>
+<td>нет</td>
+</tr>
+<tr>
+<td><code>str</code></td>
+<td><code>"hello"</code></td>
+<td>нет</td>
+</tr>
+<tr>
+<td><code>bool</code></td>
+<td><code>True</code>, <code>False</code></td>
+<td>нет</td>
+</tr>
+<tr>
+<td><code>None</code></td>
+<td><code>None</code></td>
+<td>нет</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">Операторы</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Арифметика</span>
+<span class="mi">10</span> <span class="o">//</span> <span class="mi">3</span>   <span class="c1"># 3  — целочисленное деление</span>
+<span class="mi">10</span> <span class="o">%</span> <span class="mi">3</span>    <span class="c1"># 1  — остаток от деления</span>
+<span class="mi">2</span> <span class="o">**</span> <span class="mi">8</span>    <span class="c1"># 256 — степень</span>
+
+<span class="c1"># Сравнение</span>
+<span class="n">x</span> <span class="o">==</span> <span class="n">y</span>    <span class="c1"># равно</span>
+<span class="n">x</span> <span class="o">!=</span> <span class="n">y</span>    <span class="c1"># не равно</span>
+<span class="n">x</span> <span class="o">&gt;=</span> <span class="n">y</span>    <span class="c1"># больше или равно</span>
+
+<span class="c1"># Логические</span>
+<span class="n">a</span> <span class="ow">and</span> <span class="n">b</span>   <span class="c1"># оба True</span>
+<span class="n">a</span> <span class="ow">or</span> <span class="n">b</span>    <span class="c1"># хотя бы одно True</span>
+<span class="ow">not</span> <span class="n">a</span>     <span class="c1"># инверсия</span>
+</code></pre></div>
+
+<h3 id="_5">Условия</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">if</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="mi">90</span><span class="p">:</span>
+    <span class="n">grade</span> <span class="o">=</span> <span class="s2">&quot;A&quot;</span>
+<span class="k">elif</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="mi">70</span><span class="p">:</span>
+    <span class="n">grade</span> <span class="o">=</span> <span class="s2">&quot;B&quot;</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">grade</span> <span class="o">=</span> <span class="s2">&quot;C&quot;</span>
+
+<span class="c1"># Тернарный оператор</span>
+<span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span> <span class="k">if</span> <span class="n">condition</span> <span class="k">else</span> <span class="s2">&quot;no&quot;</span>
+</code></pre></div>
+
+<h3 id="_6">Циклы</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># for по списку</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+<span class="c1"># for по диапазону</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>       <span class="c1"># 0, 1, 2, 3, 4</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>  <span class="c1"># 2, 4, 6, 8</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+<span class="c1"># while</span>
+<span class="k">while</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">x</span> <span class="o">-=</span> <span class="mi">1</span>
+
+<span class="c1"># Управление</span>
+<span class="k">break</span>       <span class="c1"># выход из цикла</span>
+<span class="k">continue</span>    <span class="c1"># пропустить итерацию</span>
+
+<span class="c1"># enumerate — индекс + значение</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="_7">Функции</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Базовое определение</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">greet</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Hello, </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">!&quot;</span>
+
+<span class="c1"># Значения по умолчанию</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">power</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">exp</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">base</span> <span class="o">**</span> <span class="n">exp</span>
+
+<span class="c1"># Несколько возвращаемых значений (кортеж)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">min_max</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">lst</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span>
+
+<span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">min_max</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>   <span class="c1"># распаковка</span>
+
+<span class="c1"># Именованные аргументы (kwargs при вызове)</span>
+<span class="n">power</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">exp</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>            <span class="c1"># 81 — порядок не важен</span>
+
+<span class="c1"># *args — переменное число позиционных</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">total</span><span class="p">(</span><span class="o">*</span><span class="n">nums</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span>
+<span class="n">total</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>                <span class="c1"># 10</span>
+
+<span class="c1"># **kwargs — переменное число именованных</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">fields</span>                <span class="c1"># dict</span>
+<span class="n">build</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Alice&quot;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>      <span class="c1"># {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 25}</span>
+
+<span class="c1"># lambda — анонимная функция (одна строка)</span>
+<span class="n">square</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="nb">sorted</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="n">u</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">])</span>
+</code></pre></div>
+
+<h3 id="scope">Scope — область видимости</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">x</span> <span class="o">=</span> <span class="mi">10</span>                  <span class="c1"># global</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">outer</span><span class="p">():</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">5</span>               <span class="c1"># local для outer</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">inner</span><span class="p">():</span>
+        <span class="k">nonlocal</span> <span class="n">y</span>      <span class="c1"># доступ к y из outer</span>
+        <span class="n">y</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">inner</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">change</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">x</span>            <span class="c1"># доступ к x вне функции</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="mi">99</span>
+</code></pre></div>
+
+<p>Внутри функции переменная — local по умолчанию. Чтобы изменить внешнюю — <code>global</code> (модуль) или <code>nonlocal</code> (вложенная функция).</p>
+<h3 id="f-">f-строки</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Alice&quot;</span>
+<span class="n">age</span> <span class="o">=</span> <span class="mi">25</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">age</span><span class="si">}</span><span class="s2"> years old&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Score: </span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>    <span class="c1"># 2 знака после запятой</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>              <span class="c1"># 1,000,000 — разделители тысяч</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">&gt;10</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>            <span class="c1"># выравнивание справа в 10 символов</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">0&gt;3</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>            <span class="c1"># 007 — заполнение нулями</span>
+</code></pre></div>
+
+<h3 id="-">Ввод-вывод</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">name</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Имя: &quot;</span><span class="p">)</span>            <span class="c1"># всегда str</span>
+<span class="n">age</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Возраст: &quot;</span><span class="p">))</span>    <span class="c1"># явное приведение типа</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">)</span>             <span class="c1"># a b c — sep=&quot; &quot; по умолчанию</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>        <span class="c1"># a, b</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;no newline&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>      <span class="c1"># без \n в конце</span>
+</code></pre></div>
+
+<h3 id="_8">Обработка исключений</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">try</span><span class="p">:</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Число: &quot;</span><span class="p">))</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">/</span> <span class="n">n</span>
+<span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Не число&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Деление на ноль&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ошибка: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Без ошибок&quot;</span><span class="p">)</span>          <span class="c1"># если try прошёл</span>
+<span class="k">finally</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Выполнится всегда&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Базовые исключения: <code>ValueError</code>, <code>TypeError</code>, <code>KeyError</code>, <code>IndexError</code>, <code>ZeroDivisionError</code>, <code>FileNotFoundError</code>.</p>
+<h3 id="match-case-python-310">match / case (Python 3.10+)</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">http_status</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+    <span class="k">match</span> <span class="n">code</span><span class="p">:</span>
+        <span class="k">case</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;OK&quot;</span>
+        <span class="k">case</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;Not Found&quot;</span>
+        <span class="k">case</span> <span class="mi">500</span> <span class="o">|</span> <span class="mi">502</span> <span class="o">|</span> <span class="mi">503</span><span class="p">:</span>    <span class="c1"># несколько значений</span>
+            <span class="k">return</span> <span class="s2">&quot;Server Error&quot;</span>
+        <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>                   <span class="c1"># default</span>
+            <span class="k">return</span> <span class="s2">&quot;Unknown&quot;</span>
+</code></pre></div>
+
+<p>Замена длинных <code>if/elif/elif</code>. Поддерживает распаковку структур (паттерн-матчинг).</p>
+<h3 id="_9">Импорты</h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>                    <span class="c1"># 4.0</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">pi</span>
+<span class="n">sqrt</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span> <span class="k">as</span> <span class="n">C</span>
+</code></pre></div>
+
+<h3 id="_10">Строки — ключевые методы</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Hello, World!&quot;</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>           <span class="c1"># &quot;hello, world!&quot;</span>
+<span class="n">s</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>           <span class="c1"># &quot;HELLO, WORLD!&quot;</span>
+<span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>           <span class="c1"># убрать пробелы по краям</span>
+<span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>       <span class="c1"># [&quot;Hello&quot;, &quot;World!&quot;]</span>
+<span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="s2">&quot;b&quot;</span><span class="p">,</span><span class="s2">&quot;c&quot;</span><span class="p">])</span>  <span class="c1"># &quot;a, b, c&quot;</span>
+<span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span> <span class="c1"># &quot;Hell0, W0rld!&quot;</span>
+<span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;He&quot;</span><span class="p">)</span>  <span class="c1"># True</span>
+<span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;l&quot;</span><span class="p">)</span>        <span class="c1"># 3</span>
+<span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>              <span class="c1"># 13</span>
+<span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>                <span class="c1"># &quot;H&quot;</span>
+<span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>               <span class="c1"># &quot;!&quot;</span>
+<span class="n">s</span><span class="p">[</span><span class="mi">7</span><span class="p">:</span><span class="mi">12</span><span class="p">]</span>             <span class="c1"># &quot;World&quot;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_11">Примеры</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Функция с условием и циклом</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">categorize_scores</span><span class="p">(</span><span class="n">scores</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">scores</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="mi">90</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="mi">70</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_12">Слабые точки</h2>
+<ul>
+<li>Приоритет операторов <code>and</code>/<code>or</code>: <code>a or b and c</code> = <code>a or (b and c)</code></li>
+<li><code>=</code> присваивание, <code>==</code> сравнение</li>
+<li><code>range(n)</code> → от 0 до n-1 (n не включается)</li>
+<li>f-строки: <code>f"{val:.2f}"</code> — форматирование числа</li>
+</ul>
+<hr />
+<div class="theory-footer"><div class="panel__title">Задачи по этой теме</div><a href="../index.html#/l/diag">Диагностика после паузы</a></div>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Шпаргалка — dict-паттерны — Python-курс</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../pygments.css">
+<link rel="stylesheet" href="../theory.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html#/">Python-курс</a>
+  <span class="crumbs">Теория › Шпаргалка — dict-паттерны</span>
+  <a class="btn btn--ghost" href="../index.html#/">К задачам</a>
+</header>
+<main class="wrap theory">
+<h1>Шпаргалка — dict-паттерны</h1>
+
+<p class="muted">Файл курса <code>patterns/dict_patterns.py</code> — открывается и запускается локально.</p><div class="codehilite"><pre><span></span><span class="c1"># ============================================================</span>
+<span class="c1"># DICT PATTERNS — шпаргалка (читать перед задачей, не во время)</span>
+<span class="c1"># ============================================================</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Ivan&quot;</span><span class="p">,</span> <span class="s2">&quot;city&quot;</span><span class="p">:</span> <span class="s2">&quot;Moscow&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span> <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Anna&quot;</span><span class="p">,</span> <span class="s2">&quot;city&quot;</span><span class="p">:</span> <span class="s2">&quot;Moscow&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">92</span><span class="p">,</span> <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Oleg&quot;</span><span class="p">,</span> <span class="s2">&quot;city&quot;</span><span class="p">:</span> <span class="s2">&quot;Kazan&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Mila&quot;</span><span class="p">,</span> <span class="s2">&quot;city&quot;</span><span class="p">:</span> <span class="s2">&quot;Kazan&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">78</span><span class="p">,</span> <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Petr&quot;</span><span class="p">,</span> <span class="s2">&quot;city&quot;</span><span class="p">:</span> <span class="s2">&quot;Moscow&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span> <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+<span class="p">]</span>
+
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># 1. COUNT — сколько элементов по условию</span>
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># Вход: list[dict]   Выход: int</span>
+<span class="n">count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;active&quot;</span><span class="p">))</span>
+<span class="c1"># → 3</span>
+
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># 2. SUM — сумма поля по условию</span>
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># Вход: list[dict]   Выход: int | float</span>
+<span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;active&quot;</span><span class="p">))</span>
+<span class="c1"># → 255</span>
+
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># 3. FILTER — список объектов по условию</span>
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># Вход: list[dict]   Выход: list[dict]</span>
+<span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;active&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">80</span><span class="p">]</span>
+<span class="c1"># → [{&quot;name&quot;: &quot;Ivan&quot;...}, {&quot;name&quot;: &quot;Anna&quot;...}]</span>
+
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># 4. GROUP BY — {ключ: агрегат}</span>
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># Вход: list[dict]   Выход: dict</span>
+<span class="n">by_city</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;city&quot;</span><span class="p">)</span>
+    <span class="n">by_city</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">by_city</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="c1"># → {&quot;Moscow&quot;: 3, &quot;Kazan&quot;: 2}</span>
+
+<span class="c1"># GROUP BY с суммой:</span>
+<span class="n">score_by_city</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;city&quot;</span><span class="p">)</span>
+    <span class="n">score_by_city</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">score_by_city</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># 5. TOP N — отсортированный топ из dict</span>
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># Вход: dict         Выход: list[tuple] или list[str]</span>
+<span class="n">top2</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">by_city</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+<span class="c1"># → [(&quot;Moscow&quot;, 3), (&quot;Kazan&quot;, 2)]</span>
+
+<span class="n">top2_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">top2</span><span class="p">]</span>
+<span class="c1"># → [&quot;Moscow&quot;, &quot;Kazan&quot;]</span>
+
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># 6. MAX В DICT — ключ с максимальным значением</span>
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># Вход: dict         Выход: key (str | int | ...)</span>
+<span class="n">best_city</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">by_city</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">by_city</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+<span class="c1"># → &quot;Moscow&quot;</span>
+
+
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># ЗАЩИТА ОТ ПУСТЫХ ДАННЫХ (всегда)</span>
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">safe_avg</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># СЛОВАРЬ → СПИСОК СЛОВАРЕЙ</span>
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># Вход: dict         Выход: list[dict]</span>
+<span class="n">as_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;city&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span> <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="n">v</span><span class="p">}</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">by_city</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+<span class="c1"># → [{&quot;city&quot;: &quot;Moscow&quot;, &quot;count&quot;: 3}, ...]</span>
+
+
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># 8. AVG — среднее по группам (всегда два dict)</span>
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># Вход: list[dict]   Выход: dict</span>
+<span class="n">totals</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">counts</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;city&quot;</span><span class="p">)</span>
+    <span class="n">totals</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">totals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">counts</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">avg_by_city</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">totals</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="n">counts</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">totals</span><span class="p">}</span>
+<span class="c1"># → {&quot;Moscow&quot;: 77.33, &quot;Kazan&quot;: 69.0}</span>
+
+
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># 9. NESTED — вложенные структуры</span>
+<span class="c1"># ----------------------------------------------------------</span>
+<span class="c1"># Вход: list[dict] где у каждого есть список items</span>
+<span class="c1"># Выход: зависит от задачи</span>
+
+<span class="n">nested_data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;Ivan&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;paid&quot;</span><span class="p">,</span> <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;apple&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+    <span class="p">]},</span>
+<span class="p">]</span>
+
+<span class="c1"># Паттерн двойного цикла:</span>
+<span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">nested_data</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="c1"># item — внутренний объект</span>
+        <span class="c1"># order.get(&quot;status&quot;) — фильтр по внешнему</span>
+        <span class="k">pass</span>
+
+<span class="c1"># SUM по вложенным (только paid):</span>
+<span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">nested_data</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;paid&quot;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># GROUP BY по вложенным:</span>
+<span class="n">product_qty</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">nested_data</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product&quot;</span><span class="p">)</span>
+        <span class="n">product_qty</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">product_qty</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+
+<div class="theory-footer"><div class="panel__title">Задачи по этой теме</div><a href="../index.html#/l/m03-p1">P1: COUNT и SUM</a> · <a href="../index.html#/l/m03-p2">P2: FILTER и SORTED</a> · <a href="../index.html#/l/m03-p3">P3: GROUP BY</a> · <a href="../index.html#/l/m03-p4">P4: AVG, TOP N и MAX</a> · <a href="../index.html#/l/m03-p5">P5: вложенные структуры</a></div>
+</main>
+
+</body>
+</html>
