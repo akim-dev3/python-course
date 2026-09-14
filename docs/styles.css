@@ -497,7 +497,7 @@ body.is-task-view .wrap { max-width: 1640px; }
   flex: 0 1 auto;
   min-height: 320px;
   max-height: 46vh;
-  display: flex;
+  /* display: flex; */
   overflow: hidden;
 }
 .panel:not(.desc) .editor-wrap .CodeMirror { height: 100%; }
