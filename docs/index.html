@@ -15,8 +15,9 @@
   <span class="chip" id="chip" data-state="idle">
     <span class="chip__dot"></span><span id="chip-label">Python: не загружен</span>
   </span>
-  <span class="sync" id="sync-status" data-kind="">не подключено</span>
-  <button class="btn btn--ghost" id="sync" title="Хранить прогресс в репозитории">Синхронизация</button>
+  <span class="sync" id="fs-status" data-kind="">папка не подключена</span>
+  <button class="btn btn--ghost" id="folder"
+          title="Писать решения прямо в файлы курса на диске">Папка курса</button>
   <button class="btn btn--ghost" id="export" title="Сохранить прогресс в файл">Экспорт</button>
   <button class="btn btn--ghost" id="import" title="Восстановить прогресс из файла">Импорт</button>
 </header>
@@ -34,6 +35,22 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.21/addon/edit/closebrackets.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.21/addon/selection/active-line.min.js"></script>
 
-<script type="module" src="./app.js"></script>
+<script type="module" src="./app.js" id="app-entry"></script>
+<script>
+  // Модули кэшируются браузером по отдельности. Сразу после обновления сайта
+  // может собраться смесь старых и новых файлов — тогда импорт падает и
+  // страница остаётся пустой. Показываем, что делать, вместо белого экрана.
+  addEventListener("error", (e) => {
+    const msg = String(e.message || "");
+    if (!/module|import|export/i.test(msg)) return;
+    const view = document.getElementById("view");
+    if (!view || view.dataset.broken) return;
+    view.dataset.broken = "1";
+    view.innerHTML =
+      '<div class="banner banner--error">Страница загрузилась частично из кэша ' +
+      'после обновления сайта. Обновите жёстко: <b>Ctrl+Shift+R</b>.<br>' +
+      '<span class="muted">' + msg.replace(/[<>&]/g, "") + "</span></div>";
+  });
+</script>
 </body>
 </html>

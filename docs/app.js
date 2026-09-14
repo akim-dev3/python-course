@@ -4,9 +4,9 @@
 import { Runtime } from "./runtime.js";
 import { store } from "./storage.js";
 import { createEditor } from "./editor.js";
-import { buildFile, downloadText, basename } from "./download.js";
+import { buildFile, extractSolutions, downloadText, basename } from "./download.js";
 import { makeZip, downloadBlob } from "./zip.js";
-import * as gh from "./github-sync.js";
+import * as fs from "./fsaccess.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s).replace(/[&<>"']/g,
@@ -391,7 +391,7 @@ function renderReport(out, report, lesson, task, editor, blocks) {
   if (solved) {
     const inFile = strip(effectiveCode(task)) === strip(task.reference_solution || "");
     store.setStatus(task.id, { state: "solved", pass: passed, fail: 0, downloaded: inFile });
-    scheduleSync();
+    scheduleWrite(lesson.id);
     parts.unshift(`<div class="banner banner--success"><b>Задача решена</b> — ${passed}/${expected} проверок.${
       inFile ? "" : " Не забудьте скачать файл, чтобы решение попало в курс."}</div>`);
   } else if (allChecks) {
@@ -423,196 +423,177 @@ function downloadLesson(lesson) {
     lesson.source_file.includes("/") ? lesson.source_file.split("/").slice(0, -1).join("/") + "/" : ""}`);
 }
 
-// ---------------------------------------------------------------- синхронизация
+// ------------------------------------------------- папка курса на диске
 
-let syncTimer = null;
-let syncing = false;
+let writeTimer = null;
+const pendingWrites = new Set();
 
-function solvedCount() {
-  return CONTENT.lessons.flatMap((l) => l.tasks)
-    .filter((t) => ["solved", "unsaved"].includes(taskState(t))).length;
-}
-
-function setSyncStatus(text, kind = "") {
-  const el = $("#sync-status");
+function setFsStatus(text, kind = "") {
+  const el = $("#fs-status");
   if (el) {
     el.textContent = text;
     el.dataset.kind = kind;
   }
 }
 
-/** Отправить прогресс в репозиторий. Дебаунс, чтобы не коммитить на каждый чих. */
-function scheduleSync() {
-  if (!gh.tokenStore.has()) return;
-  clearTimeout(syncTimer);
-  setSyncStatus("изменения не сохранены", "pending");
-  syncTimer = setTimeout(() => syncNow(true), 4000);
-}
-
-async function syncNow(quiet = false) {
-  if (!gh.tokenStore.has()) {
-    if (!quiet) toast("Сначала подключите GitHub — кнопка «Синхронизация»");
-    return;
-  }
-  if (syncing) return;
-  syncing = true;
-  setSyncStatus("сохраняю…", "busy");
+/** Записать файлы уроков, которых коснулись правки. */
+async function flushWrites() {
+  if (!fs.isConnected() || !pendingWrites.size) return;
+  const ids = [...pendingWrites];
+  pendingWrites.clear();
+  setFsStatus("записываю…", "busy");
   try {
-    store.flush();
-    const payload = {
-      ...store.snapshot(),
-      solved: solvedCount(),
-      updated: new Date().toISOString(),
-    };
-    const saved = await gh.saveProgress(payload);
-    // saveProgress мог вернуть результат слияния с чужой правкой — принимаем его.
-    if (saved !== payload) {
-      store.applyMerged(saved);
-      route();
-    }
-    setSyncStatus(`сохранено ${new Date().toLocaleTimeString().slice(0, 5)}`, "ok");
-  } catch (e) {
-    setSyncStatus("ошибка синхронизации", "error");
-    toast(`Синхронизация не удалась: ${e.message}`);
-  } finally {
-    syncing = false;
-  }
-}
-
-/** Подтянуть прогресс из репозитория и слить с локальным. */
-async function pullProgress({ silent = true } = {}) {
-  try {
-    const remote = await gh.loadProgress();
-    if (!remote) return;
-    const merged = gh.mergeProgress(store.snapshot(), remote);
-    store.applyMerged(merged);
-    if (!silent) toast("Прогресс подтянут из репозитория");
-    return true;
-  } catch (e) {
-    if (!silent) toast(`Не удалось прочитать прогресс: ${e.message}`);
-  }
-}
-
-/** Записать решения прямо в .py-файлы курса в репозитории. */
-async function pushSolutions() {
-  if (!gh.tokenStore.has()) {
-    toast("Сначала подключите GitHub — кнопка «Синхронизация»");
-    return;
-  }
-  setSyncStatus("пишу файлы курса…", "busy");
-  let written = 0, unchanged = 0;
-  try {
-    for (const lesson of CONTENT.lessons) {
+    for (const lessonId of ids) {
+      const lesson = byLesson.get(lessonId);
       const codeMap = {};
-      let touched = false;
       for (const t of lesson.tasks) {
-        if (store.hasCode(t.id)) {
-          codeMap[t.id] = store.getCode(t.id);
-          touched = true;
-        }
+        if (store.hasCode(t.id)) codeMap[t.id] = store.getCode(t.id);
       }
-      if (!touched) continue;
-      const result = await gh.pushCourseFile(lesson.source_file,
-                                             buildFile(lesson, codeMap));
-      if (result === "written") written++;
-      else unchanged++;
+      await fs.writeFile(lesson.source_file, buildFile(lesson, codeMap));
       store.markDownloaded(lesson.tasks.map((t) => t.id));
     }
-    setSyncStatus("файлы курса обновлены", "ok");
-    toast(`Записано файлов: ${written}${unchanged ? `, без изменений: ${unchanged}` : ""}. ` +
-          `Не забудьте git pull локально.`);
-    route();
+    setFsStatus(`сохранено в файлы ${new Date().toLocaleTimeString().slice(0, 5)}`, "ok");
   } catch (e) {
-    setSyncStatus("ошибка записи", "error");
-    toast(`Не удалось записать: ${e.message}`);
+    ids.forEach((id) => pendingWrites.add(id));
+    setFsStatus("не записалось", "error");
+    toast(`Не удалось записать в файлы: ${e.message}`);
   }
 }
 
-function openSyncPanel() {
+function scheduleWrite(lessonId) {
+  if (!fs.isConnected()) return;
+  pendingWrites.add(lessonId);
+  setFsStatus("есть незаписанное", "pending");
+  clearTimeout(writeTimer);
+  writeTimer = setTimeout(flushWrites, 1200);
+}
+
+/**
+ * Прочитать решения из файлов на диске и влить в хранилище.
+ * Файл главнее там, где в нём есть настоящее решение; там, где на диске
+ * всё ещё заготовка, сохраняется несохранённая работа из браузера.
+ */
+async function importFromDisk({ silent = false } = {}) {
+  let imported = 0, unreadable = [];
+  for (const lesson of CONTENT.lessons) {
+    let text;
+    try {
+      text = await fs.readFile(lesson.source_file);
+    } catch {
+      continue;
+    }
+    if (text === null) continue;
+
+    const found = extractSolutions(lesson, text);
+    if (!found) {
+      unreadable.push(lesson.source_file);
+      continue;
+    }
+    for (const task of lesson.tasks) {
+      const onDisk = found[task.id];
+      if (onDisk === undefined) continue;
+      if (strip(onDisk) === strip(task.starter_code)) continue;  // на диске заготовка
+      if (strip(onDisk) === strip(store.getCode(task.id, ""))) continue;
+      store.setCode(task.id, onDisk);
+      store.setStatus(task.id, { downloaded: true });
+      imported++;
+    }
+  }
+  store.flush();
+  if (!silent) {
+    const extra = unreadable.length
+      ? ` Не удалось разобрать: ${unreadable.join(", ")} — формат файла изменён вручную.`
+      : "";
+    toast(`Подтянуто решений из файлов: ${imported}.${extra}`);
+  }
+  return imported;
+}
+
+async function openFolderPanel() {
   const wrap = document.createElement("div");
   wrap.className = "modal";
+  const state = fs.isConnected() ? "подключена" : "не подключена";
+
   wrap.innerHTML = `<div class="modal__box">
-    <div class="modal__title">Синхронизация с GitHub</div>
-    <p class="muted">Прогресс хранится в <code>docs/progress.json</code> репозитория
-      <code>${gh.OWNER || "akim-dev3"}/python-course</code> — он доступен с любого
-      устройства и не пропадёт при чистке браузера.</p>
+    <div class="modal__title">Папка курса</div>
+    <p class="muted">Сайт может писать решения прямо в <code>.py</code>-файлы курса
+      на диске. Тогда прогресс не зависит от браузера, а шаг «скачать и
+      переложить» не нужен: решения сразу там, где их ждут <code>python</code> и
+      <code>git</code>.</p>
 
-    <div class="banner banner--warn">
-      Нужен <b>fine-grained</b> токен, выданный на <b>один этот репозиторий</b>
-      с правом <b>Contents: read and write</b> и со сроком годности.
-      Токен лежит в этом браузере, а страница публичная — классический токен
-      с полным доступом сюда вставлять нельзя.
-      <div style="margin-top:8px">
-        <a href="https://github.com/settings/personal-access-tokens/new"
-           target="_blank" rel="noopener">Создать такой токен →</a>
-      </div>
+    ${fs.supported() ? "" : `<div class="banner banner--error">
+      Этот браузер не умеет записывать в файлы (нужен Chrome или Edge на компьютере).
+      Остаются «скачать» и «экспорт прогресса».</div>`}
+
+    <div class="banner banner--info">
+      Состояние: <b>${state}</b>${fs.folderName() ? ` — <code>${esc(fs.folderName())}</code>` : ""}.
+      Выбирать нужно папку <code>python_course</code> — ту, где лежат
+      <code>drills/</code> и <code>docs/</code>.
     </div>
-
-    <label class="field">
-      <span>Токен</span>
-      <input type="password" id="gh-token" placeholder="github_pat_…"
-             autocomplete="off" spellcheck="false">
-    </label>
 
     <div class="editor-actions">
-      <button class="btn btn--primary" id="gh-save">Подключить</button>
-      <button class="btn" id="gh-pull">Загрузить прогресс</button>
-      <button class="btn" id="gh-push">Записать решения в файлы курса</button>
+      <button class="btn btn--primary" id="fs-pick"
+        ${fs.supported() ? "" : "disabled"}>Выбрать папку</button>
+      <button class="btn" id="fs-import">Подтянуть решения из файлов</button>
+      <button class="btn" id="fs-write">Записать всё сейчас</button>
       <span class="spacer"></span>
-      <button class="btn btn--ghost" id="gh-forget">Забыть токен</button>
-      <button class="btn btn--ghost" id="gh-close">Закрыть</button>
+      <button class="btn btn--ghost" id="fs-forget">Отключить</button>
+      <button class="btn btn--ghost" id="fs-close">Закрыть</button>
     </div>
-    <div id="gh-result"></div>
+    <div id="fs-result"></div>
   </div>`;
 
   document.body.appendChild(wrap);
   const close = () => wrap.remove();
   wrap.addEventListener("click", (e) => { if (e.target === wrap) close(); });
-  $("#gh-close", wrap).onclick = close;
-  $("#gh-token", wrap).value = gh.tokenStore.get();
+  $("#fs-close", wrap).onclick = close;
 
   const say = (html, kind = "info") => {
-    $("#gh-result", wrap).innerHTML = `<div class="banner banner--${kind}">${html}</div>`;
+    $("#fs-result", wrap).innerHTML = `<div class="banner banner--${kind}">${html}</div>`;
   };
 
-  $("#gh-save", wrap).onclick = async () => {
-    gh.tokenStore.set($("#gh-token", wrap).value);
-    say("Проверяю доступ…");
+  $("#fs-pick", wrap).onclick = async () => {
     try {
-      const info = await gh.checkAccess();
-      if (!info.canWrite) {
-        say("Токен читает репозиторий, но не может писать. " +
-            "Нужно право <b>Contents: read and write</b>.", "error");
+      const name = await fs.connect();
+      // Проверяем, что это действительно курс, иначе сайт молча создаст
+      // пустое дерево drills/… в случайной папке.
+      const sample = CONTENT.lessons[0].source_file;
+      if (!(await fs.looksLikeCourse(sample))) {
+        await fs.forget();
+        say(`В папке <code>${esc(name)}</code> нет <code>${esc(sample)}</code> — ` +
+            `похоже, выбрана не та папка. Нужна <code>python_course</code>.`, "error");
         return;
       }
-      say(`Подключено к <code>${esc(info.repo)}</code>. Прогресс будет ` +
-          `сохраняться автоматически.`, "success");
-      setSyncStatus("подключено", "ok");
-      await syncNow(true);
+      setFsStatus(`папка: ${name}`, "ok");
+      const n = await importFromDisk({ silent: true });
+      say(`Подключена <code>${esc(name)}</code>. Подтянуто решений из файлов: ${n}. ` +
+          `Дальше запись идёт сама после каждой решённой задачи.`, "success");
+      route();
     } catch (e) {
+      if (e.name === "AbortError") return;     // просто закрыл диалог выбора
       say(esc(e.message), "error");
     }
   };
 
-  $("#gh-pull", wrap).onclick = async () => {
-    say("Загружаю…");
-    const ok = await pullProgress({ silent: false });
-    say(ok ? "Прогресс загружен и слит с локальным." : "Сохранённого прогресса пока нет.",
-        ok ? "success" : "warn");
+  $("#fs-import", wrap).onclick = async () => {
+    if (!fs.isConnected()) return say("Сначала выберите папку.", "warn");
+    const n = await importFromDisk({ silent: true });
+    say(`Подтянуто решений: ${n}.`, "success");
     route();
   };
 
-  $("#gh-push", wrap).onclick = async () => {
-    say("Пишу файлы курса… это создаст коммиты.");
-    await pushSolutions();
-    say("Готово. Не забудьте <code>git pull</code> в локальной папке курса.", "success");
+  $("#fs-write", wrap).onclick = async () => {
+    if (!fs.isConnected()) return say("Сначала выберите папку.", "warn");
+    CONTENT.lessons.forEach((l) => pendingWrites.add(l.id));
+    await flushWrites();
+    say("Все файлы курса перезаписаны текущими решениями.", "success");
+    route();
   };
 
-  $("#gh-forget", wrap).onclick = () => {
-    gh.tokenStore.set("");
-    $("#gh-token", wrap).value = "";
-    setSyncStatus("не подключено", "");
-    say("Токен удалён из браузера.", "info");
+  $("#fs-forget", wrap).onclick = async () => {
+    await fs.forget();
+    setFsStatus("папка не подключена", "");
+    say("Папка отключена. Решения остаются в браузере и в уже записанных файлах.", "info");
   };
 }
 
@@ -713,28 +694,33 @@ async function main() {
     input.click();
   };
 
-  $("#sync").onclick = openSyncPanel;
+  $("#folder").onclick = openFolderPanel;
 
   window.addEventListener("hashchange", route);
   route();
 
-  // Прогресс из репозитория подтягиваем после первой отрисовки, чтобы страница
-  // не ждала сеть. Если он новее локального — слияние и перерисовка.
-  if (gh.tokenStore.has()) setSyncStatus("подключено", "ok");
-  pullProgress().then((changed) => {
-    if (changed) route();
-  });
-
-  // На закрытии вкладки авторизованный запрос уже не успеет — браузер его
-  // оборвёт. Поэтому страховкой служит localStorage (он флашится на pagehide),
-  // а в репозиторий несохранённое уедет при следующем открытии.
-  window.addEventListener("pagehide", () => {
-    if (syncTimer) sessionStorage.setItem("pycourse:dirty", "1");
-  });
-  if (sessionStorage.getItem("pycourse:dirty") && gh.tokenStore.has()) {
-    sessionStorage.removeItem("pycourse:dirty");
-    syncNow(true);
+  // Папку из прошлого сеанса восстанавливаем после первой отрисовки.
+  if (!fs.supported()) {
+    setFsStatus("запись в файлы недоступна", "");
+  } else {
+    fs.restore().then(async (state) => {
+      if (state === "ready") {
+        setFsStatus(`папка: ${fs.folderName()}`, "ok");
+        await importFromDisk({ silent: true });
+        route();
+      } else if (state === "prompt") {
+        // Разрешение надо подтвердить кликом — сами не можем.
+        setFsStatus("подтвердите доступ к папке", "pending");
+      } else {
+        setFsStatus("папка не подключена", "");
+      }
+    });
   }
+
+  // Незаписанное не должно потеряться при закрытии вкладки.
+  window.addEventListener("pagehide", () => {
+    if (pendingWrites.size) sessionStorage.setItem("pycourse:dirty", "1");
+  });
 }
 
 main();

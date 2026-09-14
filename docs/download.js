@@ -19,6 +19,45 @@ export function buildFile(lesson, codeMap) {
     .join("");
 }
 
+/**
+ * Обратная операция к buildFile: вынуть решения из .py-файла на диске.
+ *
+ * Слоты не ищутся по признакам кода — они вычисляются как ПРОМЕЖУТКИ между
+ * неизменяемыми raw-кусками. Если хоть один raw не найден по порядку или
+ * в конце остался лишний текст, разбор считается несостоявшимся и функция
+ * возвращает null: лучше ничего не подставить, чем подставить не то.
+ */
+export function extractSolutions(lesson, fileText) {
+  const text = fileText.replace(/\r\n/g, "\n");
+  const out = {};
+  let pos = 0;
+  let pendingSlot = null;
+
+  for (const seg of lesson.segments) {
+    if (seg.t === "slot") {
+      pendingSlot = seg;
+      continue;
+    }
+    const raw = seg.text.replace(/\r\n/g, "\n");
+    const idx = raw === "" ? pos : text.indexOf(raw, pos);
+    if (idx === -1) return null;
+
+    if (pendingSlot) {
+      out[pendingSlot.task] = normalize(text.slice(pos, idx));
+      pendingSlot = null;
+    } else if (idx !== pos) {
+      return null;                 // между raw-кусками оказался чужой текст
+    }
+    pos = idx + raw.length;
+  }
+
+  if (pendingSlot) {
+    out[pendingSlot.task] = normalize(text.slice(pos));
+    pos = text.length;
+  }
+  return pos === text.length ? out : null;
+}
+
 export function downloadText(filename, text) {
   const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
