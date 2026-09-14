@@ -1,12 +1,12 @@
 // Приложение курса: карта → урок → задача.
 // Hash-роутер, потому что сайт живёт на подпути GitHub Pages и сервера нет.
 
-import { Runtime } from "./runtime.js?v=fecb6288";
-import { store } from "./storage.js?v=fecb6288";
-import { createEditor } from "./editor.js?v=fecb6288";
-import { buildFile, extractSolutions, downloadText, basename } from "./download.js?v=fecb6288";
-import { makeZip, downloadBlob } from "./zip.js?v=fecb6288";
-import * as fs from "./fsaccess.js?v=fecb6288";
+import { Runtime } from "./runtime.js?v=e94b86d1";
+import { store } from "./storage.js?v=e94b86d1";
+import { createEditor } from "./editor.js?v=e94b86d1";
+import { buildFile, extractSolutions, downloadText, basename } from "./download.js?v=e94b86d1";
+import { makeZip, downloadBlob } from "./zip.js?v=e94b86d1";
+import * as fs from "./fsaccess.js?v=e94b86d1";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s).replace(/[&<>"']/g,
@@ -68,6 +68,51 @@ function theoryCards(ids) {
         <div class="theory-cards">${tail.map((t) => card(t)).join("")}</div>
       </details>` : ""}
     </section>`;
+}
+
+/** Подсветка Python для готовых кусков кода (данные, тесты). */
+function highlight(code) {
+  const CM = window.CodeMirror;
+  if (!CM || !CM.runMode) return esc(code);
+  let out = "";
+  CM.runMode(code, "python", (text, style) => {
+    out += style
+      ? `<span class="${style.split(" ").map((s) => "cm-" + s).join(" ")}">${esc(text)}</span>`
+      : esc(text);
+  });
+  return out;
+}
+
+/**
+ * Данные урока и проверки задачи.
+ *
+ * Без этого условия вроде «посчитать активных старше 18» невыполнимы:
+ * список users объявлен в начале файла, и на странице задачи его не видно.
+ * А блок проверок заодно служит примерами — там записаны настоящие
+ * ожидаемые значения, и придумывать их отдельно не нужно.
+ */
+function contextBlocks(lesson, task) {
+  const out = [];
+
+  if (lesson.prelude && lesson.prelude.trim()) {
+    out.push(`<details class="snippet" open>
+      <summary>Данные, с которыми работает урок</summary>
+      <pre class="snippet__code">${highlight(lesson.prelude.trim())}</pre>
+    </details>`);
+  }
+
+  const checks = verifyingBlocks(lesson, task)
+    .map((t) => t.test_source)
+    .filter(Boolean)
+    .join("\n");
+  if (checks.trim()) {
+    out.push(`<details class="snippet" open>
+      <summary>Чем проверяется${task.has_own_tests ? "" : " (вместе со следующей задачей)"}</summary>
+      <pre class="snippet__code">${highlight(checks.trim())}</pre>
+    </details>`);
+  }
+
+  return out.join("");
 }
 
 /** Кнопка «Теория» прямо в шапке задачи — читать, не уходя со страницы. */
@@ -555,9 +600,7 @@ function viewTask(lesson, task) {
       </div>
       <h3>${esc(task.title)}</h3>
       ${task.description_html}
-      ${task.has_own_tests ? "" :
-        '<div class="note"><span class="note__label">Замечание</span> ' +
-        'у этой задачи нет собственных проверок — она проверяется вместе со следующей.</div>'}
+      ${contextBlocks(lesson, task)}
     </section>
 
     <section class="panel">

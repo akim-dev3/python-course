@@ -177,14 +177,26 @@ def parse_block(body_lines):
     if not text:
         return "", []
 
-    # Заголовок: первая строка, плюс продолжение до первой пустой строки
-    # (случай «4. MinStack — стек, у которого get_min() всегда возвращает /
-    # минимум за O(1)»).
+    # Заголовок. Правило «продолжать до пустой строки» ломалось на формате
+    # 01_dict, где пустых строк в блоке нет вообще: в заголовок утягивало
+    # и сигнатуру, и описание, а описание оставалось пустым.
+    #
+    # Теперь берём первую строку, и добираем ровно одну следующую — либо
+    # сигнатуру вида `имя(args) → тип`, либо продолжение самого заголовка,
+    # если в нём ещё не было стрелки («MinStack — стек, у которого get_min()
+    # всегда возвращает / минимум за O(1)»). Всё остальное идёт в описание.
+    sig_like = re.compile(r"^[A-Za-z_]\w*\s*\(.*\)\s*(→|->)")
+
     title_parts, idx = [text[0].strip()], 1
-    while idx < len(text) and text[idx].strip():
-        title_parts.append(text[idx].strip())
-        idx += 1
-    title = " ".join(title_parts)
+    if idx < len(text) and text[idx].strip():
+        nxt = text[idx].strip()
+        has_arrow = "→" in title_parts[0] or "->" in title_parts[0]
+        if sig_like.match(nxt) or not has_arrow:
+            title_parts.append(nxt)
+            idx += 1
+    # «✅» в старых файлах означало «закрыто» — на сайте состояние
+    # показывается отдельно, в заголовке это шум.
+    title = re.sub(r"\s+", " ", " ".join(title_parts).replace("✅", "")).strip()
 
     chunks, para = [], []
 
@@ -436,8 +448,18 @@ def parse_check_file(path, lesson):
             refs.visit(n)
 
         title, chunks = parse_block(lines[region["open"] + 1: region["close"]])
-        m = re.match(r"^\s*(\d+)[.)]\s*(.*)$", title)
-        ordinal, title_text = (int(m.group(1)), m.group(2).strip()) if m else (idx + 1, title)
+        # Номер задачи показывается на странице отдельно, поэтому из заголовка
+        # его убираем — иначе выходит «Задача 1 из 20 / Задача 1 — COUNT …».
+        # Два написания: «1. имя(...)» в новых файлах и «Задача 1 — COUNT»
+        # в 01_dict (там же буквенная нумерация A–E в drill_weak).
+        m = (re.match(r"^\s*(\d+)[.)]\s*(.*)$", title)
+             or re.match(r"^\s*Задача\s+(\d+|[A-E])\s*[—–-]\s*(.*)$", title))
+        if m:
+            num = m.group(1)
+            ordinal = int(num) if num.isdigit() else idx + 1
+            title_text = m.group(2).strip()
+        else:
+            ordinal, title_text = idx + 1, title
 
         own = [n.name for n in slot_nodes]
         stub = is_stub(slot_nodes)
