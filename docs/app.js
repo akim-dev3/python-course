@@ -1,12 +1,12 @@
 // Приложение курса: карта → урок → задача.
 // Hash-роутер, потому что сайт живёт на подпути GitHub Pages и сервера нет.
 
-import { Runtime } from "./runtime.js?v=ed0207da";
-import { store } from "./storage.js?v=ed0207da";
-import { createEditor } from "./editor.js?v=ed0207da";
-import { buildFile, extractSolutions, downloadText, basename } from "./download.js?v=ed0207da";
-import { makeZip, downloadBlob } from "./zip.js?v=ed0207da";
-import * as fs from "./fsaccess.js?v=ed0207da";
+import { Runtime } from "./runtime.js?v=1fabd27f";
+import { store } from "./storage.js?v=1fabd27f";
+import { createEditor } from "./editor.js?v=1fabd27f";
+import { buildFile, extractSolutions, downloadText, basename } from "./download.js?v=1fabd27f";
+import { makeZip, downloadBlob } from "./zip.js?v=1fabd27f";
+import * as fs from "./fsaccess.js?v=1fabd27f";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s).replace(/[&<>"']/g,
