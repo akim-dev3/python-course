@@ -1,12 +1,12 @@
 // Приложение курса: карта → урок → задача.
 // Hash-роутер, потому что сайт живёт на подпути GitHub Pages и сервера нет.
 
-import { Runtime } from "./runtime.js?v=e94b86d1";
-import { store } from "./storage.js?v=e94b86d1";
-import { createEditor } from "./editor.js?v=e94b86d1";
-import { buildFile, extractSolutions, downloadText, basename } from "./download.js?v=e94b86d1";
-import { makeZip, downloadBlob } from "./zip.js?v=e94b86d1";
-import * as fs from "./fsaccess.js?v=e94b86d1";
+import { Runtime } from "./runtime.js?v=b53aeef6";
+import { store } from "./storage.js?v=b53aeef6";
+import { createEditor } from "./editor.js?v=b53aeef6";
+import { buildFile, extractSolutions, downloadText, basename } from "./download.js?v=b53aeef6";
+import { makeZip, downloadBlob } from "./zip.js?v=b53aeef6";
+import * as fs from "./fsaccess.js?v=b53aeef6";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s).replace(/[&<>"']/g,
@@ -632,6 +632,7 @@ function viewTask(lesson, task) {
       if (store.getStatus(task.id).state === "fresh") {
         store.setStatus(task.id, { state: "attempted" });
       }
+      scheduleAutoCheck(lesson, task, editor);
     },
   });
   editor.refresh();
@@ -670,14 +671,42 @@ let currentRun = null;
 
 // ---------------------------------------------------------------- прогон
 
-async function runTask(lesson, task, editor) {
+/**
+ * Автопроверка без клика.
+ *
+ * Раньше задача засчитывалась решённой только по нажатию «Проверить» —
+ * а старое решение из репозитория при этом доверялось без проверки, просто
+ * по совпадению текста. Получалось нечестно: код, который никто не гонял,
+ * считался верным, а свежее правильное решение — нет, пока не нажмёшь
+ * кнопку. Теперь проверка идёт сама через паузу после того, как перестал
+ * печатать, тем же прогоном, что и по кнопке — никакого второго стандарта.
+ */
+let autoCheckTimer = null;
+let lastChecked = null;
+
+function scheduleAutoCheck(lesson, task, editor) {
+  clearTimeout(autoCheckTimer);
+  autoCheckTimer = setTimeout(() => {
+    const code = editor.getValue();
+    if (strip(code) === strip(task.starter_code)) return;   // нетронутая заготовка
+    if (code === lastChecked) return;                        // уже проверяли этот текст
+    runTask(lesson, task, editor, { auto: true });
+  }, 1400);
+}
+
+async function runTask(lesson, task, editor, { auto = false } = {}) {
   const btn = $("#run");
   const out = $("#results");
-  btn.disabled = true;
-  editor.clearErrors();
-  out.innerHTML = '<div class="banner banner--info">Выполняется…</div>';
-
   const myCode = editor.getValue();
+  lastChecked = myCode;
+
+  // Автопроверка не должна выглядеть как ручной запуск: без спиннера,
+  // без блокировки кнопки — иначе поле дёргается на каждую паузу в наборе.
+  if (!auto) {
+    btn.disabled = true;
+    out.innerHTML = '<div class="banner banner--info">Выполняется…</div>';
+  }
+  editor.clearErrors();
   store.setCode(task.id, myCode);
 
   const units = lesson.tasks.map((t) => ({
@@ -692,7 +721,11 @@ async function runTask(lesson, task, editor) {
   try {
     report = await runtime.run({ prelude: lesson.prelude, units, blocks });
   } catch (err) {
-    out.innerHTML = `<div class="banner banner--warn">${esc(err.message)}</div>`;
+    // «Уже идёт прогон» в фоновом режиме — не ошибка, а просто наложение
+    // двух проверок подряд; следующая автопроверка перезапустится сама.
+    if (!(auto && /уже идёт прогон/.test(err.message))) {
+      out.innerHTML = `<div class="banner banner--warn">${esc(err.message)}</div>`;
+    }
     btn.disabled = false;
     return;
   }
@@ -1186,6 +1219,9 @@ function route() {
   const hash = location.hash.replace(/^#/, "") || "/";
   const parts = hash.split("/").filter(Boolean);
   currentRun = null;           // Ctrl+Enter действует только на странице задачи
+  // Иначе отложенная автопроверка со старой страницы дописала бы результат
+  // в #results уже ДРУГОЙ, только что открытой задачи.
+  clearTimeout(autoCheckTimer);
   window.scrollTo(0, 0);
 
   if (parts[0] === "theory") return viewTheoryIndex();
