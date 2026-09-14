@@ -53,6 +53,17 @@ REFERENCES = [
      "Шпаргалка — Big O, рекурсия, бинарный поиск", ["m04"]),
     ("drills/06_data_structures/ds_reference.py", "ref-ds",
      "Шпаргалка — структуры данных", ["m06"]),
+
+    # Мини-проекты. На сайте они не задачи, а разбор: это завершённые работы
+    # с одной функцией-агрегатором вместо отдельных проверяемых заданий.
+    ("drills/02_nested/tasks.py", "proj-nested",
+     "Проект — вложенные структуры и build_report", ["m03"]),
+    ("projects/mp_orders.py", "proj-orders",
+     "Мини-проект 1 — аналитика заказов", ["m03"]),
+    ("projects/mp_students.py", "proj-students",
+     "Мини-проект 2 — аналитика студентов", ["m03"]),
+    ("projects/mp_final.py", "proj-final",
+     "Мини-проект 3 — финальный, с нуля", ["m03"]),
 ]
 
 SLUGS = {slug: title for _, slug, title, _ in NOTES}

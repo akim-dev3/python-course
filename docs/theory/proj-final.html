@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Мини-проект 3 — финальный, с нуля — Python-курс</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../pygments.css">
+<link rel="stylesheet" href="../theory.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html#/">Python-курс</a>
+  <span class="crumbs">Теория › Мини-проект 3 — финальный, с нуля</span>
+  <a class="btn btn--ghost" href="../index.html#/">К задачам</a>
+</header>
+<main class="wrap theory">
+<h1>Мини-проект 3 — финальный, с нуля</h1>
+
+<p class="muted">Файл курса <code>projects/mp_final.py</code> — открывается и запускается локально.</p><div class="codehilite"><pre><span></span><span class="c1"># ============================================================</span>
+<span class="c1"># ФИНАЛЬНЫЙ ПРОЕКТ — с нуля</span>
+<span class="c1"># Новые данные, новая предметная область</span>
+<span class="c1"># Пишешь build_report без черновиков и без подглядывания</span>
+<span class="c1"># ============================================================</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;sessions&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;trainer&quot;</span><span class="p">:</span> <span class="s2">&quot;Alex&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;cardio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span>
+            <span class="s2">&quot;completed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;members&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Ivan&quot;</span><span class="p">,</span> <span class="s2">&quot;calories&quot;</span><span class="p">:</span> <span class="mi">420</span><span class="p">,</span> <span class="s2">&quot;hr_avg&quot;</span><span class="p">:</span> <span class="mi">145</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Anna&quot;</span><span class="p">,</span> <span class="s2">&quot;calories&quot;</span><span class="p">:</span> <span class="mi">380</span><span class="p">,</span> <span class="s2">&quot;hr_avg&quot;</span><span class="p">:</span> <span class="mi">138</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;trainer&quot;</span><span class="p">:</span> <span class="s2">&quot;Mila&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;strength&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+            <span class="s2">&quot;completed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;members&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Oleg&quot;</span><span class="p">,</span> <span class="s2">&quot;calories&quot;</span><span class="p">:</span> <span class="mi">310</span><span class="p">,</span> <span class="s2">&quot;hr_avg&quot;</span><span class="p">:</span> <span class="mi">122</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Petr&quot;</span><span class="p">,</span> <span class="s2">&quot;calories&quot;</span><span class="p">:</span> <span class="mi">290</span><span class="p">,</span> <span class="s2">&quot;hr_avg&quot;</span><span class="p">:</span> <span class="mi">118</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Anna&quot;</span><span class="p">,</span> <span class="s2">&quot;calories&quot;</span><span class="p">:</span> <span class="mi">330</span><span class="p">,</span> <span class="s2">&quot;hr_avg&quot;</span><span class="p">:</span> <span class="mi">125</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;trainer&quot;</span><span class="p">:</span> <span class="s2">&quot;Alex&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;yoga&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+            <span class="s2">&quot;completed&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;members&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Ivan&quot;</span><span class="p">,</span> <span class="s2">&quot;calories&quot;</span><span class="p">:</span> <span class="mi">150</span><span class="p">,</span> <span class="s2">&quot;hr_avg&quot;</span><span class="p">:</span> <span class="mi">95</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;trainer&quot;</span><span class="p">:</span> <span class="s2">&quot;Mila&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;cardio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+            <span class="s2">&quot;completed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;members&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dina&quot;</span><span class="p">,</span> <span class="s2">&quot;calories&quot;</span><span class="p">:</span> <span class="mi">460</span><span class="p">,</span> <span class="s2">&quot;hr_avg&quot;</span><span class="p">:</span> <span class="mi">152</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Ivan&quot;</span><span class="p">,</span> <span class="s2">&quot;calories&quot;</span><span class="p">:</span> <span class="mi">440</span><span class="p">,</span> <span class="s2">&quot;hr_avg&quot;</span><span class="p">:</span> <span class="mi">148</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s2">&quot;trainer&quot;</span><span class="p">:</span> <span class="s2">&quot;Roma&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;strength&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span>
+            <span class="s2">&quot;completed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;members&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Petr&quot;</span><span class="p">,</span> <span class="s2">&quot;calories&quot;</span><span class="p">:</span> <span class="mi">320</span><span class="p">,</span> <span class="s2">&quot;hr_avg&quot;</span><span class="p">:</span> <span class="mi">130</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Oleg&quot;</span><span class="p">,</span> <span class="s2">&quot;calories&quot;</span><span class="p">:</span> <span class="mi">280</span><span class="p">,</span> <span class="s2">&quot;hr_avg&quot;</span><span class="p">:</span> <span class="mi">115</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+            <span class="s2">&quot;trainer&quot;</span><span class="p">:</span> <span class="s2">&quot;Alex&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;cardio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+            <span class="s2">&quot;completed&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;members&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+            <span class="s2">&quot;trainer&quot;</span><span class="p">:</span> <span class="s2">&quot;Roma&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;yoga&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+            <span class="s2">&quot;completed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;members&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dina&quot;</span><span class="p">,</span> <span class="s2">&quot;calories&quot;</span><span class="p">:</span> <span class="mi">180</span><span class="p">,</span> <span class="s2">&quot;hr_avg&quot;</span><span class="p">:</span> <span class="mi">98</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Anna&quot;</span><span class="p">,</span> <span class="s2">&quot;calories&quot;</span><span class="p">:</span> <span class="mi">160</span><span class="p">,</span> <span class="s2">&quot;hr_avg&quot;</span><span class="p">:</span> <span class="mi">92</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;trainer&quot;</span><span class="p">:</span> <span class="s2">&quot;Mila&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;strength&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span>
+            <span class="s2">&quot;completed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;members&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Ivan&quot;</span><span class="p">,</span> <span class="s2">&quot;calories&quot;</span><span class="p">:</span> <span class="mi">350</span><span class="p">,</span> <span class="s2">&quot;hr_avg&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dina&quot;</span><span class="p">,</span> <span class="s2">&quot;calories&quot;</span><span class="p">:</span> <span class="mi">370</span><span class="p">,</span> <span class="s2">&quot;hr_avg&quot;</span><span class="p">:</span> <span class="mi">132</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Petr&quot;</span><span class="p">,</span> <span class="s2">&quot;calories&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span> <span class="s2">&quot;hr_avg&quot;</span><span class="p">:</span> <span class="mi">120</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+
+<span class="c1"># ------------------------------------------------------------</span>
+<span class="c1"># build_report(data) → dict</span>
+<span class="c1">#</span>
+<span class="c1"># total_sessions      int   — всего тренировок</span>
+<span class="c1"># completed_sessions  int   — завершённых тренировок</span>
+<span class="c1"># total_members_visits int  — суммарное количество посещений (все сессии)</span>
+<span class="c1"># top_member          str   — участник с наибольшим суммарным calories (только completed)</span>
+<span class="c1"># calories_by_type    dict  — {type: total_calories} только completed</span>
+<span class="c1"># avg_duration_by_trainer dict — {trainer: avg_duration} все сессии (округли до 2)</span>
+<span class="c1"># high_intensity      list  — имена участников у которых хотя бы одна сессия с hr_avg &gt; 140</span>
+<span class="c1">#                             (только completed, без дублей, sorted)</span>
+<span class="c1"># best_trainer        str   — тренер с наибольшим количеством завершённых сессий</span>
+<span class="c1"># ------------------------------------------------------------</span>
+
+
+<span class="c1">#! 1</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">total_sessions</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+
+<span class="c1">#! 2</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">completed_sessions</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;completed&quot;</span><span class="p">)])</span>
+
+
+<span class="c1">#! 3</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">total_members_visits</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">([</span><span class="n">member</span> <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;members&quot;</span><span class="p">,</span> <span class="p">[])])</span>
+
+
+<span class="c1">#! 4</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">top_member</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">member_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;completed&quot;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;members&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">member</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+                <span class="n">calories</span> <span class="o">=</span> <span class="n">member</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calories&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">member_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">member_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">calories</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">member_dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">best_member</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">member_dict</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">member_dict</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">best_member</span>
+
+
+<span class="c1">#! 5</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calories_by_type</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">calories_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;completed&quot;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;members&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+                <span class="nb">type</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span>
+                <span class="n">calories</span> <span class="o">=</span> <span class="n">member</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calories&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">calories_dict</span><span class="p">[</span><span class="nb">type</span><span class="p">]</span> <span class="o">=</span> <span class="n">calories_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">calories</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">calories_dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">calories_dict</span>
+
+
+<span class="c1">#! 6</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">avg_duration_by_trainer</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="n">trainer_durations</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">trainer</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;trainer&quot;</span><span class="p">)</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">trainer</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">trainer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">trainer_durations</span><span class="p">:</span>
+                <span class="n">trainer_durations</span><span class="p">[</span><span class="n">trainer</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">trainer_durations</span><span class="p">[</span><span class="n">trainer</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">trainer</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">durations</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">durations</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">trainer</span><span class="p">,</span> <span class="n">durations</span> <span class="ow">in</span> <span class="n">trainer_durations</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span>
+
+
+<span class="c1">#! 7</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">high_intensity</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="n">member</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">data</span>
+            <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;completed&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;members&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">if</span> <span class="n">member</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hr_avg&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">140</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+
+<span class="c1">#! 8</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">best_trainer</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">count_completed</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">trainer</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;trainer&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;completed&quot;</span><span class="p">):</span>
+            <span class="n">count_completed</span><span class="p">[</span><span class="n">trainer</span><span class="p">]</span> <span class="o">=</span> <span class="n">count_completed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">trainer</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">best_tr</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">count_completed</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">count_completed</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">best_tr</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_report</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sessions&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;total_sessions&quot;</span><span class="p">:</span> <span class="n">total_sessions</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;completed_sessions&quot;</span><span class="p">:</span> <span class="n">completed_sessions</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;total_members_visits&quot;</span><span class="p">:</span> <span class="n">total_members_visits</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;top_member&quot;</span><span class="p">:</span> <span class="n">top_member</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;calories_by_type&quot;</span><span class="p">:</span> <span class="n">calories_by_type</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;avg_duration_by_trainer&quot;</span><span class="p">:</span> <span class="n">avg_duration_by_trainer</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;high_intensity&quot;</span><span class="p">:</span> <span class="n">high_intensity</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;best_trainer&quot;</span><span class="p">:</span> <span class="n">best_trainer</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+    <span class="p">}</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="n">build_report</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+</pre></div>
+
+<div class="theory-footer"><div class="panel__title">Задачи по этой теме</div><a href="../index.html#/l/m03-d1">Дриллы dict — 20 задач</a> · <a href="../index.html#/l/m03-d2">Закрепление слабых точек</a> · <a href="../index.html#/l/m03-p1">P1: COUNT и SUM</a> · <a href="../index.html#/l/m03-p2">P2: FILTER и SORTED</a> · <a href="../index.html#/l/m03-p3">P3: GROUP BY</a> · <a href="../index.html#/l/m03-p4">P4: AVG, TOP N и MAX</a> · <a href="../index.html#/l/m03-p5">P5: вложенные структуры</a></div>
+</main>
+
+</body>
+</html>

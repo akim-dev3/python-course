@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generated_at": "2026-09-14T05:52:12+00:00",
+ "generated_at": "2026-09-14T05:53:54+00:00",
  "runtime": {
   "pyodide_version": "314.0.6",
   "index_url": "https://cdn.jsdelivr.net/pyodide/v314.0.6/full/",
@@ -46,7 +46,11 @@
    "theory": [
     "m3-dict",
     "m3-pitfalls",
-    "ref-dict"
+    "ref-dict",
+    "proj-nested",
+    "proj-orders",
+    "proj-students",
+    "proj-final"
    ]
   },
   {
@@ -212,6 +216,50 @@
    "kind": "reference",
    "modules": [
     "m06"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  },
+  {
+   "id": "proj-nested",
+   "title": "Проект — вложенные структуры и build_report",
+   "href": "theory/proj-nested.html",
+   "kind": "reference",
+   "modules": [
+    "m03"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  },
+  {
+   "id": "proj-orders",
+   "title": "Мини-проект 1 — аналитика заказов",
+   "href": "theory/proj-orders.html",
+   "kind": "reference",
+   "modules": [
+    "m03"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  },
+  {
+   "id": "proj-students",
+   "title": "Мини-проект 2 — аналитика студентов",
+   "href": "theory/proj-students.html",
+   "kind": "reference",
+   "modules": [
+    "m03"
+   ],
+   "images": 0,
+   "has_mermaid": false
+  },
+  {
+   "id": "proj-final",
+   "title": "Мини-проект 3 — финальный, с нуля",
+   "href": "theory/proj-final.html",
+   "kind": "reference",
+   "modules": [
+    "m03"
    ],
    "images": 0,
    "has_mermaid": false

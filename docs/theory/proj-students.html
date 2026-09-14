@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Мини-проект 2 — аналитика студентов — Python-курс</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../pygments.css">
+<link rel="stylesheet" href="../theory.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html#/">Python-курс</a>
+  <span class="crumbs">Теория › Мини-проект 2 — аналитика студентов</span>
+  <a class="btn btn--ghost" href="../index.html#/">К задачам</a>
+</header>
+<main class="wrap theory">
+<h1>Мини-проект 2 — аналитика студентов</h1>
+
+<p class="muted">Файл курса <code>projects/mp_students.py</code> — открывается и запускается локально.</p><div class="codehilite"><pre><span></span><span class="c1"># ============================================================</span>
+<span class="c1"># МИНИ-ПРОЕКТ 2: Аналитика студентов</span>
+<span class="c1"># build_report(data) → dict с 8 полями</span>
+<span class="c1"># Пишешь сам, без черновика</span>
+<span class="c1"># ============================================================</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;students&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Ivan&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;grade&quot;</span><span class="p">:</span> <span class="s2">&quot;senior&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;courses&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;math&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;physics&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;history&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">78</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Anna&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;grade&quot;</span><span class="p">:</span> <span class="s2">&quot;junior&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;courses&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;math&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">72</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;biology&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">58</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;history&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Oleg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;grade&quot;</span><span class="p">:</span> <span class="s2">&quot;junior&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;courses&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;math&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;physics&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Mila&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;grade&quot;</span><span class="p">:</span> <span class="s2">&quot;senior&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;courses&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;biology&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">95</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;history&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">88</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;math&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">82</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Petr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;grade&quot;</span><span class="p">:</span> <span class="s2">&quot;junior&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;courses&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;physics&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">70</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;math&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dina&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;grade&quot;</span><span class="p">:</span> <span class="s2">&quot;senior&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;courses&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;history&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">91</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;biology&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">87</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Mark&quot;</span><span class="p">,</span> <span class="s2">&quot;grade&quot;</span><span class="p">:</span> <span class="s2">&quot;junior&quot;</span><span class="p">,</span> <span class="s2">&quot;courses&quot;</span><span class="p">:</span> <span class="p">[]},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Olga&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;grade&quot;</span><span class="p">:</span> <span class="s2">&quot;senior&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;courses&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;math&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">88</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;physics&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">76</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;biology&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">62</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+
+<span class="c1"># ------------------------------------------------------------</span>
+<span class="c1"># build_report(data) → dict</span>
+<span class="c1">#</span>
+<span class="c1"># total_students   int    — всего студентов</span>
+<span class="c1"># total_courses    int    — суммарное количество курсов</span>
+<span class="c1"># pass_rate        float  — доля пройденных курсов (0.0–1.0, округли до 2)</span>
+<span class="c1"># top_student      str    — студент с наивысшим средним баллом</span>
+<span class="c1"># failing          list   — имена студентов с хотя бы одним failed курсом</span>
+<span class="c1"># avg_by_course    dict   — {course: avg_score} по всем студентам (округли до 2)</span>
+<span class="c1"># honor_roll       list   — имена студентов у которых ВСЕ курсы passed,</span>
+<span class="c1">#                           отсортированные по имени (студентов без курсов не включать)</span>
+<span class="c1"># grade_counts     dict   — {grade: количество студентов}</span>
+<span class="c1">#</span>
+<span class="c1"># Ожидаемый вывод:</span>
+<span class="c1"># total_students  → 8</span>
+<span class="c1"># total_courses   → 18</span>
+<span class="c1"># pass_rate       → 0.72  (13 passed из 18)</span>
+<span class="c1"># top_student     → &quot;Dina&quot;  (avg: 89.0)</span>
+<span class="c1"># failing         → [&quot;Anna&quot;, &quot;Oleg&quot;, &quot;Petr&quot;, &quot;Olga&quot;]</span>
+<span class="c1"># avg_by_course   → {&quot;math&quot;: 72.0, &quot;physics&quot;: 72.75, &quot;history&quot;: 84.25, &quot;biology&quot;: 75.5}</span>
+<span class="c1"># honor_roll      → [&quot;Dina&quot;, &quot;Ivan&quot;, &quot;Mila&quot;]</span>
+<span class="c1"># grade_counts    → {&quot;senior&quot;: 4, &quot;junior&quot;: 4}</span>
+<span class="c1"># ------------------------------------------------------------</span>
+
+
+<span class="c1">#! 1</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">total_students</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+
+<span class="c1">#! 2</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">total_courses</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">student</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;courses&quot;</span><span class="p">,</span> <span class="p">[]))</span> <span class="k">for</span> <span class="n">student</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span>
+
+
+<span class="c1">#! 3</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">pass_rate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">total_passed</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">all_courses</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">student</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">course</span> <span class="ow">in</span> <span class="n">student</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;courses&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">all_courses</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">course</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;passed&quot;</span><span class="p">):</span>
+                <span class="n">total_passed</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">all_courses</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">total_passed</span> <span class="o">/</span> <span class="n">all_courses</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+
+<span class="c1">#! 4</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">top_student</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">best_avg</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">best_student_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">for</span> <span class="n">student</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">courses</span> <span class="o">=</span> <span class="n">student</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;courses&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">courses</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="n">course</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">course</span> <span class="ow">in</span> <span class="n">courses</span><span class="p">]</span>
+        <span class="n">avg_student</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">avg_student</span> <span class="o">&gt;</span> <span class="n">best_avg</span><span class="p">:</span>
+            <span class="n">best_avg</span> <span class="o">=</span> <span class="n">avg_student</span>
+            <span class="n">best_student_name</span> <span class="o">=</span> <span class="n">student</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">best_student_name</span>
+
+
+<span class="c1">#! 5</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">failing</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">student</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">student</span> <span class="ow">in</span> <span class="n">data</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">course</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;passed&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">course</span> <span class="ow">in</span> <span class="n">student</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;courses&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="p">]</span>
+
+
+<span class="c1">#! 6</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">avg_by_course</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">course_scores</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">student</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">course</span> <span class="ow">in</span> <span class="n">student</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;courses&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">course</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">course</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">course_scores</span><span class="p">:</span>
+                <span class="n">course_scores</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">course_scores</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+
+    <span class="n">avg_courses</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">scores</span> <span class="ow">in</span> <span class="n">course_scores</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">avg_courses</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">avg_courses</span>
+
+
+<span class="c1">#! 7</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">honor_roll</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">student</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">courses</span> <span class="o">=</span> <span class="n">student</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;courses&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">courses</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">course</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;passed&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">course</span> <span class="ow">in</span> <span class="n">courses</span><span class="p">):</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">student</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+
+<span class="c1">#! 8</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">grade_counts</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">students_res</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">student</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">grade</span> <span class="o">=</span> <span class="n">student</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;grade&quot;</span><span class="p">)</span>
+        <span class="n">students_res</span><span class="p">[</span><span class="n">grade</span><span class="p">]</span> <span class="o">=</span> <span class="n">students_res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">grade</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">students_res</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_report</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;students&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;total_students&quot;</span><span class="p">:</span> <span class="n">total_students</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;total_courses&quot;</span><span class="p">:</span> <span class="n">total_courses</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;pass_rate&quot;</span><span class="p">:</span> <span class="n">pass_rate</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;top_student&quot;</span><span class="p">:</span> <span class="n">top_student</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;failing&quot;</span><span class="p">:</span> <span class="n">failing</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;avg_by_course&quot;</span><span class="p">:</span> <span class="n">avg_by_course</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;honor_roll&quot;</span><span class="p">:</span> <span class="n">honor_roll</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;grade_counts&quot;</span><span class="p">:</span> <span class="n">grade_counts</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+    <span class="p">}</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="n">build_report</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+</pre></div>
+
+<div class="theory-footer"><div class="panel__title">Задачи по этой теме</div><a href="../index.html#/l/m03-d1">Дриллы dict — 20 задач</a> · <a href="../index.html#/l/m03-d2">Закрепление слабых точек</a> · <a href="../index.html#/l/m03-p1">P1: COUNT и SUM</a> · <a href="../index.html#/l/m03-p2">P2: FILTER и SORTED</a> · <a href="../index.html#/l/m03-p3">P3: GROUP BY</a> · <a href="../index.html#/l/m03-p4">P4: AVG, TOP N и MAX</a> · <a href="../index.html#/l/m03-p5">P5: вложенные структуры</a></div>
+</main>
+
+</body>
+</html>

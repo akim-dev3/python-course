@@ -485,7 +485,9 @@ document.addEventListener("storage-full", () => {
 
 async function main() {
   try {
-    CONTENT = await (await fetch("./content.json")).json();
+    // no-cache, а не default: content.json меняется на каждой пересборке,
+    // и без ревалидации браузер показывал бы прошлую версию курса.
+    CONTENT = await (await fetch("./content.json", { cache: "no-cache" })).json();
   } catch (e) {
     render(`<div class="banner banner--error">Не удалось загрузить content.json: ${esc(e.message)}</div>`);
     return;

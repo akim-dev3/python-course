@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Мини-проект 1 — аналитика заказов — Python-курс</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../pygments.css">
+<link rel="stylesheet" href="../theory.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html#/">Python-курс</a>
+  <span class="crumbs">Теория › Мини-проект 1 — аналитика заказов</span>
+  <a class="btn btn--ghost" href="../index.html#/">К задачам</a>
+</header>
+<main class="wrap theory">
+<h1>Мини-проект 1 — аналитика заказов</h1>
+
+<p class="muted">Файл курса <code>projects/mp_orders.py</code> — открывается и запускается локально.</p><div class="codehilite"><pre><span></span><span class="c1"># ============================================================</span>
+<span class="c1"># МИНИ-ПРОЕКТ: Аналитика заказов</span>
+<span class="c1"># Открывается после 02_nested</span>
+<span class="c1"># ============================================================</span>
+<span class="c1"># ТЗ — финальная версия build_report из drills/02_nested/tasks.py</span>
+<span class="c1"># Здесь пишешь чистый итоговый код без черновиков</span>
+<span class="c1"># ============================================================</span>
+
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;orders&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;Ivan&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;paid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;apple&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;milk&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;Anna&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;paid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;banana&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;apple&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;Mila&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;pending&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;milk&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;Ivan&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;paid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;banana&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;cheese&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;Oleg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;cancelled&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;apple&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+            <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;Anna&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;paid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;cheese&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;milk&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;Petr&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;pending&quot;</span><span class="p">,</span> <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[]},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;Mila&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;paid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;apple&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;banana&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+            <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;Oleg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;paid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;milk&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;Petr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;paid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;cheese&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="s2">&quot;banana&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+
+<span class="c1"># ------------------------------------------------------------</span>
+<span class="c1"># Ожидаемый вывод build_report:</span>
+<span class="c1">#</span>
+<span class="c1"># total_orders     → 10</span>
+<span class="c1"># total_items_sold → 50</span>
+<span class="c1"># total_revenue    → 1600</span>
+<span class="c1"># top_product      → &quot;banana&quot;</span>
+<span class="c1"># user_spent       → {&quot;Ivan&quot;: 510, &quot;Anna&quot;: 570, &quot;Mila&quot;: 95, &quot;Oleg&quot;: 120, &quot;Petr&quot;: 305}</span>
+<span class="c1"># big_orders       → [2, 4, 8, 10]</span>
+<span class="c1"># avg_order_value  → 228.57</span>
+<span class="c1"># top_user         → &quot;Anna&quot;</span>
+<span class="c1"># ------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">total_orders</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">total_items_sold</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[])]</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">total_revenue</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;paid&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+                <span class="n">paid_revenue</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">total</span> <span class="o">+=</span> <span class="n">paid_revenue</span>
+    <span class="k">return</span> <span class="n">total</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">top_product</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">total_products</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">product</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product&quot;</span><span class="p">)</span>
+            <span class="n">qty</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">total_products</span><span class="p">[</span><span class="n">product</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_products</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">qty</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">total_products</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">total_products</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">total_products</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">user_spent</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">spent_users</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;paid&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+
+                <span class="n">paid_total</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">spent_users</span><span class="p">[</span><span class="n">user</span><span class="p">]</span> <span class="o">=</span> <span class="n">spent_users</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">paid_total</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">spent_users</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">spent_users</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">big_orders</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">order</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">data</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">5</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">avg_order_value</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">paid</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;paid&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">paid</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">paid</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">total</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">paid</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">top_user</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">dict_user</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;paid&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">order</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;items&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+
+                <span class="n">paid_total</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">dict_user</span><span class="p">[</span><span class="n">user</span><span class="p">]</span> <span class="o">=</span> <span class="n">dict_user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">paid_total</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dict_user</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">dict_user</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">dict_user</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_report</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;orders&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;total_orders&quot;</span><span class="p">:</span> <span class="n">total_orders</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;total_items_sold&quot;</span><span class="p">:</span> <span class="n">total_items_sold</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;total_revenue&quot;</span><span class="p">:</span> <span class="n">total_revenue</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;top_product&quot;</span><span class="p">:</span> <span class="n">top_product</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;user_spent&quot;</span><span class="p">:</span> <span class="n">user_spent</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;big_orders&quot;</span><span class="p">:</span> <span class="n">big_orders</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;avg_order_value&quot;</span><span class="p">:</span> <span class="n">avg_order_value</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="s2">&quot;top_user&quot;</span><span class="p">:</span> <span class="n">top_user</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+    <span class="p">}</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="n">build_report</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+</pre></div>
+
+<div class="theory-footer"><div class="panel__title">Задачи по этой теме</div><a href="../index.html#/l/m03-d1">Дриллы dict — 20 задач</a> · <a href="../index.html#/l/m03-d2">Закрепление слабых точек</a> · <a href="../index.html#/l/m03-p1">P1: COUNT и SUM</a> · <a href="../index.html#/l/m03-p2">P2: FILTER и SORTED</a> · <a href="../index.html#/l/m03-p3">P3: GROUP BY</a> · <a href="../index.html#/l/m03-p4">P4: AVG, TOP N и MAX</a> · <a href="../index.html#/l/m03-p5">P5: вложенные структуры</a></div>
+</main>
+
+</body>
+</html>
