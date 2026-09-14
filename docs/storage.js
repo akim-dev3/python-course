@@ -118,6 +118,18 @@ class Store {
     save(K_UI, this.ui);
   }
 
+  /** Снимок для синхронизации. */
+  snapshot() {
+    return { code: this.code, status: this.status };
+  }
+
+  /** Применить результат слияния с удалённой копией. */
+  applyMerged(merged) {
+    this.code = merged.code || {};
+    this.status = merged.status || {};
+    this.flush();
+  }
+
   exportJSON() {
     return JSON.stringify(
       { version: 1, exported: new Date().toISOString(), code: this.code, status: this.status },
