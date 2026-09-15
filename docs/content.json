@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generated_at": "2026-09-14T13:04:08+00:00",
+ "generated_at": "2026-09-15T16:52:13+00:00",
  "runtime": {
   "pyodide_version": "314.0.6",
   "index_url": "https://cdn.jsdelivr.net/pyodide/v314.0.6/full/",
@@ -564,7 +564,7 @@
    "title": "Дриллы dict — 20 задач",
    "source_file": "drills/01_dict/tasks.py",
    "intro_html": "<p>DICT DRILLS — тренировка паттернов до автоматизма\nПеред каждой задачей:\n  1. Что на входе, что на выходе (тип)\n  2. Назови паттерн\n  3. Пиши код</p>",
-   "prelude": "users = [\n    {\"name\": \"Ivan\", \"age\": 25, \"city\": \"Moscow\", \"active\": True, \"score\": 85},\n    {\"name\": \"Anna\", \"age\": 17, \"city\": \"Moscow\", \"active\": True, \"score\": 92},\n    {\"name\": \"Oleg\", \"age\": 30, \"city\": \"Kazan\", \"active\": False, \"score\": 60},\n    {\"name\": \"Mila\", \"age\": 15, \"city\": \"Kazan\", \"active\": True, \"score\": 78},\n    {\"name\": \"Petr\", \"age\": 22, \"city\": \"Moscow\", \"active\": False, \"score\": 55},\n]",
+   "prelude": "users = [\n    {\"name\": \"Ivan\", \"age\": 25, \"city\": \"Moscow\", \"active\": True, \"score\": 85},\n    {\"name\": \"Anna\", \"age\": 17, \"city\": \"Moscow\", \"active\": True, \"score\": 92},\n    {\"name\": \"Oleg\", \"age\": 30, \"city\": \"Kazan\", \"active\": False, \"score\": 60},\n    {\"name\": \"Mila\", \"age\": 15, \"city\": \"Kazan\", \"active\": True, \"score\": 78},\n    {\"name\": \"Petr\", \"age\": 22, \"city\": \"Moscow\", \"active\": False, \"score\": 55},\n]\norders = [\n    {\"id\": 1, \"user\": \"Ivan\", \"category\": \"food\", \"amount\": 1500, \"paid\": True},\n    {\"id\": 2, \"user\": \"Anna\", \"category\": \"electronics\", \"amount\": 8000, \"paid\": True},\n    {\"id\": 3, \"user\": \"Ivan\", \"category\": \"electronics\", \"amount\": 3000, \"paid\": False},\n    {\"id\": 4, \"user\": \"Mila\", \"category\": \"food\", \"amount\": 500, \"paid\": True},\n    {\"id\": 5, \"user\": \"Anna\", \"category\": \"food\", \"amount\": 700, \"paid\": True},\n    {\"id\": 6, \"user\": \"Oleg\", \"category\": \"electronics\", \"amount\": 5000, \"paid\": False},\n    {\"id\": 7, \"user\": \"Mila\", \"category\": \"electronics\", \"amount\": 2000, \"paid\": True},\n]\nemployees = [\n    {\"name\": \"Ivan\", \"dept\": \"dev\", \"salary\": 120000, \"senior\": True},\n    {\"name\": \"Anna\", \"dept\": \"dev\", \"salary\": 95000, \"senior\": False},\n    {\"name\": \"Oleg\", \"dept\": \"hr\", \"salary\": 70000, \"senior\": False},\n    {\"name\": \"Mila\", \"dept\": \"dev\", \"salary\": 140000, \"senior\": True},\n    {\"name\": \"Petr\", \"dept\": \"hr\", \"salary\": 85000, \"senior\": True},\n    {\"name\": \"Dima\", \"dept\": \"dev\", \"salary\": 60000, \"senior\": False},\n    {\"name\": \"Olga\", \"dept\": \"hr\", \"salary\": 90000, \"senior\": True},\n]",
    "segments": [
     {
      "t": "raw",
@@ -912,7 +912,7 @@
      "starter_code": "def top_active_users(users):\n    # dict, list, GROUP BY + FILTER + SORTED\n    pass\n",
      "reference_solution": "def top_active_users(users):\n    # dict, list, GROUP BY + FILTER + SORTED\n    active = [u for u in users if u.get(\"active\")]\n    return [\n        u[\"name\"] for u in sorted(active, key=lambda x: x.get(\"score\", 0), reverse=True)\n    ]\n",
      "solved_in_repo": true,
-     "test_source": "check(top_active_users(users), [\"Anna\", \"Ivan\", \"Mila\"], \"top_active_users\")\norders = [\n    {\"id\": 1, \"user\": \"Ivan\", \"category\": \"food\", \"amount\": 1500, \"paid\": True},\n    {\"id\": 2, \"user\": \"Anna\", \"category\": \"electronics\", \"amount\": 8000, \"paid\": True},\n    {\"id\": 3, \"user\": \"Ivan\", \"category\": \"electronics\", \"amount\": 3000, \"paid\": False},\n    {\"id\": 4, \"user\": \"Mila\", \"category\": \"food\", \"amount\": 500, \"paid\": True},\n    {\"id\": 5, \"user\": \"Anna\", \"category\": \"food\", \"amount\": 700, \"paid\": True},\n    {\"id\": 6, \"user\": \"Oleg\", \"category\": \"electronics\", \"amount\": 5000, \"paid\": False},\n    {\"id\": 7, \"user\": \"Mila\", \"category\": \"electronics\", \"amount\": 2000, \"paid\": True},\n]",
+     "test_source": "check(top_active_users(users), [\"Anna\", \"Ivan\", \"Mila\"], \"top_active_users\")",
      "has_own_tests": true,
      "expected_checks": 1,
      "needs": [
@@ -1059,7 +1059,7 @@
      "starter_code": "def user_order_counts(orders):\n    pass\n",
      "reference_solution": "def user_order_counts(orders):\n    sorted_users = {}\n    for o in orders:\n        user = o.get(\"user\")\n        sorted_users[user] = sorted_users.get(user, 0) + 1\n    return sorted(sorted_users.items(), key=lambda x: x[1], reverse=True)\n",
      "solved_in_repo": true,
-     "test_source": "check(user_order_counts(orders), [(\"Ivan\", 2), (\"Anna\", 2), (\"Mila\", 2), (\"Oleg\", 1)], \"user_order_counts\")\nemployees = [\n    {\"name\": \"Ivan\", \"dept\": \"dev\", \"salary\": 120000, \"senior\": True},\n    {\"name\": \"Anna\", \"dept\": \"dev\", \"salary\": 95000, \"senior\": False},\n    {\"name\": \"Oleg\", \"dept\": \"hr\", \"salary\": 70000, \"senior\": False},\n    {\"name\": \"Mila\", \"dept\": \"dev\", \"salary\": 140000, \"senior\": True},\n    {\"name\": \"Petr\", \"dept\": \"hr\", \"salary\": 85000, \"senior\": True},\n    {\"name\": \"Dima\", \"dept\": \"dev\", \"salary\": 60000, \"senior\": False},\n    {\"name\": \"Olga\", \"dept\": \"hr\", \"salary\": 90000, \"senior\": True},\n]",
+     "test_source": "check(user_order_counts(orders), [(\"Ivan\", 2), (\"Anna\", 2), (\"Mila\", 2), (\"Oleg\", 1)], \"user_order_counts\")",
      "has_own_tests": true,
      "expected_checks": 1,
      "needs": [

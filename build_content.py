@@ -383,18 +383,60 @@ def parse_check_file(path, lesson):
         inside = [n for n in tree.body
                   if n.lineno > close_i and n.end_lineno < stop]
 
-        slot_nodes, rest = [], []
+        slot_nodes, after_slot = [], []
         for n in inside:
             if isinstance(n, ast.FunctionDef) and n.name == "check":
                 continue                     # обвязка: ни в решение, ни в тесты
-            if is_def(n) and not rest:
+            if is_def(n) and not after_slot:
                 slot_nodes.append(n)
             elif not slot_nodes:
                 continue                     # данные до функции — уедут в prelude
             else:
-                rest.append(n)
+                after_slot.append(n)
         if not slot_nodes:
             continue                    # блок без функции — не задача
+
+        # После check()-вызовов задачи иногда идёт НОВЫЙ блок данных для
+        # следующих задач («РАУНД 2 — новые данные» в 01_dict/tasks.py:
+        # orders/employees после check() предыдущей). Без разбора он молча
+        # прилипал бы к тестам этой задачи и никогда не попадал в prelude —
+        # следующие задачи проверялись бы данными, которых нет на странице.
+        #
+        # Отличаем присваивание-данные от присваивания-подготовки теста
+        # (`st = MinStack()` перед check(st...), `result = f(...)` перед
+        # `check(normalize(result), ...)`) по использованию, транзитивно:
+        # `a.next = b` мутирует существующий объект — это никогда не новые
+        # данные, и имена в нём (a, b) сразу считаются нужными; простое
+        # `x = ...` нужно, только если x (само или через цепочку других
+        # нужных присваиваний) в итоге доходит до вызова check().
+        def load_names(node):
+            return {s.id for s in ast.walk(node)
+                    if isinstance(s, ast.Name) and isinstance(s.ctx, ast.Load)}
+
+        simple_assigns, used_names = [], set()
+        for n in after_slot:
+            if isinstance(n, ast.Assign) and all(isinstance(t, ast.Name) for t in n.targets):
+                simple_assigns.append((n, {t.id for t in n.targets}))
+            else:
+                used_names |= load_names(n)   # не-присваивание или мутация — точно нужно
+
+        changed = True
+        while changed:
+            changed = False
+            for n, targets in simple_assigns:
+                if targets & used_names:
+                    added = load_names(n.value) - used_names
+                    if added:
+                        used_names |= added
+                        changed = True
+
+        rest = []
+        for n in after_slot:
+            if isinstance(n, ast.Assign) and all(isinstance(t, ast.Name) for t in n.targets):
+                if not ({t.id for t in n.targets} & used_names):
+                    continue              # новые данные — уедут в prelude
+            rest.append(n)
+
         regions.append({"open": open_i, "close": close_i,
                         "slot": slot_nodes, "tests": rest})
 
